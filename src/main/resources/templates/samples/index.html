@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/header :: header">...</div>
+
+<div class="container">
+    <h1>Samples</h1>
+    <!--@thymesVar id="samples" type="Sample"-->
+    <table>
+        <tr th:each="sample : ${samples}">
+            <td th:text="${sample.id}">1</td>
+            <td><a href="#" th:text="${sample.barcode}">Title ...</a></td>
+            <td th:text="${sample.type.name}">Text ...</td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
