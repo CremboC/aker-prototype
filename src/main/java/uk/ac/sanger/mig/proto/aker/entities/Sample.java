@@ -1,10 +1,14 @@
 package uk.ac.sanger.mig.proto.aker.entities;
 
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 /**
@@ -18,18 +22,25 @@ public class Sample {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
+	@ManyToOne(optional = false)
+	private Type type;
+
 	@Column(nullable = false, unique = true)
 	private String barcode;
 
-	@ManyToOne(optional = false)
-	private SampleType type;
+	@ManyToMany(fetch = FetchType.EAGER)
+	private Collection<Label> label;
 
 	public long getId() {
 		return id;
 	}
 
-	public SampleType getType() {
+	public Type getType() {
 		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	public String getBarcode() {
@@ -40,8 +51,12 @@ public class Sample {
 		this.barcode = barcode;
 	}
 
-	public void setType(SampleType type) {
-		this.type = type;
+	public Collection<Label> getLabel() {
+		return label;
+	}
+
+	public void setLabel(Collection<Label> label) {
+		this.label = label;
 	}
 
 	@Override

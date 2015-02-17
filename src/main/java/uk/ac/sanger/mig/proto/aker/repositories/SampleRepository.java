@@ -14,6 +14,8 @@ import uk.ac.sanger.mig.proto.aker.entities.Sample;
 @Repository
 public interface SampleRepository extends CrudRepository<Sample, Long> {
 
+	public Sample findOneByBarcode(String barcode);
+
 	public List<Sample> findByBarcode(String barcode);
 
 	public List<Sample> findByTypeId(long id);

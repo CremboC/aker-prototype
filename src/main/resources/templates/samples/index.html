@@ -8,11 +8,28 @@
 <div class="container">
     <h1>Samples</h1>
     <!--@thymesVar id="samples" type="Sample"-->
-    <table>
+    <table class="table table-striped">
+        <tr>
+            <th>
+                #
+            </th>
+            <th>
+                Barcode
+            </th>
+            <th>
+                Type name
+            </th>
+        </tr>
         <tr th:each="sample : ${samples}">
-            <td th:text="${sample.id}">1</td>
-            <td><a href="#" th:text="${sample.barcode}">Title ...</a></td>
-            <td th:text="${sample.type.name}">Text ...</td>
+            <td th:text="${sample.id}">
+                1
+            </td>
+            <td>
+                <a href="#" th:text="${sample.barcode}">Title ...</a>
+            </td>
+            <td th:text="${sample.type.name.toUpperCase()}">
+                Text ...
+            </td>
         </tr>
     </table>
 </div>

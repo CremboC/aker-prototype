@@ -1,20 +1,17 @@
 package uk.ac.sanger.mig.proto.aker.entities;
 
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 /**
  * @author pi1
  * @since February 2015
  */
 @Entity
-public class SampleType {
+public class Type {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,10 +20,6 @@ public class SampleType {
 	@Column(unique = true, nullable = false)
 	private String name;
 
-
-	@OneToMany
-	private Set<Sample> samples;
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -34,7 +27,7 @@ public class SampleType {
 		if (o == null || getClass() != o.getClass())
 			return false;
 
-		SampleType that = (SampleType) o;
+		Type that = (Type) o;
 
 		if (id != that.id)
 			return false;

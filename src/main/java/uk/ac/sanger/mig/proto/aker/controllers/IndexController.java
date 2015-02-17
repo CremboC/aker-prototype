@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @since February 2015
  */
 @Controller
-public class IndexController {
+public class IndexController extends BaseController {
 
 	@RequestMapping("/")
 	public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name,

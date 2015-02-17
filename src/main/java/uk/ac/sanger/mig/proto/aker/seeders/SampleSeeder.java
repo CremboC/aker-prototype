@@ -1,14 +1,15 @@
 package uk.ac.sanger.mig.proto.aker.seeders;
 
-import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.sanger.mig.proto.aker.entities.Sample;
-import uk.ac.sanger.mig.proto.aker.entities.SampleType;
+import uk.ac.sanger.mig.proto.aker.entities.Type;
 import uk.ac.sanger.mig.proto.aker.repositories.SampleRepository;
-import uk.ac.sanger.mig.proto.aker.repositories.SampleTypeRepository;
+import uk.ac.sanger.mig.proto.aker.repositories.TypeRepository;
 
 /**
  * @author pi1
@@ -21,28 +22,39 @@ public class SampleSeeder {
 	private SampleRepository sampleRepository;
 
 	@Autowired
-	private SampleTypeRepository sampleTypeRepository;
+	private TypeRepository typeRepository;
 
-	@PostConstruct
-	private void seed() {
+	/**
+	 * Seed database with test data
+	 */
+	public void seed() {
 
-		sampleRepository.deleteAll();
-		sampleTypeRepository.deleteAll();
-
-		SampleType blood = new SampleType();
+		Type blood = new Type();
 		blood.setName("blood");
 
-		SampleType dna = new SampleType();
+		Type dna = new Type();
 		dna.setName("dna");
 
-		Sample s = new Sample();
-		s.setBarcode("WTSI00001");
-		s.setType(dna);
+		typeRepository.save(blood);
+		typeRepository.save(dna);
 
-		sampleTypeRepository.save(blood);
-		sampleTypeRepository.save(dna);
+		Sample s;
+		List<Sample> ss = new ArrayList<Sample>();
+		for (int i = 0; i < 10; i++) {
+			s = new Sample();
+			s.setBarcode("WTSI0000" + i);
+			s.setType(dna);
 
-		sampleRepository.save(s);
+			ss.add(s);
+		}
+		for (int i = 10; i < 20; i++) {
+			s = new Sample();
+			s.setBarcode("WTSI0000" + i);
+			s.setType(blood);
+
+			ss.add(s);
+		}
+		sampleRepository.save(ss);
 	}
 
 }
