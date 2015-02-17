@@ -39,3 +39,6 @@ crashlytics.properties
 crashlytics-build.properties
 
 debug.log
+
+.DS_Store
+target/
