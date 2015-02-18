@@ -3,10 +3,7 @@ package uk.ac.sanger.mig.proto.aker.entities;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -14,19 +11,15 @@ import javax.persistence.Table;
  * @since February 2015
  */
 @Entity
-@Table(name = "labels")
-public class Label {
+@Table(name = "users")
+public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue
 	private long id;
 
-	@Column(unique = false, nullable = false)
+	@Column
 	private String name;
-
-	@ManyToOne
-	@JoinColumn(name = "sample_id")
-	private Sample sample;
 
 	public long getId() {
 		return id;
@@ -42,13 +35,5 @@ public class Label {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Sample getSample() {
-		return sample;
-	}
-
-	public void setSample(Sample sample) {
-		this.sample = sample;
 	}
 }

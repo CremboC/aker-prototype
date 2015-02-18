@@ -17,7 +17,13 @@
                 Barcode
             </th>
             <th>
+                Labels
+            </th>
+            <th>
                 Type name
+            </th>
+            <th>
+                Status
             </th>
         </tr>
         <tr th:each="sample : ${samples}">
@@ -27,8 +33,16 @@
             <td>
                 <a href="#" th:text="${sample.barcode}">Title ...</a>
             </td>
+            <td>
+                <span th:each="label : ${sample.labels}">
+                    <span th:text="${label.name}"> ... </span>
+                </span>
+            </td>
             <td th:text="${sample.type.name.toUpperCase()}">
                 Text ...
+            </td>
+            <td th:text="${sample.status.value}">
+                Status ...
             </td>
         </tr>
     </table>

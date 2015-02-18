@@ -5,12 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * @author pi1
  * @since February 2015
  */
 @Entity
+@Table(name = "types")
 public class Type {
 
 	@Id

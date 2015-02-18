@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.sanger.mig.proto.aker.entities.Sample;
+import uk.ac.sanger.mig.proto.aker.entities.Status;
 import uk.ac.sanger.mig.proto.aker.entities.Type;
 import uk.ac.sanger.mig.proto.aker.repositories.SampleRepository;
+import uk.ac.sanger.mig.proto.aker.repositories.StatusRepository;
 import uk.ac.sanger.mig.proto.aker.repositories.TypeRepository;
 
 /**
@@ -24,10 +26,23 @@ public class SampleSeeder {
 	@Autowired
 	private TypeRepository typeRepository;
 
+	@Autowired
+	private StatusRepository statusRepository;
+
 	/**
 	 * Seed database with test data
 	 */
 	public void seed() {
+
+		Status pending = new Status();
+		pending.setValue("pending");
+
+		statusRepository.save(pending);
+
+		Status consumed = new Status();
+		consumed.setValue("consumed");
+
+		statusRepository.save(consumed);
 
 		Type blood = new Type();
 		blood.setName("blood");
@@ -39,11 +54,12 @@ public class SampleSeeder {
 		typeRepository.save(dna);
 
 		Sample s;
-		List<Sample> ss = new ArrayList<Sample>();
+		List<Sample> ss = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			s = new Sample();
 			s.setBarcode("WTSI0000" + i);
 			s.setType(dna);
+			s.setStatus(pending);
 
 			ss.add(s);
 		}
@@ -51,6 +67,7 @@ public class SampleSeeder {
 			s = new Sample();
 			s.setBarcode("WTSI0000" + i);
 			s.setType(blood);
+			s.setStatus(consumed);
 
 			ss.add(s);
 		}

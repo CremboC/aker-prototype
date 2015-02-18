@@ -1,21 +1,24 @@
 package uk.ac.sanger.mig.proto.aker.entities;
 
-import java.util.Collection;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * @author pi1
  * @since February 2015
  */
 @Entity
+@Table(name = "samples")
 public class Sample {
 
 	@Id
@@ -25,39 +28,20 @@ public class Sample {
 	@ManyToOne(optional = false)
 	private Type type;
 
+	@ManyToOne(optional = false)
+	private Status status;
+
+	@Column
+	private String name;
+
 	@Column(nullable = false, unique = true)
 	private String barcode;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	private Collection<Label> label;
+	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
+	private Set<Label> labels;
 
-	public long getId() {
-		return id;
-	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	public String getBarcode() {
-		return barcode;
-	}
-
-	public void setBarcode(String barcode) {
-		this.barcode = barcode;
-	}
-
-	public Collection<Label> getLabel() {
-		return label;
-	}
-
-	public void setLabel(Collection<Label> label) {
-		this.label = label;
-	}
+	@ManyToMany(mappedBy = "samples")
+	private Set<Group> groups;
 
 	@Override
 	public boolean equals(Object o) {
@@ -84,5 +68,57 @@ public class Sample {
 		result = 31 * result + (barcode != null ? barcode.hashCode() : 0);
 		result = 31 * result + (type != null ? type.hashCode() : 0);
 		return result;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	public String getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(String barcode) {
+		this.barcode = barcode;
+	}
+
+	public Set<Label> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Set<Label> labels) {
+		this.labels = labels;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Set<Group> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(Set<Group> groups) {
+		this.groups = groups;
 	}
 }
