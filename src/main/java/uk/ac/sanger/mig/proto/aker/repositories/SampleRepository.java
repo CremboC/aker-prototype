@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.proto.aker.repositories;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,7 @@ public interface SampleRepository extends CrudRepository<Sample, Long> {
 	public List<Sample> findByBarcode(String barcode);
 
 	public List<Sample> findByTypeId(long id);
+
+	@Query("select max(id) from Sample")
+	public int lastId();
 }

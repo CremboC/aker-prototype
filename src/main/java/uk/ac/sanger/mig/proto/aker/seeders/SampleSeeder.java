@@ -57,7 +57,8 @@ public class SampleSeeder {
 		List<Sample> ss = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			s = new Sample();
-			s.setBarcode("WTSI0000" + i);
+
+			s.setBarcode(s.createBarcode(i));
 			s.setType(dna);
 			s.setStatus(pending);
 
@@ -65,7 +66,8 @@ public class SampleSeeder {
 		}
 		for (int i = 10; i < 20; i++) {
 			s = new Sample();
-			s.setBarcode("WTSI0000" + i);
+
+			s.setBarcode(s.createBarcode(i));
 			s.setType(blood);
 			s.setStatus(consumed);
 

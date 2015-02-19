@@ -11,4 +11,5 @@ import uk.ac.sanger.mig.proto.aker.entities.Status;
  */
 @Repository
 public interface StatusRepository extends CrudRepository<Status, Long> {
+	Status findByValue(String value);
 }

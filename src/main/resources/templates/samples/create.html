@@ -6,7 +6,29 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <div class="container">
-    <h1>Sample Create</h1>
+
+    <div class="page-header">
+        <h1>Request Samples</h1>
+    </div>
+
+    <form th:action="@{/samples/store/}" th:object="${sampleRequest}" method="POST" role="form">
+
+        <div class="form-group">
+            <label for="amount">Amount of samples</label>
+            <input type="text" placeholder="Amount of samples..." id="amount"
+                   class="form-control" th:field="*{amount}"/>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Of Type</label>
+            <select id="type" class="form-control" th:field="*{type}">
+                <option th:each="type : ${types}" th:value="${type.id}" th:text="${type.name}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Request</button>
+    </form>
 </div>
 
 </body>

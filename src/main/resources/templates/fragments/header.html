@@ -20,19 +20,20 @@
             </div>
 
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active">
+                <ul class="nav navbar-nav" th:with="uri = ${#httpServletRequest.requestURI}">
+
+                    <li th:classappend="${uri == '/'} ? active ">
                         <a href="#" th:href="@{/}">Home</a>
                     </li>
-                    <li>
+                    <li th:classappend="${uri.startsWith('/samples/')} ? active ">
                         <a href="#" th:href="@{/samples/}">
                             Samples
                             <span class="badge">5</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#" th:href="@{/task}">Tasks</a>
-                    </li>
+                    <!--<li>-->
+                        <!--<a href="#" th:href="@{/task}">Tasks</a>-->
+                    <!--</li>-->
                 </ul>
             </div>
 

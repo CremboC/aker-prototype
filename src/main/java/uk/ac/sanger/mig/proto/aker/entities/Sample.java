@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author pi1
  * @since February 2015
@@ -20,6 +22,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "samples")
 public class Sample {
+
+	public final static int BARCODE_SIZE = 10;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -88,6 +92,10 @@ public class Sample {
 
 	public void setBarcode(String barcode) {
 		this.barcode = barcode;
+	}
+
+	public String createBarcode(long lastId) {
+		return "WTSI" + StringUtils.leftPad(String.valueOf(lastId), BARCODE_SIZE, '0');
 	}
 
 	public Set<Label> getLabels() {

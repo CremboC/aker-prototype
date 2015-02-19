@@ -6,8 +6,21 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <div class="container">
-    <h1>Samples</h1>
-    <!--@thymesVar id="samples" type="Sample"-->
+
+    <div class="clearfix">
+        <h1 class="pull-left">Samples</h1>
+
+        <div class="pull-right">
+            <div class="btn-group">
+                <a th:href="@{/samples/create/}" class="btn btn-primary">
+                    Request Samples
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!--@thymesVar id="samples" type="List<Sample>"-->
+    <!--@thymesVar id="sample" type="uk.ac.sanger.mig.proto.aker.entities.Sample"-->
     <table class="table table-striped">
         <tr>
             <th>
@@ -15,6 +28,9 @@
             </th>
             <th>
                 Barcode
+            </th>
+            <th>
+                Name
             </th>
             <th>
                 Labels
@@ -25,13 +41,19 @@
             <th>
                 Status
             </th>
+            <th>
+
+            </th>
         </tr>
         <tr th:each="sample : ${samples}">
             <td th:text="${sample.id}">
                 1
             </td>
             <td>
-                <a href="#" th:text="${sample.barcode}">Title ...</a>
+                <a th:href="@{/samples/show/{barcode}(barcode = ${sample.barcode})}" th:text="${sample.barcode}">Title
+                    ...</a>
+            </td>
+            <td th:text="${sample.name}">
             </td>
             <td>
                 <span th:each="label : ${sample.labels}">
@@ -43,6 +65,11 @@
             </td>
             <td th:text="${sample.status.value}">
                 Status ...
+            </td>
+            <td>
+                <a th:href="@{/samples/{barcode}/add-label/(barcode = ${sample.barcode})}" class="btn btn-primary">
+                    Add Label
+                </a>
             </td>
         </tr>
     </table>
