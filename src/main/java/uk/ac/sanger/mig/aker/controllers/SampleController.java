@@ -1,0 +1,126 @@
+package uk.ac.sanger.mig.aker.controllers;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import uk.ac.sanger.mig.aker.domain.Label;
+import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.repositories.LabelRepository;
+import uk.ac.sanger.mig.aker.repositories.SampleRepository;
+import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
+import uk.ac.sanger.mig.aker.services.SampleService;
+import uk.ac.sanger.mig.aker.services.TypeService;
+
+/**
+ * @author pi1
+ * @since February 2015
+ */
+@Controller
+@RequestMapping("/samples")
+public class SampleController extends BaseController {
+
+	@Autowired
+	private SampleRepository sampleRepository;
+
+	@Autowired
+	private LabelRepository labelRepository;
+
+	@Resource
+	private SampleService sampleService;
+
+	@Resource
+	private TypeService typeService;
+
+	@Autowired
+	private SampleSeeder seeder;
+
+	@PostConstruct
+	private void init() {
+		setTemplatePath("samples");
+	}
+
+	@RequestMapping("/seed")
+	@ResponseBody
+	public String seed() {
+		seeder.seed();
+		return "Done";
+	}
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String index() {
+		return view(Action.INDEX);
+	}
+
+	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public Page<Sample> json(Pageable p) {
+		return sampleRepository.findAll(p);
+	}
+
+	@RequestMapping("/show/{barcode}")
+	public String show(@PathVariable("barcode") String barcode, Model model) {
+		final List<Sample> byBarcode = sampleRepository.findByBarcode(barcode);
+		model.addAttribute("samples", byBarcode);
+
+		return view(Action.INDEX);
+	}
+
+	@RequestMapping("/{type}")
+	public String byType(@PathVariable("type") long typeId, Model model) {
+		final List<Sample> samples = sampleRepository.findByTypeId(typeId);
+		model.addAttribute("samples", samples);
+
+		return view(Action.INDEX);
+	}
+
+	@RequestMapping("/create")
+	public String create(Model model) {
+		model.addAttribute("types", typeService.findAll());
+		model.addAttribute("sampleRequest", new SampleRequest());
+
+		return view(Action.CREATE);
+	}
+
+	@RequestMapping(value = "/store", method = RequestMethod.POST)
+	public String store(@Valid @ModelAttribute SampleRequest request, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("types", typeService.findAll());
+			return view(Action.CREATE);
+		}
+
+		sampleService.createSamples(request);
+		return "redirect:/samples/";
+	}
+
+	@RequestMapping(value = "/{barcode}/add-label/")
+	public String addLabel(@PathVariable("barcode") String barcode) {
+		final Sample sample = sampleRepository.findOneByBarcode(barcode);
+
+		Label l = new Label();
+		l.setName("Added Label");
+		l.setSample(sample);
+
+		if (labelRepository.save(l) != null) {
+			return "redirect:/samples/?success";
+		}
+
+		return "redirect:/samples/?error";
+	}
+
+}

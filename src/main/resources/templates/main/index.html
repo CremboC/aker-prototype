@@ -6,9 +6,136 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <div class="container">
-    <p th:text="'Hello, ' + ${name} + '!'"></p>
-    I am reloaded. Again. Again.
+
+    <div class="clearfix">
+        <h3 class="pull-left">Samples</h3>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!--@thymesVar id="samples" type="List<Sample>"-->
+            <!--@thymesVar id="sample" type="Sample"-->
+            <table class="table table-striped" id="jqp-samples">
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Barcode
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Labels
+                    </th>
+                    <th>
+                        Type name
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+                <tr id="jqp-append-before-samples">
+                </tr>
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <a href="#" class="btn btn-default" id="jqp-load-more-samples">
+                            Load More Samples...
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-md-2">
+            <ul class="nav nav-pills nav-stacked">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Messages</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>
+        Groups
+    </h3>
+    <div class="row">
+        <div class="col-md-8">
+            <!--@thymesVar id="samples" type="List<Sample>"-->
+            <!--@thymesVar id="sample" type="Sample"-->
+            <table class="table table-striped" id="jqp-groups">
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Barcode
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Labels
+                    </th>
+                    <th>
+                        Type name
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+                <tr id="jqp-append-before-groups">
+                </tr>
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <a href="#" class="btn btn-default" id="jqp-load-more-groups">
+                            Load More Groups...
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
+
+<script id="sample-template" type="text/x-handlebars-template">
+    <tr>
+        <td>
+            {{ id }}
+        </td>
+        <td>
+            <a href="/samples/show/{{ barcode }}">
+                {{ barcode }}
+            </a>
+        </td>
+        <td>
+            {{ name }}
+        </td>
+        <td>
+
+        </td>
+        <td>
+            {{ type.name }}
+        </td>
+        <td>
+            {{ status.value }}
+        </td>
+        <td>
+            <a href="/samples/show/{{ barcode }}/add-label" class="btn btn-primary">
+                Add Label
+            </a>
+        </td>
+    </tr>
+</script>
+
+<div th:include="fragments/common :: foot"></div>
 
 </body>
 </html>

@@ -6,10 +6,12 @@
 <div th:replace="fragments/header :: header">...</div>
 
 <div class="container">
-    <!--@thymesVar id="request" type="uk.ac.sanger.mig.proto.aker.entities.SampleRequest"-->
+    <!--@thymesVar id="request" type="uk.ac.sanger.mig.aker.domain.SampleRequest"-->
     <p th:text="${request.amount}"></p>
     <p th:text="${request.type.name}"></p>
 </div>
+
+<div th:include="fragments/common :: foot"></div>
 
 </body>
 </html>

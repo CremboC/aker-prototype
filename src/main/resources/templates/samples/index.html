@@ -19,61 +19,87 @@
         </div>
     </div>
 
-    <!--@thymesVar id="samples" type="List<Sample>"-->
-    <!--@thymesVar id="sample" type="uk.ac.sanger.mig.proto.aker.entities.Sample"-->
-    <table class="table table-striped">
-        <tr>
-            <th>
-                #
-            </th>
-            <th>
-                Barcode
-            </th>
-            <th>
-                Name
-            </th>
-            <th>
-                Labels
-            </th>
-            <th>
-                Type name
-            </th>
-            <th>
-                Status
-            </th>
-            <th>
+    <div class="row">
+        <div class="col-md-8">
+            <!--@thymesVar id="samples" type="List<Sample>"-->
+            <!--@thymesVar id="sample" type="Sample"-->
+            <table class="table table-striped" id="jqp-samples">
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Barcode
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Labels
+                    </th>
+                    <th>
+                        Type name
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
 
-            </th>
-        </tr>
-        <tr th:each="sample : ${samples}">
-            <td th:text="${sample.id}">
-                1
-            </td>
-            <td>
-                <a th:href="@{/samples/show/{barcode}(barcode = ${sample.barcode})}" th:text="${sample.barcode}">Title
-                    ...</a>
-            </td>
-            <td th:text="${sample.name}">
-            </td>
-            <td>
-                <span th:each="label : ${sample.labels}">
-                    <span th:text="${label.name}"> ... </span>
-                </span>
-            </td>
-            <td th:text="${sample.type.name.toUpperCase()}">
-                Text ...
-            </td>
-            <td th:text="${sample.status.value}">
-                Status ...
-            </td>
-            <td>
-                <a th:href="@{/samples/{barcode}/add-label/(barcode = ${sample.barcode})}" class="btn btn-primary">
-                    Add Label
-                </a>
-            </td>
-        </tr>
-    </table>
+                    </th>
+                </tr>
+                <tr class="jqp-append-before">
+                </tr>
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <a href="#" class="btn btn-default jqp-load-more">
+                            Load More Samples...
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-md-2">
+            <ul class="nav nav-pills nav-stacked">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Messages</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
+
+<script id="sample-template" type="text/x-handlebars-template">
+    <tr>
+        <td>
+            {{ id }}
+        </td>
+        <td>
+            <a href="/samples/show/{{ barcode }}">
+                {{ barcode }}
+            </a>
+        </td>
+        <td>
+            {{ name }}
+        </td>
+        <td>
+
+        </td>
+        <td>
+            {{ type.name }}
+        </td>
+        <td>
+            {{ status.value }}
+        </td>
+        <td>
+            <a href="/samples/show/{{ barcode }}/add-label" class="btn btn-primary">
+                Add Label
+            </a>
+        </td>
+    </tr>
+</script>
+
+<div th:include="fragments/common :: foot"></div>
 
 </body>
 </html>
