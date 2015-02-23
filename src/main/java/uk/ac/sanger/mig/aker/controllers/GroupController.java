@@ -18,6 +18,7 @@ import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 @Controller
 @RequestMapping("/groups")
 public class GroupController {
+
 	@Autowired
 	private GroupRepository groupRepository;
 

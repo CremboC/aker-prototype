@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/header :: header">...</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h2>
+            Sample Overview
+            <small th:text="${sample.barcode}"></small>
+        </h2>
+    </div>
+
+    <div class="labels">
+        <h3>Also known as</h3>
+
+        <ul>
+            <li th:each="label : ${sample.labels}">
+                <span th:text="${label.name}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="barcode">
+        <h3>Barcode</h3>
+
+        <p th:text="${sample.barcode}"></p>
+    </div>
+
+    <div class="status">
+        <h3>Status</h3>
+
+        <p class="text-capitalize" th:text="${sample.status.value}"></p>
+    </div>
+
+    <div class="type">
+        <h3>Type</h3>
+
+        <p class="text-uppercase" th:text="${sample.type.name}"></p>
+    </div>
+
+    <div class="groups">
+        <h3>Groups</h3>
+    </div>
+
+</div>
+
+<div th:include="fragments/common :: foot"></div>
+
+</body>
+</html>

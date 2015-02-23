@@ -15,12 +15,10 @@ import uk.ac.sanger.mig.aker.domain.Sample;
 @Repository
 public interface SampleRepository extends PagingAndSortingRepository<Sample, Long> {
 
-	public Sample findOneByBarcode(String barcode);
-
-	public List<Sample> findByBarcode(String barcode);
+	public Sample findByBarcode(String barcode);
 
 	public List<Sample> findByTypeId(long id);
 
 	@Query("select max(id) from Sample")
-	public int lastId();
+	public Integer lastId();
 }

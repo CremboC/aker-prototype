@@ -38,3 +38,12 @@ nav {
     -webkit-animation: spin 1s infinite linear;
     -moz-animation: spin 1s infinite linear;
 }
+
+.table-selectable {
+    cursor: pointer;
+}
+
+.create-group-modal {
+    max-height: 300px;
+    overflow-y: scroll;
+}

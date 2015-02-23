@@ -15,19 +15,13 @@
         <div class="col-md-8">
             <!--@thymesVar id="samples" type="List<Sample>"-->
             <!--@thymesVar id="sample" type="Sample"-->
-            <table class="table table-striped" id="jqp-samples">
+            <table class="table table-striped table-condensed" id="jqp-samples">
                 <tr>
-                    <th>
-                        #
-                    </th>
                     <th>
                         Barcode
                     </th>
                     <th>
-                        Name
-                    </th>
-                    <th>
-                        Labels
+                        Main Label
                     </th>
                     <th>
                         Type name
@@ -36,7 +30,6 @@
                         Status
                     </th>
                     <th>
-
                     </th>
                 </tr>
                 <tr id="jqp-append-before-samples">
@@ -67,19 +60,13 @@
         <div class="col-md-8">
             <!--@thymesVar id="samples" type="List<Sample>"-->
             <!--@thymesVar id="sample" type="Sample"-->
-            <table class="table table-striped" id="jqp-groups">
+            <table class="table table-striped table-condensed" id="jqp-groups">
                 <tr>
-                    <th>
-                        #
-                    </th>
                     <th>
                         Barcode
                     </th>
                     <th>
                         Name
-                    </th>
-                    <th>
-                        Labels
                     </th>
                     <th>
                         Type name
@@ -88,12 +75,10 @@
                         Status
                     </th>
                     <th>
-
+                        Details..
                     </th>
                 </tr>
                 <tr id="jqp-append-before-groups">
-                </tr>
-                <tr>
                     <td colspan="7" class="text-center">
                         <a href="#" class="btn btn-default" id="jqp-load-more-groups">
                             Load More Groups...
@@ -108,18 +93,12 @@
 <script id="sample-template" type="text/x-handlebars-template">
     <tr>
         <td>
-            {{ id }}
-        </td>
-        <td>
             <a href="/samples/show/{{ barcode }}">
                 {{ barcode }}
             </a>
         </td>
         <td>
-            {{ name }}
-        </td>
-        <td>
-
+            {{ mainLabel.name }}
         </td>
         <td>
             {{ type.name }}
@@ -128,8 +107,9 @@
             {{ status.value }}
         </td>
         <td>
-            <a href="/samples/show/{{ barcode }}/add-label" class="btn btn-primary">
-                Add Label
+            <a href="/samples/show/{{ barcode }}/">
+                <span class="glyphicon glyphicon-eye-open"></span>
+                View
             </a>
         </td>
     </tr>

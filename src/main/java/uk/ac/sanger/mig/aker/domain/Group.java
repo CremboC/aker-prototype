@@ -86,7 +86,7 @@ public class Group {
 
 		if (id != group.id)
 			return false;
-		if (!name.equals(group.name))
+		if (name != null ? !name.equals(group.name) : group.name != null)
 			return false;
 
 		return true;
@@ -95,7 +95,7 @@ public class Group {
 	@Override
 	public int hashCode() {
 		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + name.hashCode();
+		result = 31 * result + (name != null ? name.hashCode() : 0);
 		return result;
 	}
 }

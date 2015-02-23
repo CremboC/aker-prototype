@@ -1,17 +1,15 @@
 package uk.ac.sanger.mig.aker.seeders;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import uk.ac.sanger.mig.aker.domain.Type;
-import uk.ac.sanger.mig.aker.repositories.StatusRepository;
-import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Status;
+import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
+import uk.ac.sanger.mig.aker.repositories.StatusRepository;
 import uk.ac.sanger.mig.aker.repositories.TypeRepository;
+import uk.ac.sanger.mig.aker.services.SampleService;
 
 /**
  * @author pi1
@@ -22,6 +20,9 @@ public class SampleSeeder {
 
 	@Autowired
 	private SampleRepository sampleRepository;
+
+	@Autowired
+	private SampleService sampleService;
 
 	@Autowired
 	private TypeRepository typeRepository;
@@ -52,28 +53,20 @@ public class SampleSeeder {
 
 		typeRepository.save(blood);
 		typeRepository.save(dna);
+	}
 
-		Sample s;
-		List<Sample> ss = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			s = new Sample();
+	public void seedSamples() {
+		SampleRequest srDna = new SampleRequest();
+		srDna.setAmount(50);
+		srDna.setType(typeRepository.findOne(2L));
 
-			s.setBarcode(s.createBarcode(i));
-			s.setType(dna);
-			s.setStatus(pending);
+		sampleService.createSamples(srDna);
 
-			ss.add(s);
-		}
-		for (int i = 10; i < 20; i++) {
-			s = new Sample();
+		SampleRequest srBlood = new SampleRequest();
+		srBlood.setAmount(50);
+		srBlood.setType(typeRepository.findOne(1L));
 
-			s.setBarcode(s.createBarcode(i));
-			s.setType(blood);
-			s.setStatus(consumed);
-
-			ss.add(s);
-		}
-		sampleRepository.save(ss);
+		sampleService.createSamples(srBlood);
 	}
 
 }

@@ -8,16 +8,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author pi1
  * @since February 2015
  */
 @Entity
-@Table(name = "labels")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+@Table(name = "labels", indexes = {
+//		@Index(columnList = "id, main", unique = true)
+})
 public class Label {
 
 	@Id
@@ -27,8 +27,12 @@ public class Label {
 	@Column(unique = false, nullable = false)
 	private String name;
 
+	@Column(nullable = false)
+	private boolean main = false;
+
 	@ManyToOne
 	@JoinColumn(name = "sample_id")
+	@JsonIgnore
 	private Sample sample;
 
 	public long getId() {
@@ -77,5 +81,13 @@ public class Label {
 		int result = (int) (id ^ (id >>> 32));
 		result = 31 * result + name.hashCode();
 		return result;
+	}
+
+	public boolean isMain() {
+		return main;
+	}
+
+	public void setMain(boolean main) {
+		this.main = main;
 	}
 }

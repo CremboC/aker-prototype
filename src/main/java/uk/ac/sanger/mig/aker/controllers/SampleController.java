@@ -1,6 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
-import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Label;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
@@ -62,31 +63,36 @@ public class SampleController extends BaseController {
 		return "Done";
 	}
 
+	@RequestMapping("/seedSamples")
+	@ResponseBody
+	public String seedSamples() {
+		seeder.seedSamples();
+		return "Done";
+	}
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String index() {
+	public String index(Model model) {
+		model.addAttribute("group", new Group());
+
 		return view(Action.INDEX);
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public Page<Sample> json(Pageable p) {
-		return sampleRepository.findAll(p);
+		return sampleService.findAll(p);
 	}
 
 	@RequestMapping("/show/{barcode}")
 	public String show(@PathVariable("barcode") String barcode, Model model) {
-		final List<Sample> byBarcode = sampleRepository.findByBarcode(barcode);
-		model.addAttribute("samples", byBarcode);
+		final Optional<Sample> sample = sampleService.findByBarcode(barcode);
+		if (sample.isPresent()) {
+			model.addAttribute("sample", sample.get());
+		} else {
+			// sample not found
+		}
 
-		return view(Action.INDEX);
-	}
-
-	@RequestMapping("/{type}")
-	public String byType(@PathVariable("type") long typeId, Model model) {
-		final List<Sample> samples = sampleRepository.findByTypeId(typeId);
-		model.addAttribute("samples", samples);
-
-		return view(Action.INDEX);
+		return view(Action.SHOW);
 	}
 
 	@RequestMapping("/create")
@@ -110,7 +116,7 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/{barcode}/add-label/")
 	public String addLabel(@PathVariable("barcode") String barcode) {
-		final Sample sample = sampleRepository.findOneByBarcode(barcode);
+		final Sample sample = sampleRepository.findByBarcode(barcode);
 
 		Label l = new Label();
 		l.setName("Added Label");
@@ -121,6 +127,13 @@ public class SampleController extends BaseController {
 		}
 
 		return "redirect:/samples/?error";
+	}
+
+	@RequestMapping("/group")
+	public String group(Model model) {
+
+
+		return "redirect:/group/";
 	}
 
 }

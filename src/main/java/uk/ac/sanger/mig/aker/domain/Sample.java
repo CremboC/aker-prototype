@@ -3,9 +3,9 @@ package uk.ac.sanger.mig.aker.domain;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,17 +41,17 @@ public class Sample implements Serializable {
 	@ManyToOne(optional = false)
 	private Status status;
 
-	@Column
-	private String name;
-
 	@Column(nullable = false, unique = true)
 	private String barcode;
 
-	@OneToMany(mappedBy = "sample", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
 	private Set<Label> labels;
 
 	@ManyToMany(mappedBy = "samples")
 	private Set<Group> groups;
+
+	@Transient
+	private Label mainLabel;
 
 	public long getId() {
 		return id;
@@ -92,14 +93,6 @@ public class Sample implements Serializable {
 		this.status = status;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public Set<Group> getGroups() {
 		return groups;
 	}
@@ -121,8 +114,6 @@ public class Sample implements Serializable {
 			return false;
 		if (!barcode.equals(sample.barcode))
 			return false;
-		if (name != null ? !name.equals(sample.name) : sample.name != null)
-			return false;
 
 		return true;
 	}
@@ -130,8 +121,15 @@ public class Sample implements Serializable {
 	@Override
 	public int hashCode() {
 		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + (name != null ? name.hashCode() : 0);
 		result = 31 * result + barcode.hashCode();
 		return result;
+	}
+
+	public Label getMainLabel() {
+		return mainLabel;
+	}
+
+	public void setMainLabel(Label mainLabel) {
+		this.mainLabel = mainLabel;
 	}
 }
