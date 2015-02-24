@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/header :: header">...</div>
+
+<div class="container" th:object="${group}">
+    <input type="hidden" name="id" id="groupId" th:value="*{id}"/>
+
+    <div class="page-header">
+        <h2>
+            Group Overview
+            <small th:text="*{name}"></small>
+        </h2>
+    </div>
+
+    <div class="name">
+        <h3>Group Name</h3>
+
+        <p th:text="*{name}"></p>
+    </div>
+
+    <div class="samples">
+        <h3>Samples</h3>
+
+        <div th:replace="samples/table :: samplestable"></div>
+    </div>
+
+</div>
+
+<div th:include="fragments/common :: foot"></div>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        $('#jqp-samples').pager({
+            url: '/samples/byGroup/' + $('#groupId').val() + '/json',
+            template: '#sample-template',
+            loadButton: '#jqp-load-more-samples',
+            appendBefore: '#jqp-append-before-samples',
+            metadata: '#jqp-metadata-samples'
+        });
+    });
+</script>
+
+</body>
+</html>

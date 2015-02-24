@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,7 +23,7 @@ public interface SampleService {
 	 *
 	 * @param request sample request
 	 */
-	public void createSamples(@NotNull SampleRequest request);
+	public Iterable<Sample> createSamples(@NotNull SampleRequest request);
 
 	/**
 	 * Find a sample by its barcode
@@ -32,8 +33,15 @@ public interface SampleService {
 	 */
 	public Optional<Sample> findByBarcode(@NotNull String barcode);
 
+	/**
+	 * Find samples using a set of barcodes
+	 *
+	 * @param barcode set of barcodes
+	 * @return potentially a set of samples
+	 */
+	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode);
+
 	public List<Sample> findAll();
 
 	public Page<Sample> findAll(Pageable pageable);
-
 }

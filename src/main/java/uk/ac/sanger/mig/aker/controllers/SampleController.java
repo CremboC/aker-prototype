@@ -18,13 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import uk.ac.sanger.mig.aker.domain.Group;
+import uk.ac.sanger.mig.aker.domain.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Label;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.LabelRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
+import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
 import uk.ac.sanger.mig.aker.services.TypeService;
 
@@ -47,6 +49,12 @@ public class SampleController extends BaseController {
 
 	@Resource
 	private TypeService typeService;
+
+	@Resource
+	private GroupService groupService;
+
+	@Resource
+	private GroupRepository groupRepository;
 
 	@Autowired
 	private SampleSeeder seeder;
@@ -72,7 +80,7 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String index(Model model) {
-		model.addAttribute("group", new Group());
+		model.addAttribute("groupRequest", new GroupRequest());
 
 		return view(Action.INDEX);
 	}
@@ -80,7 +88,9 @@ public class SampleController extends BaseController {
 	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public Page<Sample> json(Pageable p) {
-		return sampleService.findAll(p);
+		final Page<Sample> all = sampleService.findAll(p);
+
+		return all;
 	}
 
 	@RequestMapping("/show/{barcode}")
@@ -129,11 +139,23 @@ public class SampleController extends BaseController {
 		return "redirect:/samples/?error";
 	}
 
-	@RequestMapping("/group")
-	public String group(Model model) {
+	@RequestMapping(value = "/group", method = RequestMethod.POST)
+	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding, Model model) {
+		if (!binding.hasErrors()) {
+			groupService.createGroup(groupRequest);
 
+			return "redirect:/";
+		}
 
-		return "redirect:/group/";
+		return view("group");
+	}
+
+	@RequestMapping(value = "/byGroup/{groupId}/json", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public Page<Sample> showJson(@PathVariable long groupId, Pageable pageable, Model model) {
+		model.addAttribute("group", groupRepository.findOne(groupId));
+
+		return sampleRepository.byGroupId(groupId, pageable);
 	}
 
 }

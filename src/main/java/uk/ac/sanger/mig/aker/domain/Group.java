@@ -10,9 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -21,7 +23,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table(name = "groups")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Group {
 
 	@Id
@@ -41,7 +43,13 @@ public class Group {
 			joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "sample_id", referencedColumnName = "id")
 	)
+	@JsonManagedReference
 	private Set<Sample> samples;
+
+	@OneToOne
+	@JoinColumn(name = "parent_id")
+	@JsonManagedReference
+	private Group parent;
 
 	public Set<Sample> getSamples() {
 		return samples;
@@ -97,5 +105,13 @@ public class Group {
 		int result = (int) (id ^ (id >>> 32));
 		result = 31 * result + (name != null ? name.hashCode() : 0);
 		return result;
+	}
+
+	public Group getParent() {
+		return parent;
+	}
+
+	public void setParent(Group parent) {
+		this.parent = parent;
 	}
 }

@@ -19,10 +19,10 @@
         </div>
     </div>
 
-    <form th:action="@{/samples/group/}" th:object="${group}" method="POST" role="form">
+    <form th:action="@{/samples/group/}" th:object="${groupRequest}" method="POST" role="form">
 
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <table class="table table-condensed table-hover table-selectable" id="jqp-samples">
                     <thead>
                     <tr>
@@ -64,19 +64,10 @@
                 </h5>
                 <ul class="nav nav-pills nav-stacked">
                     <li class="active">
-                        <button type="submit" class="btn btn-primary" id="create-group">Create Group</button>
+                        <button type="submit" class="btn btn-success" id="create-group" disabled="disabled">Create
+                            Group
+                        </button>
                     </li>
-                </ul>
-            </div>
-
-            <div class="col-md-2">
-                <h5>
-                    Nav
-                </h5>
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#">Profile</a></li>
-                    <li><a href="#">Messages</a></li>
                 </ul>
             </div>
         </div>
@@ -129,40 +120,41 @@
             </div>
         </div>
 
+        <script id="sample-template" type="text/x-handlebars-template">
+            <tr id="{{barcode}}" class="selectable">
+                <td>
+                    <!--name="samples[].barcode"-->
+                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" role="barcode"/>
+                </td>
+                <td class="barcode">
+                    <a href="/samples/show/{{ barcode }}">
+                        {{ barcode }}
+                    </a>
+                </td>
+                <td class="name">
+                    {{ mainLabel.name }}
+                </td>
+                <td class="labels">
+                    {{#list labels}}
+                    {{ name }}
+                    {{/list}}
+                </td>
+                <td class="type">
+                    {{ type.name }}
+                </td>
+                <td class="status">
+                    {{ status.value }}
+                </td>
+                <td>
+                    <a href="/samples/show/{{ barcode }}">
+                        view
+                    </a>
+                </td>
+            </tr>
+        </script>
+
     </form>
 </div>
-
-<script id="sample-template" type="text/x-handlebars-template">
-    <tr id="{{barcode}}">
-        <td>
-            <input type="checkbox" value="{{barcode}}" name="samples[{{id}}].barcode"/>
-        </td>
-        <td class="barcode">
-            <a href="/samples/show/{{ barcode }}">
-                {{ barcode }}
-            </a>
-        </td>
-        <td class="name">
-            {{ mainLabel.name }}
-        </td>
-        <td class="labels">
-            {{#list labels}}
-            {{ name }}
-            {{/list}}
-        </td>
-        <td class="type">
-            {{ type.name }}
-        </td>
-        <td class="status">
-            {{ status.value }}
-        </td>
-        <td>
-            <a href="/samples/show/{{ barcode }}">
-                view
-            </a>
-        </td>
-    </tr>
-</script>
 
 <script id="modal-sample-template" type="text/x-handlebars-template">
     <tr>
@@ -184,6 +176,41 @@
 </script>
 
 <div th:include="fragments/common :: foot"></div>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+
+        var $samples = $('#jqp-samples');
+
+        $samples.pager({
+            url: '/samples/json/',
+            template: '#sample-template',
+            loadButton: '#jqp-load-more-samples',
+            appendBefore: '#jqp-append-before-samples',
+            scrollLoad: true
+        });
+
+        $samples.selectableElement({
+            element: 'tbody .selectable'
+        });
+
+        $('#create-group').createGroup({
+            modal: '#groupModal',
+            confirm: '#modalConfirm',
+            triggerElement: '#jqp-samples',
+            triggerEvent: 'element.selected'
+        });
+
+        $samples.on('element.selected', function (event) {
+            var $button = $('#create-group');
+            if (event.count > 0) {
+                $button.removeAttr('disabled');
+            } else {
+                $button.attr('disabled', 'disabled');
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

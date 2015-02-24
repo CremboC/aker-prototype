@@ -38,7 +38,7 @@ public class SampleServiceImpl implements SampleService {
 	private StatusRepository statusRepository;
 
 	@Override
-	public void createSamples(@NotNull SampleRequest request) {
+	public Iterable<Sample> createSamples(@NotNull SampleRequest request) {
 		final int amount = request.getAmount();
 		final Type type = request.getType();
 		final Status pendingStatus = statusRepository.findByValue("pending");
@@ -64,8 +64,8 @@ public class SampleServiceImpl implements SampleService {
 			labels.add(l);
 		}
 
-		repository.save(newSamples);
 		labelRepository.save(labels);
+		return repository.save(newSamples);
 	}
 
 	@Override
@@ -79,6 +79,17 @@ public class SampleServiceImpl implements SampleService {
 
 				return Optional.of(sample);
 			}
+		}
+
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode) {
+		final Set<Sample> allByBarcodeIn = repository.findAllByBarcodeIn(barcode);
+
+		if (allByBarcodeIn != null) {
+			return Optional.of(allByBarcodeIn);
 		}
 
 		return Optional.empty();

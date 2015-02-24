@@ -7,75 +7,20 @@
 
 <div class="container">
 
-    <div class="clearfix">
-        <h3 class="pull-left">Samples</h3>
-    </div>
+    <div class="col-md-10">
+        <div class="row">
+            <h3>Groups</h3>
 
-    <div class="row">
-        <div class="col-md-8">
-            <!--@thymesVar id="samples" type="List<Sample>"-->
-            <!--@thymesVar id="sample" type="Sample"-->
-            <table class="table table-striped table-condensed" id="jqp-samples">
-                <tr>
-                    <th>
-                        Barcode
-                    </th>
-                    <th>
-                        Main Label
-                    </th>
-                    <th>
-                        Type name
-                    </th>
-                    <th>
-                        Status
-                    </th>
-                    <th>
-                    </th>
-                </tr>
-                <tr id="jqp-append-before-samples">
-                </tr>
-                <tr>
-                    <td colspan="7" class="text-center">
-                        <a href="#" class="btn btn-default" id="jqp-load-more-samples">
-                            Load More Samples...
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="col-md-2">
-            <ul class="nav nav-pills nav-stacked">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Messages</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <h3>
-        Groups
-    </h3>
-    <div class="row">
-        <div class="col-md-8">
-            <!--@thymesVar id="samples" type="List<Sample>"-->
-            <!--@thymesVar id="sample" type="Sample"-->
             <table class="table table-striped table-condensed" id="jqp-groups">
                 <tr>
-                    <th>
-                        Barcode
-                    </th>
                     <th>
                         Name
                     </th>
                     <th>
-                        Type name
+                        Sample Count
                     </th>
                     <th>
-                        Status
-                    </th>
-                    <th>
-                        Details..
+                        Details
                     </th>
                 </tr>
                 <tr id="jqp-append-before-groups">
@@ -87,27 +32,34 @@
                 </tr>
             </table>
         </div>
+
+        <div class="row">
+            <h3>Samples</h3>
+
+            <div th:replace="samples/table :: samplestable"></div>
+        </div>
     </div>
+
+    <div class="col-md-2">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Messages</a></li>
+        </ul>
+    </div>
+
 </div>
 
-<script id="sample-template" type="text/x-handlebars-template">
+<script id="group-template" type="text/x-handlebars-template">
     <tr>
         <td>
-            <a href="/samples/show/{{ barcode }}">
-                {{ barcode }}
-            </a>
+            {{ name }}
         </td>
         <td>
-            {{ mainLabel.name }}
+            {{ samples.length }}
         </td>
         <td>
-            {{ type.name }}
-        </td>
-        <td>
-            {{ status.value }}
-        </td>
-        <td>
-            <a href="/samples/show/{{ barcode }}/">
+            <a href="/groups/show/{{ id }}/">
                 <span class="glyphicon glyphicon-eye-open"></span>
                 View
             </a>
@@ -116,6 +68,27 @@
 </script>
 
 <div th:include="fragments/common :: foot"></div>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+
+        $('#jqp-samples').pager({
+            url: '/samples/json/',
+            template: '#sample-template',
+            loadButton: '#jqp-load-more-samples',
+            appendBefore: '#jqp-append-before-samples',
+            metadata: '#jqp-metadata-samples'
+        });
+
+        $('#jqp-groups').pager({
+            url: '/groups/json/',
+            template: '#group-template',
+            loadButton: '#jqp-load-more-groups',
+            appendBefore: '#jqp-append-before-groups',
+        });
+
+    });
+</script>
 
 </body>
 </html>

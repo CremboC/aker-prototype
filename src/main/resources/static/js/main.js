@@ -3,6 +3,10 @@
  */
 
 Handlebars.registerHelper('list', function (context, options) {
+    if (context == undefined) {
+        return;
+    }
+
     var ret = "<ul class='list-unstyled'>";
 
     for (var i = 0, j = context.length; i < j; i++) {
@@ -12,12 +16,73 @@ Handlebars.registerHelper('list', function (context, options) {
     return ret + "</ul>";
 });
 
+/**
+ * Watches an element to see when it's visible on the screen. Triggers event 'on.screen' on the element once it's visible
+ * @returns {$.fn}
+ */
+$.fn.watcher = function () {
+
+    var $watch = $(this);
+
+    var scrollTimeout;  // global for any pending scrollTimeout
+
+    $(window).scroll(function () {
+        if (scrollTimeout) {
+            // clear the timeout, if one is pending
+            clearTimeout(scrollTimeout);
+            scrollTimeout = null;
+        }
+        scrollTimeout = setTimeout(scrollHandler, 250);
+    });
+
+    var triggerEvent = function () {
+        $watch.trigger('on.screen');
+    };
+
+    var isScrolledIntoView = function ($elem) {
+        var $window = $(window);
+
+        var docViewTop = $window.scrollTop();
+        var docViewBottom = docViewTop + $window.height();
+
+        var elemTop = $elem.offset().top;
+        var elemBottom = elemTop + $elem.height();
+
+        return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+    };
+
+    var init = function () {
+        if (isScrolledIntoView($watch)) {
+            triggerEvent();
+        }
+    };
+
+    var scrollHandler = function () {
+        if (isScrolledIntoView($watch)) {
+            triggerEvent();
+        }
+    };
+
+    init();
+
+    return this;
+};
+
+/**
+ * Asynchronously load data from a source
+ *
+ * @param options
+ * @returns {$.fn}
+ */
 $.fn.pager = function (options) {
     var defaults = {
         template: '#entry-template',
         loadButton: '.jqp-load-more',
         appendBefore: '.jqp-append-before',
+        metadata: '.jqp-metadata',
         preload: true,
+        scrollLoad: false,
+        loadEvents: 'click',
         url: '',
         dataType: 'json',
         type: 'GET'
@@ -29,7 +94,14 @@ $.fn.pager = function (options) {
     var $paginate = $(this),
         $template = $(settings.template),
         $loadButton = $(settings.loadButton),
-        $appendBefore = $(settings.appendBefore);
+        $appendBefore = $(settings.appendBefore),
+        $metadata = $(settings.metadata);
+
+    if (settings.scrollLoad) {
+        settings.loadEvents += ' on.screen';
+
+        $loadButton.watcher();
+    }
 
     // fetch original load button text so we can restore it after changing it to "Loading"
     var originalLoadButtonText = $loadButton.html();
@@ -61,23 +133,35 @@ $.fn.pager = function (options) {
         var text = $loadButton.html();
 
         if (originalLoadButtonText == text) {
-            $loadButton.html("<span class='glyphicon glyphicon-refresh glyphicon-spin'></span> Loading ...");
-            $(this).attr('disabled', 'disabled');
+            $loadButton.html("<span class='glyphicon glyphicon-refresh glyphicon-spin'></span> Loading");
+            $loadButton.attr('disabled', 'disabled');
         } else {
             $loadButton.html(originalLoadButtonText);
             $loadButton.removeAttr('disabled');
         }
     };
 
+    var updateMetadata = function (metadata) {
+        var current = (metadata.number + 1) * metadata.numberOfElements;
+
+        if (metadata.last) {
+            current = metadata.totalElements;
+        }
+
+        $metadata.html("Showing " + current + " out of " + metadata.totalElements);
+    };
+
     // after loading the final page, cleanup
     var cleanup = function () {
         $(this).attr('disabled', 'disabled');
         $loadButton.remove();
+        $loadButton.off('click on.screen');
     };
 
     // default method upon successful query
     var success = settings.success ? settings.success :
         function (data) {
+            console.log(data);
             if (data.content.length > 0) {
                 // get total pages from Spring's Pageable
                 totalPages = data.totalPages;
@@ -93,6 +177,7 @@ $.fn.pager = function (options) {
 
                 $appendBefore.before(sampleHtml);
                 updateLoaderButton();
+                updateMetadata(data);
 
                 var currentPage = $loadButton.data('page');
                 if (currentPage >= totalPages) {
@@ -118,7 +203,7 @@ $.fn.pager = function (options) {
             type: settings.type,
             data: {
                 page: $loadButton.data('page'),
-                size: 10
+                size: 20
             },
             success: success,
             error: error
@@ -128,7 +213,7 @@ $.fn.pager = function (options) {
     };
 
     if (!isLastPage) {
-        $loadButton.on('click', function (e) {
+        $loadButton.on(settings.loadEvents, function (e) {
             e.preventDefault();
             updateLoaderButton();
             load();
@@ -144,7 +229,59 @@ $.fn.pager = function (options) {
     return this;
 };
 
-$.fn.modalForm = function (options) {
+/**
+ * Makes and element which has a checkbox inside to be checkable by clicking anywhere on the element itself.
+ *
+ * @param options
+ * @returns {$.fn}
+ */
+$.fn.selectableElement = function (options) {
+
+    var defaults = {
+        element: ''
+    };
+
+    var settings = $.extend({}, defaults, options);
+
+    var $wrapper = $(this),
+        checkedCount = 0;
+
+    $wrapper.on('click', settings.element, function (e) {
+        var $checkbox = $(this).find('input[type="checkbox"]');
+
+        // user may click the checkbox itself, should still work
+        if (!$(this).is('input[type="checkbox"]')) {
+
+        }
+
+        console.log($(this));
+
+        $checkbox.prop("checked", !$checkbox.prop("checked"));
+
+        if ($checkbox.prop("checked")) {
+            checkedCount++;
+        } else {
+            checkedCount--;
+        }
+
+        console.log(checkedCount);
+
+        $wrapper.trigger({
+            type: 'element.selected',
+            count: checkedCount
+        });
+    });
+
+    return this;
+};
+
+/**
+ * Helper to create a group
+ *
+ * @param options
+ * @returns {$.fn}
+ */
+$.fn.createGroup = function (options) {
 
     var defaults = {
         modal: '',
@@ -158,25 +295,44 @@ $.fn.modalForm = function (options) {
         $modal = $(settings.modal),
         $form = $(settings.form),
         $confirmButton = $(settings.confirm),
-        $template = $('#modal-sample-template');
+        $template = $('#modal-sample-template'),
+        $tbody = $modal.find('tbody');
 
     // compile template using Handlebars
     var source = $template.html();
     var template = Handlebars.compile(source);
 
+    var cleanup = function () {
+        $tbody.empty();
+    };
+
+    // don't show the modal immediately
+    $modal.modal({
+        show: false,
+        keyboard: true
+    });
+
     $caller.on('click', function (e) {
         e.preventDefault();
+        cleanup();
 
-        var $tbody = $modal.find('tbody');
         var samples = [];
         var serializedForm = $form.serializeArray();
 
-        $.each(serializedForm, function (index, checkbox) {
-            var $row = $('#' + checkbox.value);
+        console.log(serializedForm);
+
+        $.each(serializedForm, function (index, input) {
+            console.log(input);
+            if (!input.value || (input.name.indexOf("_") == 0)) {
+                return;
+            }
+            console.log(input);
+
+            var $row = $('#' + input.value);
 
             var sample = {};
 
-            sample.barcode = checkbox.value;
+            sample.barcode = input.value;
             sample.name = $row.find('.name').text();
             sample.type = $row.find('.type').text();
             sample.status = $row.find('.status').text();
@@ -190,67 +346,19 @@ $.fn.modalForm = function (options) {
 
         $tbody.append(sampleHtml);
 
-        $modal.modal();
+        $modal.modal('show');
     });
 
-    return this;
-};
+    $modal.on('hide.bs.modal', function () {
+        // cleanup modal on close
+        // remove all samples from the table
+        cleanup();
+    });
 
-$.fn.selectableElement = function (options) {
-
-    var defaults = {
-        element: ''
-    };
-
-    var settings = $.extend({}, defaults, options);
-
-    var $wrapper = $(this);
-
-    console.log($wrapper.attr('id'));
-
-    console.log('#' + $wrapper.attr('id') + ' ' + settings.element);
-
-    $wrapper.on('click', '#' + $wrapper.attr('id') + ' ' + settings.element, function (e) {
+    $confirmButton.on('click', function (e) {
         e.preventDefault();
-        console.log($(this));
-        var $checkbox = $(this).find('input[type="checkbox"]');
-
-        $checkbox.prop("checked", !$checkbox.prop("checked"));
+        $form.submit();
     });
 
     return this;
 };
-
-$(document).ready(function () {
-
-    var $samples = $('#jqp-samples');
-
-    $samples.pager({
-        url: '/samples/json/',
-        template: '#sample-template',
-        loadButton: '#jqp-load-more-samples',
-        appendBefore: '#jqp-append-before-samples',
-        preload: true
-    });
-
-    //$samples.on('pager.loaded', function () {
-    $samples.selectableElement({
-        element: 'tr',
-        updateOn: 'pager.loaded'
-    });
-    //});
-
-    $('#jqp-groups').pager({
-        url: '/groups/json/',
-        template: '#sample-template',
-        loadButton: '#jqp-load-more-groups',
-        appendBefore: '#jqp-append-before-groups',
-        preload: true
-    });
-
-    $('#create-group').modalForm({
-        modal: '#groupModal',
-        confirm: '#modalConfirm'
-    });
-
-});

@@ -44,6 +44,12 @@
 
     <div class="groups">
         <h3>Groups</h3>
+
+        <ul>
+            <li th:each="group : ${sample.groups}">
+                <span th:text="${group.name}"></span>
+            </li>
+        </ul>
     </div>
 
 </div>

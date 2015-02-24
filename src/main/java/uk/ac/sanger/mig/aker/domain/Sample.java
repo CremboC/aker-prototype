@@ -6,8 +6,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -17,6 +17,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -26,13 +27,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table(name = "samples")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Sample implements Serializable {
 
 	public final static int BARCODE_SIZE = 10;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue
 	private long id;
 
 	@ManyToOne(optional = false)
@@ -47,11 +48,12 @@ public class Sample implements Serializable {
 	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
 	private Set<Label> labels;
 
-	@ManyToMany(mappedBy = "samples")
+	@ManyToMany(mappedBy = "samples", fetch = FetchType.LAZY)
+	@JsonBackReference
 	private Set<Group> groups;
 
 	@Transient
-	private Label mainLabel;
+	private Label mainLabel = null;
 
 	public long getId() {
 		return id;
