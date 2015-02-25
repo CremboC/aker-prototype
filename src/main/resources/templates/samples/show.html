@@ -5,55 +5,104 @@
 
 <div th:replace="fragments/common :: header">...</div>
 
-<div class="container">
+<div class="container" th:object="${sample}">
 
     <div class="page-header">
         <h2>
             Sample Overview
-            <small th:text="${sample.barcode}"></small>
+            <small th:text="*{barcode}"></small>
         </h2>
     </div>
 
-    <div class="labels">
-        <h3>Also known as</h3>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="labels">
+                <h3>Also known as</h3>
 
-        <ul>
-            <li th:each="label : ${sample.labels}">
-                <span th:text="${label.name}"></span>
-            </li>
-        </ul>
+                <ul>
+                    <li th:each="label : *{labels}">
+                        <span th:text="${label.name}"></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="barcode">
+                <h3>Barcode</h3>
+
+                <p th:text="*{barcode}"></p>
+            </div>
+
+            <div class="status">
+                <h3>Status</h3>
+
+                <p class="text-capitalize" th:text="*{status.value}"></p>
+            </div>
+
+            <div class="type">
+                <h3>Type</h3>
+
+                <p class="text-uppercase" th:text="*{type.name}"></p>
+            </div>
+
+            <div class="groups">
+                <h3>Groups</h3>
+
+                <ul>
+                    <li th:each="group : *{groups}">
+                        <a th:text="${group.name}" th:href="@{/groups/show/{groupId}(groupId = ${group.id})}">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <div class="barcode">
-        <h3>Barcode</h3>
+    <div class="col-md-2">
+        <div class="row">
+            <h4>Actions</h4>
 
-        <p th:text="${sample.barcode}"></p>
-    </div>
-
-    <div class="status">
-        <h3>Status</h3>
-
-        <p class="text-capitalize" th:text="${sample.status.value}"></p>
-    </div>
-
-    <div class="type">
-        <h3>Type</h3>
-
-        <p class="text-uppercase" th:text="${sample.type.name}"></p>
-    </div>
-
-    <div class="groups">
-        <h3>Groups</h3>
-
-        <ul>
-            <li th:each="group : ${sample.groups}">
-                <a th:text="${group.name}" th:href="@{/groups/show/{groupId}(groupId = ${group.id})}">
-                </a>
-            </li>
-        </ul>
+            <div class="btn-group-vertical btn-block">
+                <a class="btn btn-primary" data-toggle="modal" href="#add-label">Add Label</a>
+                <button type="button" class="btn btn-default">..</button>
+                <button type="button" class="btn btn-default">..</button>
+            </div>
+        </div>
     </div>
 
 </div>
+
+<div class="modal fade" id="add-label">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/samples/update/{barcode}/add-label(barcode = ${sample.barcode})}" th:method="PUT" role="form"
+                  th:object="${label}">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Label</h4>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="form-group">
+                        <label for="labelName">Label</label>
+                        <input type="text" class="form-control" th:field="*{name}" id="labelName"
+                               placeholder="Identifier for a sample"/>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Add Label" />
+                </div>
+
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <div th:replace="fragments/common :: footer"></div>
 

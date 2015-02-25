@@ -97,8 +97,10 @@ public class SampleController extends BaseController {
 		if (sample.isPresent()) {
 			model.addAttribute("sample", sample.get());
 		} else {
-			// sample not found
+			return "redirect:/samples/?404";
 		}
+
+		model.addAttribute("label", new Label());
 
 		return view(Action.SHOW);
 	}
@@ -120,6 +122,24 @@ public class SampleController extends BaseController {
 
 		sampleService.createSamples(request);
 		return "redirect:/samples/";
+	}
+
+	@RequestMapping(value = "/update/{barcode}/add-label", method = RequestMethod.PUT)
+	public String addLabel(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Label label, BindingResult bindingResult) {
+		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
+
+		if (optSample.isPresent()) {
+			final Sample sample = optSample.get();
+
+			if (!bindingResult.hasErrors()) {
+				label.setSample(sample);
+				labelRepository.save(label);
+			}
+
+			return "redirect:/samples/show/" + sample.getBarcode();
+		}
+
+		return "redirect:/samples/?404" + optSample.toString();
 	}
 
 	@RequestMapping(value = "/{barcode}/add-label/")

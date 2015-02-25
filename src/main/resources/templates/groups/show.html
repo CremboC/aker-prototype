@@ -6,7 +6,6 @@
 <div th:replace="fragments/common :: header">...</div>
 
 <div class="container" th:object="${group}">
-    <input type="hidden" name="id" id="groupId" th:value="*{id}"/>
 
     <div class="page-header">
         <h2>
@@ -15,49 +14,67 @@
         </h2>
     </div>
 
-    <div class="name">
-        <h3>Group Name</h3>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="name">
+                <h3>Group Name</h3>
 
-        <p th:text="*{name}"></p>
-    </div>
+                <p th:text="*{name}"></p>
+            </div>
 
-    <div class="parent" th:if="*{parent != null}">
-        <h3>Parent Group</h3>
+            <div class="parent" th:if="*{parent != null}">
+                <h3>Parent Group</h3>
 
-        <p>
-            <a href="" th:text="*{parent.name}" th:href="@{/groups/show/{groupId}(groupId = *{parent.id})}">
-            </a>
-        </p>
-    </div>
+                <p>
+                    <a href="" th:text="*{parent.name}" th:href="@{/groups/show/{groupId}(groupId = *{parent.id})}">
+                    </a>
+                </p>
+            </div>
 
-    <div class="children" th:if="*{children != null}">
-        <h3>Children Groups</h3>
+            <div class="children" th:if="*{children != null}">
+                <h3>Children Groups</h3>
 
-        <ul>
-            <li th:each="child : *{children}">
-                <a href="" th:text="${child.name}" th:href="@{/groups/show/{groupId}(groupId = ${child.id})}">
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="samples">
-        <h3>Samples</h3>
-
-        <div th:if="*{!samples.isEmpty()}">
-            <h4 class="text-muted">
-                Samples from: <span th:text="*{name}"></span>
-            </h4>
-
-            <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id})"></div>
+                <ul>
+                    <li th:each="child : *{children}">
+                        <a href="" th:text="${child.name}" th:href="@{/groups/show/{groupId}(groupId = ${child.id})}">
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </div>
 
-        <div th:if="*{children != null}">
-            <div th:each="child : *{children}">
+    <div class="col-md-2">
+        <div class="row">
+            <h4>Actions</h4>
+
+            <div class="btn-group-vertical btn-block">
+                <button type="button" class="btn btn-danger">Delete Group</button>
+                <button type="button" class="btn btn-default">..</button>
+                <button type="button" class="btn btn-default">..</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="samples row">
+            <h3>Samples</h3>
+
+            <div th:if="*{!samples.isEmpty()}">
                 <h4 class="text-muted">
-                    Samples from: <span th:text="${child.name}"></span>
+                    Samples from: <span th:text="*{name}"></span>
                 </h4>
-                <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id})"></div>
+
+                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id})"></div>
+            </div>
+
+            <div th:if="*{children != null}">
+                <div th:each="child : *{children}">
+                    <h4 class="text-muted">
+                        Samples from: <span th:text="${child.name}"></span>
+                    </h4>
+                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id})"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -3,12 +3,14 @@ package uk.ac.sanger.mig.aker.domain;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -20,11 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "labels", indexes = {
 		@Index(columnList = "id, main", unique = true)
 })
-public class Label {
-
-	@Id
-	@GeneratedValue
-	private long id;
+public class Label extends BaseEntity{
 
 	@Column(unique = false, nullable = false)
 	private String name;
@@ -36,14 +34,6 @@ public class Label {
 	@JoinColumn(name = "sample_id")
 	@JsonIgnore
 	private Sample sample;
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
@@ -61,35 +51,49 @@ public class Label {
 		this.sample = sample;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
-		Label label = (Label) o;
-
-		if (id != label.id)
-			return false;
-		if (!name.equals(label.name))
-			return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + name.hashCode();
-		return result;
-	}
-
 	public boolean isMain() {
 		return main;
 	}
 
 	public void setMain(boolean main) {
 		this.main = main;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		Label rhs = (Label) obj;
+		return new EqualsBuilder()
+				.append(this.id, rhs.id)
+				.append(this.name, rhs.name)
+				.append(this.main, rhs.main)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(id)
+				.append(name)
+				.append(main)
+				.toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("id", id)
+				.append("name", name)
+				.append("main", main)
+				.append("sample", sample)
+				.toString();
 	}
 }

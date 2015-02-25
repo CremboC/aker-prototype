@@ -7,14 +7,12 @@
 
 <div class="container">
 
-    <div class="clearfix">
+    <div class="clearfix page-header">
         <h2 class="pull-left">Samples</h2>
 
         <div class="pull-right">
             <div class="btn-group">
-                <a th:href="@{/samples/create/}" class="btn btn-primary">
-                    Request Samples
-                </a>
+
             </div>
         </div>
     </div>
@@ -59,12 +57,23 @@
             </div>
 
             <div class="col-md-2">
-                <h5>
-                    Actions
-                </h5>
-                <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">Create
-                    Group
-                </button>
+                <div>
+                    <h5>
+                        Samples
+                    </h5>
+                    <a th:href="@{/samples/create/}" class="btn btn-primary btn-block">
+                        Request Samples
+                    </a>
+                </div>
+
+                <div>
+                    <h5>
+                        Actions
+                    </h5>
+                    <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">Create
+                        Group
+                    </button>
+                </div>
             </div>
         </div>
 
