@@ -49,9 +49,8 @@
             <h4>Actions</h4>
 
             <div class="btn-group-vertical btn-block">
-                <button type="button" class="btn btn-danger">Delete Group</button>
-                <button type="button" class="btn btn-default">..</button>
-                <button type="button" class="btn btn-default">..</button>
+                <a class="btn btn-primary" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
+                <a href="" class="btn btn-danger">Delete Group</a>
             </div>
         </div>
     </div>
@@ -73,6 +72,7 @@
                     <h4 class="text-muted">
                         Samples from: <span th:text="${child.name}"></span>
                     </h4>
+
                     <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id})"></div>
                 </div>
             </div>
@@ -84,6 +84,42 @@
 <script th:replace="samples/table :: template"></script>
 
 <div th:include="fragments/common :: footer"></div>
+
+<a class="btn btn-primary">Trigger modal</a>
+
+<div class="modal fade" id="add-subgroup">
+    <div class="modal-dialog">
+
+        <form th:action="@{/groups/update/{id}/add-subgroup(id = ${group.id})}" th:method="PUT" th:object="${group}" role="form">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Subgroup</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="subGroup">Choose group</label>
+                        <select th:field="*{id}" id="subGroup" class="form-control">
+                            <option th:each="group : ${groups}"
+                                    th:value="${group.id}"
+                                    th:text="${group.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Confirm" />
+                </div>
+            </div>
+            <!-- /.modal-content -->
+
+        </form>
+
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <script type="application/javascript">
     $(document).ready(function () {

@@ -67,6 +67,7 @@ public class GroupController extends BaseController {
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
 	public String show(@PathVariable long id, Model model) {
+		final Iterable<Group> allGroups = groupRepository.findAll();
 		final Group group = groupRepository.findOne(id);
 
 		final Set<Group> byParentId = groupRepository.findByParentId(group.getId());
@@ -75,7 +76,14 @@ public class GroupController extends BaseController {
 		}
 
 		model.addAttribute("group", group);
+		model.addAttribute("groups", allGroups);
 		return view(Action.SHOW);
+	}
+
+	@RequestMapping(value = "/update/{id}/add-subgroup/", method = RequestMethod.PUT)
+	public String addSubgroup(@PathVariable long id, @ModelAttribute Group group, BindingResult result) {
+
+		return "";
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
