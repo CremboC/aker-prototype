@@ -3,12 +3,12 @@
 <head lang="en" th:include="fragments/common :: head"></head>
 <body>
 
-<div th:replace="fragments/header :: header">...</div>
+<div th:replace="fragments/common :: header">...</div>
 
 <div class="container">
 
     <div class="clearfix">
-        <h1 class="pull-left">Samples</h1>
+        <h2 class="pull-left">Samples</h2>
 
         <div class="pull-right">
             <div class="btn-group">
@@ -62,31 +62,27 @@
                 <h5>
                     Actions
                 </h5>
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="active">
-                        <button type="submit" class="btn btn-success" id="create-group" disabled="disabled">Create
-                            Group
-                        </button>
-                    </li>
-                </ul>
+                <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">Create
+                    Group
+                </button>
             </div>
         </div>
 
         <!-- Modal -->
         <div class="modal fade" id="groupModal" tabindex="-1" role="dialog" aria-labelledby="groupModalLabel"
              aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
 
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="groupModalLabel">Create Sample Group</h4>
+                        <h2 class="modal-title" id="groupModalLabel">Create Sample Group</h2>
                     </div>
 
                     <div class="modal-body">
-                        <h3>Selected Samples</h3>
+                        <h4>Selected Samples</h4>
 
                         <div class="create-group-modal">
                             <table class="table table-condensed table-hover">
@@ -123,8 +119,7 @@
         <script id="sample-template" type="text/x-handlebars-template">
             <tr id="{{barcode}}" class="selectable">
                 <td>
-                    <!--name="samples[].barcode"-->
-                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" role="barcode"/>
+                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" />
                 </td>
                 <td class="barcode">
                     <a href="/samples/show/{{ barcode }}">
@@ -175,7 +170,7 @@
     </tr>
 </script>
 
-<div th:include="fragments/common :: foot"></div>
+<div th:replace="fragments/common :: footer"></div>
 
 <script type="application/javascript">
     $(document).ready(function () {
@@ -197,8 +192,8 @@
         $('#create-group').createGroup({
             modal: '#groupModal',
             confirm: '#modalConfirm',
-            triggerElement: '#jqp-samples',
-            triggerEvent: 'element.selected'
+            template: '#modal-sample-template',
+            mode: 'samples'
         });
 
         $samples.on('element.selected', function (event) {

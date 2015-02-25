@@ -7,8 +7,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -16,6 +14,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -28,18 +29,14 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table(name = "samples")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Sample implements Serializable {
+public class Sample extends BaseEntity implements Serializable {
 
 	public final static int BARCODE_SIZE = 10;
 
-	@Id
-	@GeneratedValue
-	private long id;
-
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	private Type type;
 
-	@ManyToOne(optional = false)
+	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	private Status status;
 
 	@Column(nullable = false, unique = true)
@@ -48,7 +45,7 @@ public class Sample implements Serializable {
 	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
 	private Set<Label> labels;
 
-	@ManyToMany(mappedBy = "samples", fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "samples", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonBackReference
 	private Set<Group> groups;
 
@@ -103,35 +100,50 @@ public class Sample implements Serializable {
 		this.groups = groups;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
-		Sample sample = (Sample) o;
-
-		if (id != sample.id)
-			return false;
-		if (!barcode.equals(sample.barcode))
-			return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + barcode.hashCode();
-		return result;
-	}
-
 	public Label getMainLabel() {
 		return mainLabel;
 	}
 
 	public void setMainLabel(Label mainLabel) {
 		this.mainLabel = mainLabel;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		Sample rhs = (Sample) obj;
+		return new EqualsBuilder()
+				.appendSuper(super.equals(obj))
+				.append(this.barcode, rhs.barcode)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.appendSuper(super.hashCode())
+				.append(barcode)
+				.toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.appendSuper(super.toString())
+				.append("type", type)
+				.append("status", status)
+				.append("barcode", barcode)
+				.append("labels", labels)
+				.append("groups", groups)
+				.append("mainLabel", mainLabel)
+				.toString();
 	}
 }

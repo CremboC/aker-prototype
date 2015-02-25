@@ -3,7 +3,7 @@
 <head lang="en" th:include="fragments/common :: head"></head>
 <body>
 
-<div th:replace="fragments/header :: header">...</div>
+<div th:replace="fragments/common :: header">...</div>
 
 <div class="container">
 
@@ -47,14 +47,15 @@
 
         <ul>
             <li th:each="group : ${sample.groups}">
-                <span th:text="${group.name}"></span>
+                <a th:text="${group.name}" th:href="@{/groups/show/{groupId}(groupId = ${group.id})}">
+                </a>
             </li>
         </ul>
     </div>
 
 </div>
 
-<div th:include="fragments/common :: foot"></div>
+<div th:replace="fragments/common :: footer"></div>
 
 </body>
 </html>

@@ -77,9 +77,9 @@ $.fn.watcher = function () {
 $.fn.pager = function (options) {
     var defaults = {
         template: '#entry-template',
-        loadButton: '.jqp-load-more',
-        appendBefore: '.jqp-append-before',
-        metadata: '.jqp-metadata',
+        loadButton: '', // .jqp-load-more
+        appendBefore: '', // .jqp-append-before
+        metadata: '', // .jqp-metadata
         preload: true,
         scrollLoad: false,
         loadEvents: 'click',
@@ -257,6 +257,7 @@ $.fn.selectableElement = function (options) {
         console.log($(this));
 
         $checkbox.prop("checked", !$checkbox.prop("checked"));
+        $(this).toggleClass("selected");
 
         if ($checkbox.prop("checked")) {
             checkedCount++;
@@ -284,8 +285,10 @@ $.fn.selectableElement = function (options) {
 $.fn.createGroup = function (options) {
 
     var defaults = {
-        modal: '',
-        confirm: '',
+        mode: '', // groups/samples
+        modal: '', // modal selector
+        template: '', // template selector
+        confirm: '', // confirm button
         form: 'form'
     };
 
@@ -295,7 +298,7 @@ $.fn.createGroup = function (options) {
         $modal = $(settings.modal),
         $form = $(settings.form),
         $confirmButton = $(settings.confirm),
-        $template = $('#modal-sample-template'),
+        $template = $(settings.template),
         $tbody = $modal.find('tbody');
 
     // compile template using Handlebars
@@ -312,11 +315,16 @@ $.fn.createGroup = function (options) {
         keyboard: true
     });
 
+    var properties = {
+        samples: ['barcode', 'name', 'type', 'status'],
+        groups: ['id', 'name', 'parent', 'count']
+    };
+
     $caller.on('click', function (e) {
         e.preventDefault();
         cleanup();
 
-        var samples = [];
+        var elements = [];
         var serializedForm = $form.serializeArray();
 
         console.log(serializedForm);
@@ -330,21 +338,23 @@ $.fn.createGroup = function (options) {
 
             var $row = $('#' + input.value);
 
-            var sample = {};
+            var element = {};
 
-            sample.barcode = input.value;
-            sample.name = $row.find('.name').text();
-            sample.type = $row.find('.type').text();
-            sample.status = $row.find('.status').text();
+            $.each(properties[settings.mode], function (index, prop) {
+                element[prop] = $row.find('.' + prop).text();
+            });
 
-            samples.push(sample);
+            // override first element for simplicity
+            element[properties[settings.mode][0]] = input.value;
+
+            elements.push(element);
         });
 
-        var sampleHtml = $.map(samples, function (sample) {
-            return template(sample);
+        var html = $.map(elements, function (element) {
+            return template(element);
         });
 
-        $tbody.append(sampleHtml);
+        $tbody.append(html);
 
         $modal.modal('show');
     });
@@ -362,3 +372,7 @@ $.fn.createGroup = function (options) {
 
     return this;
 };
+
+$(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+});

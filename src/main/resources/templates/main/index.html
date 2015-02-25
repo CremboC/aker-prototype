@@ -3,7 +3,7 @@
 <head lang="en" th:include="fragments/common :: head"></head>
 <body>
 
-<div th:replace="fragments/header :: header">...</div>
+<div th:replace="fragments/common :: header">...</div>
 
 <div class="container">
 
@@ -36,7 +36,7 @@
         <div class="row">
             <h3>Samples</h3>
 
-            <div th:replace="samples/table :: samplestable"></div>
+            <div th:replace="samples/table :: samplestable (${'jqp-append-before-samples'}, ${'jqp-load-more-samples'}, ${'jqp-metadata-samples'})"></div>
         </div>
     </div>
 
@@ -67,12 +67,12 @@
     </tr>
 </script>
 
-<div th:include="fragments/common :: foot"></div>
+<div th:replace="fragments/common :: footer"></div>
 
 <script type="application/javascript">
     $(document).ready(function () {
 
-        $('#jqp-samples').pager({
+        $('.jqp-samples').pager({
             url: '/samples/json/',
             template: '#sample-template',
             loadButton: '#jqp-load-more-samples',
@@ -84,7 +84,7 @@
             url: '/groups/json/',
             template: '#group-template',
             loadButton: '#jqp-load-more-groups',
-            appendBefore: '#jqp-append-before-groups',
+            appendBefore: '#jqp-append-before-groups'
         });
 
     });

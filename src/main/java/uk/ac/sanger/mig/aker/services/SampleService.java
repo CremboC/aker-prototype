@@ -39,7 +39,7 @@ public interface SampleService {
 	 * @param barcode set of barcodes
 	 * @return potentially a set of samples
 	 */
-	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode);
+	public Set<Sample> findAllByBarcode(Set<String> barcode);
 
 	public List<Sample> findAll();
 

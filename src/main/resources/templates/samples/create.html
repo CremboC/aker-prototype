@@ -3,7 +3,7 @@
 <head lang="en" th:include="fragments/common :: head"></head>
 <body>
 
-<div th:replace="fragments/header :: header">...</div>
+<div th:replace="fragments/common :: header">...</div>
 
 <!--@thymesVar id="type" type="uk.ac.sanger.mig.aker.domain.Type"-->
 
@@ -45,7 +45,7 @@
     </form>
 </div>
 
-<div th:include="fragments/common :: foot"></div>
+<div th:replace="fragments/common :: footer"></div>
 
 </body>
 </html>

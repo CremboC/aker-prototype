@@ -1,5 +1,7 @@
 package uk.ac.sanger.mig.aker.repositories;
 
+import java.util.Set;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,10 @@ import uk.ac.sanger.mig.aker.domain.Group;
  */
 @Repository
 public interface GroupRepository extends PagingAndSortingRepository<Group, Long> {
+
+	public Set<Group> findByParentId(long parentId);
+
+	public Set<Group> findAllByParentIdIn(Set<Long> groupIds);
+
+	public Set<Group> findAllByIdIn(Set<Long> groups);
 }

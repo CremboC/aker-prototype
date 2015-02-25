@@ -88,9 +88,7 @@ public class SampleController extends BaseController {
 	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public Page<Sample> json(Pageable p) {
-		final Page<Sample> all = sampleService.findAll(p);
-
-		return all;
+		return sampleService.findAll(p);
 	}
 
 	@RequestMapping("/show/{barcode}")

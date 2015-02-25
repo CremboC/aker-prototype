@@ -64,8 +64,10 @@ public class SampleServiceImpl implements SampleService {
 			labels.add(l);
 		}
 
+		Iterable<Sample> samples = repository.save(newSamples);
 		labelRepository.save(labels);
-		return repository.save(newSamples);
+
+		return samples;
 	}
 
 	@Override
@@ -85,14 +87,8 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode) {
-		final Set<Sample> allByBarcodeIn = repository.findAllByBarcodeIn(barcode);
-
-		if (allByBarcodeIn != null) {
-			return Optional.of(allByBarcodeIn);
-		}
-
-		return Optional.empty();
+	public Set<Sample> findAllByBarcode(Set<String> barcode) {
+		return repository.findAllByBarcodeIn(barcode);
 	}
 
 	@Override

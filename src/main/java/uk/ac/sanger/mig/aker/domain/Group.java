@@ -4,18 +4,20 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
  * @author pi1
@@ -23,18 +25,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  */
 @Entity
 @Table(name = "groups")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Group {
-
-	@Id
-	@GeneratedValue
-	private long id;
+public class Group extends BaseEntity {
 
 	@Column
 	private String name;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "created_by")
 	private User owner;
 
 	@ManyToMany
@@ -48,8 +45,11 @@ public class Group {
 
 	@OneToOne
 	@JoinColumn(name = "parent_id")
-	@JsonManagedReference
 	private Group parent;
+
+	@Transient
+	@JsonIgnore
+	private Set<Group> children;
 
 	public Set<Sample> getSamples() {
 		return samples;
@@ -75,43 +75,57 @@ public class Group {
 		this.name = name;
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
-		Group group = (Group) o;
-
-		if (id != group.id)
-			return false;
-		if (name != null ? !name.equals(group.name) : group.name != null)
-			return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		return result;
-	}
-
 	public Group getParent() {
 		return parent;
 	}
 
 	public void setParent(Group parent) {
 		this.parent = parent;
+	}
+
+	public Set<Group> getChildren() {
+		return children;
+	}
+
+	public void setChildren(Set<Group> children) {
+		this.children = children;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		Group rhs = (Group) obj;
+		return new EqualsBuilder()
+				.appendSuper(super.equals(obj))
+				.append(this.name, rhs.name)
+				.isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.appendSuper(super.hashCode())
+				.append(name)
+				.toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.appendSuper(super.toString())
+				.append("name", name)
+				.append("owner", owner)
+				.append("samples", samples)
+				.append("parent", parent)
+				.append("children", children)
+				.toString();
 	}
 }

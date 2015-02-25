@@ -1,6 +1,5 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +27,44 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	public Group createGroup(GroupRequest groupRequest) {
-		final Optional<Set<Sample>> allByBarcode = sampleService.findAllByBarcode(groupRequest.getSamples());
 
-		if (allByBarcode.isPresent()) {
-			final Set<Sample> samples = allByBarcode.get();
-			Group group = new Group();
+		if (groupRequest.getSamples() != null) {
+			final Set<Sample> allByBarcode = sampleService.findAllByBarcode(groupRequest.getSamples());
 
-			group.setName(groupRequest.getName());
-			group.setSamples(samples);
+			if (allByBarcode != null && !allByBarcode.isEmpty()) {
+				Group group = new Group();
 
-			return repository.save(group);
+				group.setName(groupRequest.getName());
+				group.setSamples(allByBarcode);
+
+				return repository.save(group);
+			}
+
+			throw new IllegalStateException("Non-existing barcodes provided: " + groupRequest.toString());
 		}
 
-		throw new IllegalStateException("Non-existing barcodes provided");
+		if (groupRequest.getGroups() != null) {
+			System.out.println(groupRequest.getGroups());
+			final Set<Group> byParentIdIn = repository.findAllByIdIn(groupRequest.getGroups());
+
+			if (byParentIdIn != null && !byParentIdIn.isEmpty()) {
+				Group group = new Group();
+				group.setName(groupRequest.getName());
+				group = repository.save(group);
+
+				for (Group subGroup : byParentIdIn) {
+					subGroup.setParent(group);
+				}
+
+				repository.save(byParentIdIn);
+
+				return group;
+			}
+
+			throw new IllegalStateException("No groups specified in the request found: " + groupRequest.toString());
+		}
+
+		throw new IllegalStateException("Samples and groups are empty");
 	}
 
 	@Override

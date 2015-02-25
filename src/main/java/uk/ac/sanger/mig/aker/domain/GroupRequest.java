@@ -13,8 +13,10 @@ public class GroupRequest {
 	@NotNull
 	private String name;
 
-	@NotNull
-	private Set<String> samples;
+	private Set<String> samples = null;
+
+	// if group request is of groups
+	private Set<Long> groups = null;
 
 	public String getName() {
 		return name;
@@ -30,5 +32,22 @@ public class GroupRequest {
 
 	public void setSamples(Set<String> samples) {
 		this.samples = samples;
+	}
+
+	public Set<Long> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(Set<Long> groups) {
+		this.groups = groups;
+	}
+
+	@Override
+	public String toString() {
+		return "GroupRequest{" +
+				"name='" + name + '\'' +
+				", samples=" + samples +
+				", groups=" + groups +
+				'}';
 	}
 }

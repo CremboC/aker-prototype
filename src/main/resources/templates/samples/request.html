@@ -5,14 +5,14 @@
 
 <!--@thymesVar id="request" type="uk.ac.sanger.mig.aker.domain.SampleRequest"-->
 
-<div th:replace="fragments/header :: header">...</div>
+<div th:replace="fragments/common :: header">...</div>
 
 <div class="container">
     <p th:text="${request.amount}"></p>
     <p th:text="${request.type.name}"></p>
 </div>
 
-<div th:include="fragments/common :: foot"></div>
+<div th:replace="fragments/common :: footer"></div>
 
 </body>
 </html>

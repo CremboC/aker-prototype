@@ -1,9 +1,11 @@
 package uk.ac.sanger.mig.aker.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -16,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name = "labels", indexes = {
-//		@Index(columnList = "id, main", unique = true)
+		@Index(columnList = "id, main", unique = true)
 })
 public class Label {
 
@@ -30,7 +32,7 @@ public class Label {
 	@Column(nullable = false)
 	private boolean main = false;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "sample_id")
 	@JsonIgnore
 	private Sample sample;
