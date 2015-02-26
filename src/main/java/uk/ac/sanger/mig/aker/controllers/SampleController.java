@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
-import uk.ac.sanger.mig.aker.domain.Label;
+import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
-import uk.ac.sanger.mig.aker.repositories.LabelRepository;
+import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
 import uk.ac.sanger.mig.aker.services.GroupService;
@@ -42,7 +42,7 @@ public class SampleController extends BaseController {
 	private SampleRepository sampleRepository;
 
 	@Autowired
-	private LabelRepository labelRepository;
+	private AliasRepository aliasRepository;
 
 	@Resource
 	private SampleService sampleService;
@@ -100,7 +100,7 @@ public class SampleController extends BaseController {
 			return "redirect:/samples/?404";
 		}
 
-		model.addAttribute("label", new Label());
+		model.addAttribute("alias", new Alias());
 
 		return view(Action.SHOW);
 	}
@@ -124,37 +124,22 @@ public class SampleController extends BaseController {
 		return "redirect:/samples/";
 	}
 
-	@RequestMapping(value = "/update/{barcode}/add-label", method = RequestMethod.PUT)
-	public String addLabel(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Label label, BindingResult bindingResult) {
+	@RequestMapping(value = "/update/{barcode}/add-alias", method = RequestMethod.PUT)
+	public String addAlias(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Alias alias, BindingResult bindingResult) {
 		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
 
 			if (!bindingResult.hasErrors()) {
-				label.setSample(sample);
-				labelRepository.save(label);
+				alias.setSample(sample);
+				aliasRepository.save(alias);
 			}
 
 			return "redirect:/samples/show/" + sample.getBarcode();
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
-	}
-
-	@RequestMapping(value = "/{barcode}/add-label/")
-	public String addLabel(@PathVariable("barcode") String barcode) {
-		final Sample sample = sampleRepository.findByBarcode(barcode);
-
-		Label l = new Label();
-		l.setName("Added Label");
-		l.setSample(sample);
-
-		if (labelRepository.save(l) != null) {
-			return "redirect:/samples/?success";
-		}
-
-		return "redirect:/samples/?error";
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)

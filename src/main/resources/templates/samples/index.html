@@ -29,10 +29,10 @@
                             Barcode
                         </th>
                         <th>
-                            Main Label
+                            Main Alias
                         </th>
                         <th>
-                            Labels
+                            Aliases
                         </th>
                         <th>
                             Type
@@ -139,12 +139,12 @@
                     {{ mainLabel.name }}
                 </td>
                 <td class="labels">
-                    {{#list labels}}
+                    {{#list aliases}}
                     {{ name }}
                     {{/list}}
                 </td>
                 <td class="type">
-                    {{ type.name }}
+                    {{ type.value }}
                 </td>
                 <td class="status">
                     {{ status.value }}

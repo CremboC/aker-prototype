@@ -36,6 +36,11 @@
                         Groups
                     </a>
                 </li>
+                <li th:classappend="${uri.startsWith('/work/')} ? active ">
+                    <a th:href="@{/work/}">
+                        Work
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>

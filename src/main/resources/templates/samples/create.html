@@ -30,7 +30,7 @@
         <div class="form-group">
             <label for="type">Of Type</label>
             <select id="type" class="form-control" th:field="*{type}">
-                <option th:each="type : ${types}" th:value="${type.id}" th:text="${type.name}">
+                <option th:each="type : ${types}" th:value="${type.id}" th:text="${type.value}">
                 </option>
             </select>
         </div>

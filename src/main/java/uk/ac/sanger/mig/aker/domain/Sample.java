@@ -43,14 +43,14 @@ public class Sample extends BaseEntity implements Serializable {
 	private String barcode;
 
 	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
-	private Set<Label> labels;
+	private Set<Alias> aliases;
 
 	@ManyToMany(mappedBy = "samples", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonBackReference
 	private Set<Group> groups;
 
 	@Transient
-	private Label mainLabel = null;
+	private Alias mainAlias = null;
 
 	public long getId() {
 		return id;
@@ -76,12 +76,12 @@ public class Sample extends BaseEntity implements Serializable {
 		return "WTSI" + StringUtils.leftPad(String.valueOf(lastId), BARCODE_SIZE, '0');
 	}
 
-	public Set<Label> getLabels() {
-		return labels;
+	public Set<Alias> getAliases() {
+		return aliases;
 	}
 
-	public void setLabels(Set<Label> labels) {
-		this.labels = labels;
+	public void setAliases(Set<Alias> aliases) {
+		this.aliases = aliases;
 	}
 
 	public Status getStatus() {
@@ -100,12 +100,12 @@ public class Sample extends BaseEntity implements Serializable {
 		this.groups = groups;
 	}
 
-	public Label getMainLabel() {
-		return mainLabel;
+	public Alias getMainAlias() {
+		return mainAlias;
 	}
 
-	public void setMainLabel(Label mainLabel) {
-		this.mainLabel = mainLabel;
+	public void setMainAlias(Alias mainAlias) {
+		this.mainAlias = mainAlias;
 	}
 
 	@Override
@@ -141,9 +141,9 @@ public class Sample extends BaseEntity implements Serializable {
 				.append("type", type)
 				.append("status", status)
 				.append("barcode", barcode)
-				.append("labels", labels)
+				.append("aliases", aliases)
 				.append("groups", groups)
-				.append("mainLabel", mainLabel)
+				.append("mainAlias", mainAlias)
 				.toString();
 	}
 }

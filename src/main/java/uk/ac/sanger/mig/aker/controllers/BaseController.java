@@ -4,7 +4,7 @@ package uk.ac.sanger.mig.aker.controllers;
  * @author pi1
  * @since February 2015
  */
-public class BaseController {
+public abstract class BaseController {
 
 	private String templatePath;
 

@@ -66,9 +66,10 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
-	public String show(@PathVariable long id, Model model) {
-		final Iterable<Group> allGroups = groupRepository.findAll();
+	public String show(@PathVariable Long id, Model model) {
 		final Group group = groupRepository.findOne(id);
+
+		final Iterable<Group> allGroups = groupRepository.findAllByIdNotIn(id);
 
 		final Set<Group> byParentId = groupRepository.findByParentId(group.getId());
 		if (!byParentId.isEmpty()) {
@@ -76,14 +77,26 @@ public class GroupController extends BaseController {
 		}
 
 		model.addAttribute("group", group);
+		model.addAttribute("subgroup", new Group());
 		model.addAttribute("groups", allGroups);
 		return view(Action.SHOW);
 	}
 
-	@RequestMapping(value = "/update/{id}/add-subgroup/", method = RequestMethod.PUT)
-	public String addSubgroup(@PathVariable long id, @ModelAttribute Group group, BindingResult result) {
+	@RequestMapping(value = "/update/{id}/add-subgroup", method = RequestMethod.PUT)
+	public String addSubgroup(@PathVariable long id, @ModelAttribute Group addGroup, BindingResult result) {
+		if (addGroup.getId() == id) {
+			return "redirect:/groups/show/" + id;
+		}
 
-		return "";
+		Group group = groupRepository.findOne(id);
+		Group subgroup = groupRepository.findOne(addGroup.getId());
+
+		if (!result.hasErrors()) {
+			subgroup.setParent(group);
+			groupRepository.save(subgroup);
+		}
+
+		return "redirect:/groups/show/" + group.getId();
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)

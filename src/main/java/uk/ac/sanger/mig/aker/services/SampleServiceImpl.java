@@ -7,17 +7,18 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import uk.ac.sanger.mig.aker.domain.Label;
+import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
-import uk.ac.sanger.mig.aker.repositories.LabelRepository;
+import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.StatusRepository;
 
@@ -32,19 +33,19 @@ public class SampleServiceImpl implements SampleService {
 	private SampleRepository repository;
 
 	@Autowired
-	private LabelRepository labelRepository;
+	private AliasRepository aliasRepository;
 
 	@Autowired
 	private StatusRepository statusRepository;
 
 	@Override
-	public Iterable<Sample> createSamples(@NotNull SampleRequest request) {
+	public List<Sample> createSamples(@NotNull SampleRequest request) {
 		final int amount = request.getAmount();
 		final Type type = request.getType();
 		final Status pendingStatus = statusRepository.findByValue("pending");
 
 		List<Sample> newSamples = new ArrayList<>(amount);
-		List<Label> labels = new ArrayList<>(amount);
+		List<Alias> aliases = new ArrayList<>(amount);
 
 		Integer lastId = repository.lastId();
 		lastId = lastId == null ? 0 : lastId;
@@ -55,19 +56,19 @@ public class SampleServiceImpl implements SampleService {
 			s.setBarcode(s.createBarcode(i));
 			s.setStatus(pendingStatus);
 
-			final Label l = new Label();
+			final Alias l = new Alias();
 			l.setName("Created Sample");
 			l.setMain(true);
 			l.setSample(s);
 
 			newSamples.add(s);
-			labels.add(l);
+			aliases.add(l);
 		}
 
 		Iterable<Sample> samples = repository.save(newSamples);
-		labelRepository.save(labels);
+		aliasRepository.save(aliases);
 
-		return samples;
+		return IteratorUtils.toList(samples.iterator());
 	}
 
 	@Override
@@ -75,9 +76,9 @@ public class SampleServiceImpl implements SampleService {
 		final Sample sample = repository.findByBarcode(barcode);
 
 		if (sample != null) {
-			final Optional<Label> label = findMainLabel(sample.getLabels());
-			if (label.isPresent()) {
-				sample.setMainLabel(label.get());
+			final Optional<Alias> alias = findMainAlias(sample.getAliases());
+			if (alias.isPresent()) {
+				sample.setMainAlias(alias.get());
 
 				return Optional.of(sample);
 			}
@@ -87,8 +88,14 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Set<Sample> findAllByBarcode(Set<String> barcode) {
-		return repository.findAllByBarcodeIn(barcode);
+	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode) {
+		final Set<Sample> samples = repository.findAllByBarcodeIn(barcode);
+
+		if (!samples.isEmpty()) {
+			return Optional.of(samples);
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
@@ -102,17 +109,17 @@ public class SampleServiceImpl implements SampleService {
 
 		// set main label for all samples
 		all.forEach(s -> {
-			final Optional<Label> label = findMainLabel(s.getLabels());
-			if (label.isPresent()) {
-				s.setMainLabel(label.get());
+			final Optional<Alias> alias = findMainAlias(s.getAliases());
+			if (alias.isPresent()) {
+				s.setMainAlias(alias.get());
 			}
 		});
 
 		return all;
 	}
 
-	private Optional<Label> findMainLabel(Set<Label> labels) {
-		return labels.stream().filter(l -> l.isMain()).findAny();
+	private Optional<Alias> findMainAlias(Set<Alias> aliases) {
+		return aliases.stream().filter(l -> l.isMain()).findAny();
 	}
 
 }

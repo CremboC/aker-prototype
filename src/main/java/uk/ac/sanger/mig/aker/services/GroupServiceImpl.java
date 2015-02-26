@@ -1,7 +1,12 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,26 +31,32 @@ public class GroupServiceImpl implements GroupService {
 	private SampleService sampleService;
 
 	@Override
-	public Group createGroup(GroupRequest groupRequest) {
+	public Optional<Group> createGroup(@NotNull GroupRequest groupRequest) {
 
 		if (groupRequest.getSamples() != null) {
-			final Set<Sample> allByBarcode = sampleService.findAllByBarcode(groupRequest.getSamples());
+			final Optional<Set<Sample>> allByBarcode = sampleService.findAllByBarcode(groupRequest.getSamples());
 
-			if (allByBarcode != null && !allByBarcode.isEmpty()) {
+			if (allByBarcode.isPresent()) {
 				Group group = new Group();
 
 				group.setName(groupRequest.getName());
-				group.setSamples(allByBarcode);
+				group.setSamples(allByBarcode.get());
 
-				return repository.save(group);
+				group = repository.save(group);
+
+				if (group != null) {
+					return Optional.of(group);
+				} else {
+					return Optional.empty();
+				}
 			}
 
 			throw new IllegalStateException("Non-existing barcodes provided: " + groupRequest.toString());
 		}
 
-		if (groupRequest.getGroups() != null) {
-			System.out.println(groupRequest.getGroups());
-			final Set<Group> byParentIdIn = repository.findAllByIdIn(groupRequest.getGroups());
+		final Set<Long> groups = groupRequest.getGroups();
+		if (groups != null) {
+			final Set<Group> byParentIdIn = repository.findAllByIdIn(groups.toArray(new Long[groups.size()]));
 
 			if (byParentIdIn != null && !byParentIdIn.isEmpty()) {
 				Group group = new Group();
@@ -55,10 +66,13 @@ public class GroupServiceImpl implements GroupService {
 				for (Group subGroup : byParentIdIn) {
 					subGroup.setParent(group);
 				}
+				final List<Group> saved = IteratorUtils.toList(repository.save(byParentIdIn).iterator());
 
-				repository.save(byParentIdIn);
+				if (group.getId() > 1 && !saved.isEmpty()) {
+					return Optional.of(group);
+				}
 
-				return group;
+				return Optional.empty();
 			}
 
 			throw new IllegalStateException("No groups specified in the request found: " + groupRequest.toString());

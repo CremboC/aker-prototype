@@ -1,5 +1,7 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,7 +20,7 @@ public interface GroupService {
 	 * @param groupRequest group request with mandatory elements set
 	 * @return saved group
 	 */
-	public Group createGroup(GroupRequest groupRequest);
+	public Optional<Group> createGroup(GroupRequest groupRequest);
 
 	public Page<Group> findAll(Pageable pageable);
 

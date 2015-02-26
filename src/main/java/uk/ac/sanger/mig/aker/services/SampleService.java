@@ -23,13 +23,13 @@ public interface SampleService {
 	 *
 	 * @param request sample request
 	 */
-	public Iterable<Sample> createSamples(@NotNull SampleRequest request);
+	public List<Sample> createSamples(@NotNull SampleRequest request);
 
 	/**
 	 * Find a sample by its barcode
 	 *
-	 * @param barcode barcode of the label
-	 * @return a label, if one is found
+	 * @param barcode barcode of the sample
+	 * @return a sample, if one is found
 	 */
 	public Optional<Sample> findByBarcode(@NotNull String barcode);
 
@@ -39,7 +39,7 @@ public interface SampleService {
 	 * @param barcode set of barcodes
 	 * @return potentially a set of samples
 	 */
-	public Set<Sample> findAllByBarcode(Set<String> barcode);
+	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode);
 
 	public List<Sample> findAll();
 

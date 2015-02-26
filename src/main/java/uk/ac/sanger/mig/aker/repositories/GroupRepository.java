@@ -16,7 +16,9 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
 
 	public Set<Group> findByParentId(long parentId);
 
-	public Set<Group> findAllByParentIdIn(Set<Long> groupIds);
+	public Set<Group> findAllByParentIdIn(Long... groupIds);
 
-	public Set<Group> findAllByIdIn(Set<Long> groups);
+	public Set<Group> findAllByIdIn(Long... groups);
+
+	public Set<Group> findAllByIdNotIn(Long... groups);
 }

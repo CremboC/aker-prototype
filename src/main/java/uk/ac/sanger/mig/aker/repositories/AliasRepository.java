@@ -6,16 +6,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import uk.ac.sanger.mig.aker.domain.Label;
+import uk.ac.sanger.mig.aker.domain.Alias;
 
 /**
  * @author pi1
  * @since February 2015
  */
 @Repository
-public interface LabelRepository extends CrudRepository<Label, Long> {
+public interface AliasRepository extends CrudRepository<Alias, Long> {
 
 	@Query
-	public List<Label> findBySampleIdAndMain(String sampleId, boolean main);
+	public List<Alias> findBySampleIdAndMain(String sampleId, boolean main);
 
 }

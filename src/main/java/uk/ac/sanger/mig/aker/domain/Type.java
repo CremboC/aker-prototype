@@ -19,18 +19,18 @@ public class Type {
 	private long id;
 
 	@Column(unique = true, nullable = false)
-	private String name;
+	private String value;
 
 	public long getId() {
 		return id;
 	}
 
-	public String getName() {
-		return name;
+	public String getValue() {
+		return value;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class Type {
 
 		if (id != type.id)
 			return false;
-		if (!name.equals(type.name))
+		if (!value.equals(type.value))
 			return false;
 
 		return true;
@@ -53,7 +53,7 @@ public class Type {
 	@Override
 	public int hashCode() {
 		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + name.hashCode();
+		result = 31 * result + value.hashCode();
 		return result;
 	}
 }

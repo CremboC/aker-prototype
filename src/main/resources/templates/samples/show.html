@@ -16,12 +16,12 @@
 
     <div class="col-md-10">
         <div class="row">
-            <div class="labels">
+            <div class="aliases">
                 <h3>Also known as</h3>
 
                 <ul>
-                    <li th:each="label : *{labels}">
-                        <span th:text="${label.name}"></span>
+                    <li th:each="alias : *{aliases}">
+                        <span th:text="${alias.name}"></span>
                     </li>
                 </ul>
             </div>
@@ -41,7 +41,7 @@
             <div class="type">
                 <h3>Type</h3>
 
-                <p class="text-uppercase" th:text="*{type.name}"></p>
+                <p class="text-uppercase" th:text="*{type.value}"></p>
             </div>
 
             <div class="groups">
@@ -62,7 +62,7 @@
             <h4>Actions</h4>
 
             <div class="btn-group-vertical btn-block">
-                <a class="btn btn-primary" data-toggle="modal" href="#add-label">Add Label</a>
+                <a class="btn btn-primary" data-toggle="modal" href="#add-alias">Add Alias</a>
                 <button type="button" class="btn btn-default">..</button>
                 <button type="button" class="btn btn-default">..</button>
             </div>
@@ -71,29 +71,29 @@
 
 </div>
 
-<div class="modal fade" id="add-label">
+<div class="modal fade" id="add-alias">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form th:action="@{/samples/update/{barcode}/add-label(barcode = ${sample.barcode})}" th:method="PUT" role="form"
-                  th:object="${label}">
+            <form th:action="@{/samples/update/{barcode}/add-alias(barcode = ${sample.barcode})}" th:method="PUT" role="form"
+                  th:object="${alias}">
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add Label</h4>
+                    <h4 class="modal-title">Add Alias</h4>
                 </div>
                 <div class="modal-body">
 
 
                     <div class="form-group">
-                        <label for="labelName">Label</label>
-                        <input type="text" class="form-control" th:field="*{name}" id="labelName"
+                        <label for="aliasName">Alias</label>
+                        <input type="text" class="form-control" th:field="*{name}" id="aliasName"
                                placeholder="Identifier for a sample"/>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="submit" class="btn btn-primary" value="Add Label" />
+                    <input type="submit" class="btn btn-primary" value="Add Alias" />
                 </div>
 
             </form>

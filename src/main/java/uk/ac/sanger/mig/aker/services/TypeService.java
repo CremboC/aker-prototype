@@ -10,5 +10,5 @@ import uk.ac.sanger.mig.aker.domain.Type;
  */
 public interface TypeService {
 
-	public Iterable<Type> findAll();
+	public List<Type> findAll();
 }

@@ -46,12 +46,13 @@
 
     <div class="col-md-2">
         <div class="row">
+            <h4>Workflow</h4>
+            <a class="btn btn-primary btn-block">Order Work</a>
+
             <h4>Actions</h4>
 
-            <div class="btn-group-vertical btn-block">
-                <a class="btn btn-primary" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
-                <a href="" class="btn btn-danger">Delete Group</a>
-            </div>
+            <a th:if="${!groups.isEmpty()}" class="btn btn-primary btn-block" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
+            <a class="btn btn-danger btn-block">Delete Group</a>
         </div>
     </div>
 
@@ -78,19 +79,17 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script th:replace="samples/table :: template"></script>
 
 <div th:include="fragments/common :: footer"></div>
 
-<a class="btn btn-primary">Trigger modal</a>
-
 <div class="modal fade" id="add-subgroup">
     <div class="modal-dialog">
 
-        <form th:action="@{/groups/update/{id}/add-subgroup(id = ${group.id})}" th:method="PUT" th:object="${group}" role="form">
+        <form th:action="@{/groups/update/{id}/add-subgroup(id = ${group.id})}" th:method="PUT" th:object="${subgroup}"
+              role="form">
 
             <div class="modal-content">
                 <div class="modal-header">
@@ -109,7 +108,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="submit" class="btn btn-primary" value="Confirm" />
+                    <input type="submit" class="btn btn-primary" value="Confirm"/>
                 </div>
             </div>
             <!-- /.modal-content -->

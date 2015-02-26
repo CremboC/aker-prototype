@@ -19,10 +19,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @since February 2015
  */
 @Entity
-@Table(name = "labels", indexes = {
+@Table(name = "aliases", indexes = {
 		@Index(columnList = "id, main", unique = true)
 })
-public class Label extends BaseEntity{
+public class Alias extends BaseEntity{
 
 	@Column(unique = false, nullable = false)
 	private String name;
@@ -70,7 +70,7 @@ public class Label extends BaseEntity{
 		if (obj.getClass() != getClass()) {
 			return false;
 		}
-		Label rhs = (Label) obj;
+		Alias rhs = (Alias) obj;
 		return new EqualsBuilder()
 				.append(this.id, rhs.id)
 				.append(this.name, rhs.name)

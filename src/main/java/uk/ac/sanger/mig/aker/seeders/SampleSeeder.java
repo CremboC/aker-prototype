@@ -46,10 +46,10 @@ public class SampleSeeder {
 		statusRepository.save(consumed);
 
 		Type blood = new Type();
-		blood.setName("blood");
+		blood.setValue("blood");
 
 		Type dna = new Type();
-		dna.setName("dna");
+		dna.setValue("dna");
 
 		typeRepository.save(blood);
 		typeRepository.save(dna);
