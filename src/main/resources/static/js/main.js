@@ -85,7 +85,8 @@ $.fn.pager = function (options) {
         loadEvents: 'click',
         url: '',
         dataType: 'json',
-        type: 'GET'
+        type: 'GET',
+        data: {}
     };
 
     var settings = $.extend({}, defaults, options);
@@ -198,13 +199,16 @@ $.fn.pager = function (options) {
 
     // wrapper to $.ajax
     var load = function () {
+
+        var data = $.merge(settings.data, {
+            page: $loadButton.data('page'),
+            size: 20
+        });
+
         $.ajax(settings.url, {
             dataType: settings.dataType,
             type: settings.type,
-            data: {
-                page: $loadButton.data('page'),
-                size: 20
-            },
+            data: data,
             success: success,
             error: error
         }).then(function () {

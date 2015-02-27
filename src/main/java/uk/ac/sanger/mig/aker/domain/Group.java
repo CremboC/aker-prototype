@@ -51,6 +51,10 @@ public class Group extends BaseEntity {
 	@JsonIgnore
 	private Set<Group> children;
 
+	@ManyToOne
+	@JoinColumn(name = "type_id")
+	private Type type;
+
 	public Set<Sample> getSamples() {
 		return samples;
 	}
@@ -127,5 +131,13 @@ public class Group extends BaseEntity {
 				.append("parent", parent)
 				.append("children", children)
 				.toString();
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 }

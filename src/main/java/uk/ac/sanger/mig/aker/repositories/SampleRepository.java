@@ -31,4 +31,6 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 	@Query("select s from Sample s join s.groups g where g.id = :groupId")
 	public Page<Sample> byGroupId(@Param("groupId") long groupId, Pageable pageable);
 
+	@Query("select s from Sample s join s.type t where t.value in :types")
+	public Page<Sample> findAllByTypeIn(@Param("types") Set<String> types, Pageable pageable);
 }
