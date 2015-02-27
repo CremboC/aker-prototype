@@ -72,17 +72,16 @@
 
         productQuery.then(function (data) {
             var products = data._embedded.products;
-            $.each(products, function (index, product) {
-                var sampleHtml = $.map($.makeArray(product), function (product) {
-                    product.index = index;
-                    return template(product);
-                });
+            var sampleHtml = '';
 
-                $products.append(sampleHtml);
+            $.each(products, function (index, product) {
+                product.index = index;
+                sampleHtml += template(product);
             });
 
+            $products.append(sampleHtml);
+
             $products.on('change', function (e) {
-                var optionSelected = $("option:selected", this);
                 var valueSelected = this.value;
 
                 var validTypes = [];
