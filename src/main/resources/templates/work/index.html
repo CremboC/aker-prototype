@@ -38,14 +38,6 @@
         </div>
     </div>
 
-    <!--<div class="col-md-2">-->
-    <!--<ul class="nav nav-pills nav-stacked">-->
-    <!--<li class="active"><a href="#">Home</a></li>-->
-    <!--<li><a href="#">Profile</a></li>-->
-    <!--<li><a href="#">Messages</a></li>-->
-    <!--</ul>-->
-    <!--</div>-->
-
 </div>
 
 <script id="select-template" type="text/x-handlebars-template">
@@ -59,12 +51,12 @@
 
 <script type="application/javascript">
     $(document).ready(function () {
-
-        // compile template using Handlebars
+        var $samples = $('.jqp-samples');
 
         var $template = $('#select-template');
         var $products = $('#products');
 
+        // compile template using Handlebars
         var source = $template.html();
         var template = Handlebars.compile(source);
 
@@ -73,6 +65,7 @@
         productQuery.then(function (data) {
             var products = data._embedded.products;
             var sampleHtml = '';
+            var pager;
 
             $.each(products, function (index, product) {
                 product.index = index;
@@ -84,29 +77,37 @@
             $products.on('change', function (e) {
                 var valueSelected = this.value;
 
+                if (valueSelected === '') {
+                    return;
+                }
+
                 var validTypes = [];
 
                 $.each(products[valueSelected].inputMaterial, function (index, material) {
                     validTypes.push(material.type.value);
                 });
 
-                console.log(validTypes);
-
-                $('.jqp-samples').pager({
-                    url: '/samples/byType',
-                    template: '#sample-template',
-                    loadButton: '#load-samples',
-                    appendBefore: '#append-samples',
-                    metadata: '#metadata-samples',
-                    scrollLoad: true,
+                pager.load({
                     data: {
                         types: validTypes.join(',')
                     }
                 });
             });
 
-        }, function (status, code, c) {
+            pager = $samples.pager({
+                url: '/samples/byType',
+                template: '#sample-template',
+                loadButton: '#load-samples',
+                appendBefore: '#append-samples',
+                metadata: '#metadata-samples',
+                scrollLoad: true,
+                preload: false
+            });
 
+        }, function (xhr, status, errorThrown) {
+            console.log(xhr);
+            console.log(status);
+            console.log(errorThrown);
         });
 
     });
