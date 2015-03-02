@@ -26,7 +26,8 @@
 
             <h3>Groups</h3>
 
-            only groups of type that fits workflow
+            <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'})"></div>
+
 
             <h3>Samples</h3>
 
@@ -52,10 +53,10 @@
 
 <script type="application/javascript">
     $(document).ready(function () {
-        var $samples = $('.jqp-samples');
-
-        var $template = $('#select-template');
-        var $products = $('#products');
+        var $samples = $('.jqp-samples'),
+                $groups = $('.jqp-groups'),
+                $template = $('#select-template'),
+                $products = $('#products');
 
         // compile template using Handlebars
         var source = $template.html();
@@ -66,7 +67,7 @@
         productQuery.then(function (data) {
             var products = data._embedded.products;
             var sampleHtml = '';
-            var pager;
+            var samplesPager, groupsPager;
 
             $.each(products, function (index, product) {
                 product.index = index;
@@ -88,19 +89,34 @@
                     validTypes.push(material.type.value);
                 });
 
-                pager.load({
+
+                var payload = {
                     data: {
                         types: validTypes.join(',')
                     }
-                });
+                };
+
+                samplesPager.load(payload);
+                groupsPager.load(payload);
+
             });
 
-            pager = $samples.pager({
+            samplesPager = $samples.pager({
                 url: '/samples/byType',
                 template: '#sample-template',
                 loadButton: '#load-samples',
                 appendBefore: '#append-samples',
                 metadata: '#metadata-samples',
+                scrollLoad: true,
+                preload: false
+            });
+
+            groupsPager = $groups.pager({
+                url: '/groups/byType',
+                template: '#group-template',
+                loadButton: '#load-groups',
+                appendBefore: '#append-groups',
+                metadata: '#metadata-groups',
                 scrollLoad: false,
                 preload: false
             });
@@ -111,7 +127,8 @@
             console.log(errorThrown);
         });
 
-    });
+    })
+    ;
 </script>
 
 </body>

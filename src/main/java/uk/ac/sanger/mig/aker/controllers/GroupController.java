@@ -1,10 +1,12 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +17,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.util.StringUtils;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
+import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
@@ -100,7 +105,7 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding, Model model) {
+	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding) {
 		if (!binding.hasErrors()) {
 			groupService.createGroup(groupRequest);
 
@@ -108,6 +113,15 @@ public class GroupController extends BaseController {
 		}
 
 		return view("group");
+	}
+
+	@RequestMapping(value = "/byType", method = RequestMethod.GET)
+	@ResponseBody
+	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
+		Set<String> typeSet = new HashSet<>();
+		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
+		System.out.println(typeSet);
+		return groupRepository.findAllByTypeIn(typeSet, pageable);
 	}
 
 }

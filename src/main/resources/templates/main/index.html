@@ -11,26 +11,7 @@
         <div class="row">
             <h3>Groups</h3>
 
-            <table class="table table-striped table-condensed" id="jqp-groups">
-                <tr>
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Sample Count
-                    </th>
-                    <th>
-                        Details
-                    </th>
-                </tr>
-                <tr id="jqp-append-before-groups">
-                    <td colspan="7" class="text-center">
-                        <a href="#" class="btn btn-default" id="jqp-load-more-groups">
-                            Load More Groups...
-                        </a>
-                    </td>
-                </tr>
-            </table>
+            <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'})"></div>
         </div>
 
         <div class="row">
@@ -50,23 +31,6 @@
 
 </div>
 
-<script id="group-template" type="text/x-handlebars-template">
-    <tr>
-        <td>
-            {{ name }}
-        </td>
-        <td>
-            {{ samples.length }}
-        </td>
-        <td>
-            <a href="/groups/show/{{ id }}/">
-                <span class="glyphicon glyphicon-eye-open"></span>
-                View
-            </a>
-        </td>
-    </tr>
-</script>
-
 <div th:replace="fragments/common :: footer"></div>
 
 <script type="application/javascript">
@@ -80,11 +44,12 @@
             metadata: '#jqp-metadata-samples'
         });
 
-        $('#jqp-groups').pager({
+        $('.jqp-groups').pager({
             url: '/groups/json/',
             template: '#group-template',
-            loadButton: '#jqp-load-more-groups',
-            appendBefore: '#jqp-append-before-groups'
+            loadButton: '#load-groups',
+            appendBefore: '#append-groups',
+            metadata: '#metadata-groups'
         });
 
     });
