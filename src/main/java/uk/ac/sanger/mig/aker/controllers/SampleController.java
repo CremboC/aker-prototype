@@ -27,6 +27,7 @@ import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
@@ -130,7 +131,8 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/update/{barcode}/add-alias", method = RequestMethod.PUT)
-	public String addAlias(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Alias alias, BindingResult bindingResult) {
+	public String addAlias(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Alias alias,
+			BindingResult bindingResult) {
 		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
 
 		if (optSample.isPresent()) {
@@ -150,7 +152,27 @@ public class SampleController extends BaseController {
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
 	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding, Model model) {
 		if (!binding.hasErrors()) {
-			groupService.createGroup(groupRequest);
+			final Set<Sample> allByBarcodeIn = sampleRepository.findAllByBarcodeIn(groupRequest.getSamples());
+
+			boolean singleType = true;
+			Type type = null;
+			for (final Sample sample : allByBarcodeIn) {
+				if (type == null) {
+					type = sample.getType();
+				}
+				if (!sample.getType().equals(type)) {
+					singleType = false;
+					break;
+				}
+			}
+
+			groupRequest.setType(type);
+
+			if (singleType) {
+				groupService.createGroup(groupRequest);
+			} else {
+				throw new IllegalStateException("Shouldn't be possible to select types of multiple types");
+			}
 
 			return "redirect:/";
 		}

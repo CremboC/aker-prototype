@@ -41,6 +41,7 @@ public class GroupServiceImpl implements GroupService {
 
 				group.setName(groupRequest.getName());
 				group.setSamples(allByBarcode.get());
+				group.setType(groupRequest.getType());
 
 				group = repository.save(group);
 

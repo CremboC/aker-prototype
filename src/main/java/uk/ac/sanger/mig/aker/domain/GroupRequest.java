@@ -18,6 +18,8 @@ public class GroupRequest {
 	// if group request is of groups
 	private Set<Long> groups = null;
 
+	private Type type;
+
 	public String getName() {
 		return name;
 	}
@@ -49,5 +51,13 @@ public class GroupRequest {
 				", samples=" + samples +
 				", groups=" + groups +
 				'}';
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 }

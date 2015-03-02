@@ -267,23 +267,31 @@ $.fn.watcher = function () {
 $.fn.selectableElement = function (options) {
 
     var defaults = {
-        element: ''
+        element: '',
+        singleType: false
     };
 
     var settings = $.extend({}, defaults, options);
 
     var $wrapper = $(this),
-        checkedCount = 0;
+        checkedCount = 0,
+        previousType;
 
     $wrapper.on('click', settings.element, function (e) {
         var $checkbox = $(this).find('input[type="checkbox"]');
+        var type = $checkbox.data('type');
 
         // user may click the checkbox itself, should still work
         if (!$(this).is('input[type="checkbox"]')) {
 
         }
 
-        console.log($(this));
+        if (settings.singleType && checkedCount > 0) {
+            if (type !== previousType) {
+                alert('Type must be the same!');
+                return;
+            }
+        }
 
         $checkbox.prop("checked", !$checkbox.prop("checked"));
         $(this).toggleClass("selected");
@@ -294,7 +302,8 @@ $.fn.selectableElement = function (options) {
             checkedCount--;
         }
 
-        console.log(checkedCount);
+
+        previousType = type;
 
         $wrapper.trigger({
             type: 'element.selected',

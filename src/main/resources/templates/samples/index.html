@@ -128,7 +128,7 @@
         <script id="sample-template" type="text/x-handlebars-template">
             <tr id="{{barcode}}" class="selectable">
                 <td>
-                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" />
+                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" data-type="{{ type.value }}" />
                 </td>
                 <td class="barcode">
                     <a href="/samples/show/{{ barcode }}">
@@ -195,7 +195,8 @@
         });
 
         $samples.selectableElement({
-            element: 'tbody .selectable'
+            element: 'tbody .selectable',
+            singleType: true
         });
 
         $('#create-group').createGroup({
