@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thymeleaf.util.StringUtils;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
@@ -30,7 +30,6 @@ import uk.ac.sanger.mig.aker.domain.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
-import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.TagRepository;
 import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
@@ -63,9 +62,6 @@ public class SampleController extends BaseController {
 
 	@Resource
 	private GroupService groupService;
-
-	@Resource
-	private GroupRepository groupRepository;
 
 	@Autowired
 	private SampleSeeder seeder;
@@ -175,7 +171,7 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding, Model model) {
+	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding) {
 		if (!binding.hasErrors()) {
 			final Set<Sample> allByBarcodeIn = sampleRepository.findAllByBarcodeIn(groupRequest.getSamples());
 
@@ -205,20 +201,33 @@ public class SampleController extends BaseController {
 		return view("group");
 	}
 
-	@RequestMapping(value = "/byGroup/{groupId}/json", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/byGroup/{groupId}", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> showJson(@PathVariable long groupId, Pageable pageable, Model model) {
-		model.addAttribute("group", groupRepository.findOne(groupId));
-
-		return sampleRepository.byGroupId(groupId, pageable);
+	public Page<Sample> byGroupPaged(@PathVariable long groupId, Pageable pageable) {
+		return sampleRepository.findAllByGroupsIdIn(groupId, pageable);
 	}
 
-	@RequestMapping(value = "/byType", method = RequestMethod.GET)
+	@RequestMapping(value = "/byGroups", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable, Model model) {
+	public Set<Sample> byGroup(@RequestParam("groups") Set<Long> groupIds) {
+		return sampleRepository.findAllByGroupsIdIn(groupIds);
+	}
+
+
+	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
+	@ResponseBody
+	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
 		Set<String> typeSet = new HashSet<>();
 		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
-		return sampleRepository.findAllByTypeIn(typeSet, pageable);
+		return sampleRepository.findAllByTypeValueIn(typeSet, pageable);
+	}
+
+	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)
+	@ResponseBody
+	public Set<Sample> byBarcode(@RequestParam("barcodes") String barcodes) {
+		Set<String> barcodeSet = new HashSet<>();
+		CollectionUtils.addAll(barcodeSet, StringUtils.split(barcodes, ","));
+		return sampleRepository.findAllByBarcodeIn(barcodeSet);
 	}
 
 }

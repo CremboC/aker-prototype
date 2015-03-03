@@ -54,7 +54,7 @@
                     <h4>
                         Actions
                     </h4>
-                    <a class="btn btn-primary btn-block">Send Order</a>
+                    <a class="btn btn-primary btn-block" id="submit">Send Order</a>
                 </div>
             </div>
 
@@ -64,8 +64,30 @@
 
 </div>
 
+<div class="modal fade" id="grid-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Grid</h4>
+            </div>
+            <div class="modal-body">
+                <div id="grid" style="width: 100%; height: 500px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <script id="select-template" type="text/x-handlebars-template">
-    <option value="{{ index }}">
+    <option value="{{ index }}${{ name }}" data-index="{{ index }}">
         {{ name }}
     </option>
 </script>
@@ -73,18 +95,37 @@
 <script id="option-template" type="text/x-handlebars-template">
     <div class="form-group">
         <label for="{{ name }}">{{ name }}</label>
-        <select name="{{ name }}" id="{{ name }}" class="form-control">
+        <select name="options" id="{{ name }}" class="form-control">
             {{#unless required}}
-            <option value=""></option>
+            <option value="{{ name }}$"></option>
             {{/unless}}
 
             {{#each options}}
-            <option value="{{ @index }}">
+            <option value="{{ ../name }}${{ this }}" data-index="{{ @index }}">
                 {{ this }}
             </option>
             {{/each}}
         </select>
     </div>
+</script>
+
+<script id="grid-template" type="text/x-handlebars-template">
+    <table class="table table-hover">
+        <thead>
+        {{#each headers}}
+        <tr>
+            <th></th>
+        </tr>
+        {{/each}}
+        </thead>
+        <tbody>
+        {{#each samples}}
+        <tr>
+            <td></td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </script>
 
 
@@ -96,7 +137,8 @@
                 $groups = $('.jqp-groups'),
                 $productTemplate = $('#select-template'),
                 $optionTemplate = $('#option-template'),
-                $products = $('#products');
+                $products = $('#products'),
+                $submit = $('#submit');
 
         // compile template using Handlebars
         var optionTemplate = Handlebars.compile($optionTemplate.html()),
@@ -111,6 +153,7 @@
         });
 
         var productQuery = $.ajax('http://localhost:8081/products/');
+        var products;
 
         function updateOptions(product) {
             var optionsHtml = '';
@@ -122,6 +165,7 @@
             var optionsQuery = $.ajax(product._links.options.href);
             optionsQuery.then(function (data) {
                 var options = data._embedded.options;
+                product.options = options;
                 $.each(options, function (index, option) {
 
                     // has no options
@@ -143,7 +187,7 @@
         }
 
         productQuery.then(function (data) {
-            var products = data._embedded.products;
+            products = data._embedded.products;
             var sampleHtml = '';
             var samplesPager, groupsPager;
 
@@ -155,7 +199,8 @@
             $products.append(sampleHtml);
 
             $products.on('change', function (e) {
-                var valueSelected = this.value;
+                var $selected = $(this).find(":selected"),
+                        valueSelected = $selected.data('index');
 
                 if (valueSelected === '') {
                     return;
@@ -180,7 +225,7 @@
             });
 
             samplesPager = $samples.pager({
-                url: '/samples/byType',
+                url: '/samples/byTypes',
                 template: '#sample-template',
                 loadButton: '#load-samples',
                 appendBefore: '#append-samples',
@@ -190,13 +235,69 @@
             });
 
             groupsPager = $groups.pager({
-                url: '/groups/byType',
+                url: '/groups/byTypes',
                 template: '#group-template',
                 loadButton: '#load-groups',
                 appendBefore: '#append-groups',
                 metadata: '#metadata-groups',
                 scrollLoad: false,
                 preload: false
+            });
+
+            $submit.on('click', function (e) {
+                e.preventDefault();
+
+//                var $modal = $('#grid-modal').modal();
+                var order = {
+                    product: [],
+                    samples: [],
+                    groups: [],
+                    options: []
+                };
+
+                var form = $('form').serializeArray();
+
+                $.each(form, function (index, input) {
+                    switch (input.name) {
+                        case 'product':
+                            var productIndex = input.value.split('$')[0];
+
+                            order.product = products[productIndex];
+                            break;
+
+                        case 'samples':
+                            order.samples.push({
+                                barcode: input.value
+                            });
+                            break;
+
+                        case 'groups':
+                            order.groups.push({
+                                id: input.value
+                            });
+                            break;
+
+                        case 'options':
+                            var split = input.value.split('$');
+                            order.options.push({
+                                name: split[0],
+                                value: split[1]
+                            });
+                            break;
+                    }
+                });
+
+                var samplesQuery = $.ajax('/samples/byGroup', {
+                    data: {
+
+                    }
+                });
+
+                samplesQuery.then(function (data, status) {
+                    console.log(data);
+                });
+
+                console.log(order);
             });
 
         }, function (xhr, status, errorThrown) {

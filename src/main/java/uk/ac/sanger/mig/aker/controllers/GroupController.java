@@ -115,12 +115,12 @@ public class GroupController extends BaseController {
 		return view("group");
 	}
 
-	@RequestMapping(value = "/byType", method = RequestMethod.GET)
+	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
 		Set<String> typeSet = new HashSet<>();
 		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
-		return groupRepository.findAllByTypeIn(typeSet, pageable);
+		return groupRepository.findAllByTypeValueIn(typeSet, pageable);
 	}
 
 }

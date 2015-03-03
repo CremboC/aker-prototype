@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import uk.ac.sanger.mig.aker.domain.Sample;
@@ -23,14 +22,15 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 
 	public List<Sample> findByTypeId(long id);
 
+	public Set<Sample> findAllByBarcodeIn(Set<String> barcode);
+
+	public Set<Sample> findAllByGroupsIdIn(Set<Long> groupId);
+
+	public Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
+
+	public Page<Sample> findAllByTypeValueIn(Set<String> types, Pageable pageable);
+
 	@Query("select max(s.id) from Sample s")
 	public Integer lastId();
 
-	public Set<Sample> findAllByBarcodeIn(Set<String> barcode);
-
-	@Query("select s from Sample s join s.groups g where g.id = :groupId")
-	public Page<Sample> byGroupId(@Param("groupId") long groupId, Pageable pageable);
-
-	@Query("select s from Sample s join s.type t where t.value in :types")
-	public Page<Sample> findAllByTypeIn(@Param("types") Set<String> types, Pageable pageable);
 }
