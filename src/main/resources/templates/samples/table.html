@@ -6,12 +6,13 @@
 </head>
 <body>
 
-<div th:fragment="samplestable (appendBeforeId, loadMoreId, metadataId)">
-    <div th:fragment="table (appendBeforeId, loadMoreId, metadataId)">
+<div th:fragment="samplestable (appendBeforeId, loadMoreId, metadataId, checkbox)">
+    <div th:fragment="table (appendBeforeId, loadMoreId, metadataId, checkbox)">
         <div class="text-muted pull-right jqp-metadata" th:id="${metadataId}">
         </div>
-        <table class="table table-striped table-condensed jqp-samples">
+        <table class="table table-condensed jqp-samples" th:classappend="${checkbox ? 'table-hover' : ''}">
             <tr>
+                <th th:if="${checkbox}"></th>
                 <th>
                     Barcode
                 </th>
@@ -37,8 +38,11 @@
         </table>
     </div>
 
-    <script id="sample-template" type="text/x-handlebars-template" th:fragment="template">
-        <tr>
+    <script id="sample-template" type="text/x-handlebars-template" th:fragment="template (checkbox)">
+        <tr id="{{ barcode }}" th:class="${checkbox ? 'selectable' : ''}">
+            <td th:if="${checkbox}">
+                <input type="checkbox" value="{{ barcode }}" name="samples" />
+            </td>
             <td width="15%">
                 <a href="/samples/show/{{ barcode }}">
                     {{ barcode }}

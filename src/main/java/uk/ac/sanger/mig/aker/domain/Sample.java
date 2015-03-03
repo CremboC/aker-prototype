@@ -49,6 +49,9 @@ public class Sample extends BaseEntity implements Serializable {
 	@JsonBackReference
 	private Set<Group> groups;
 
+	@OneToMany(mappedBy = "sample")
+	private Set<Tag> tags;
+
 	@Transient
 	private Alias mainAlias = null;
 
@@ -145,5 +148,13 @@ public class Sample extends BaseEntity implements Serializable {
 				.append("groups", groups)
 				.append("mainAlias", mainAlias)
 				.toString();
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
 	}
 }

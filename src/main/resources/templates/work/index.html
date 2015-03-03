@@ -7,38 +7,60 @@
 
 <div class="container">
 
-    <div class="page-header">
-        <h2>
-            Order Work
-        </h2>
-    </div>
+    <form th:action="@{/work/request}" method="POST">
 
-    <div class="col-md-12">
+        <div class="page-header">
+            <h2>
+                Order Work
+            </h2>
+        </div>
+
         <div class="row">
-            <div class="form-group">
-                <label for="products" class="h3">
-                    Choose product
-                </label>
-                <select name="product" id="products" class="form-control">
-                    <option value=""></option>
-                </select>
+            <div class="col-md-10">
+                <div class="form-group">
+                    <label for="products" class="h3">
+                        Choose product
+                    </label>
+                    <select name="product" id="products" class="form-control">
+                        <option value=""></option>
+                    </select>
+                </div>
+
+                <div class="options-wrapper">
+                    <h3>
+                        Options
+                    </h3>
+
+                    <div class="options">
+
+                    </div>
+                </div>
+
+                <div class="groups-wrapper">
+                    <h3>Groups</h3>
+
+                    <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'}, ${true})"></div>
+                </div>
+
+                <div class="samples-wrapper">
+                    <h3>Samples</h3>
+
+                    <div th:replace="samples/table :: samplestable (${'append-samples'}, ${'load-samples'}, ${'metadata-samples'}, ${true})"></div>
+                </div>
+
+            </div>
+            <div class="col-md-2">
+                <div data-spy="affix">
+                    <h4>
+                        Actions
+                    </h4>
+                    <a class="btn btn-primary btn-block">Send Order</a>
+                </div>
             </div>
 
-            <h3>Groups</h3>
-
-            <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'})"></div>
-
-
-            <h3>Samples</h3>
-
-            <div th:replace="samples/table :: samplestable (${'append-samples'}, ${'load-samples'}, ${'metadata-samples'})"></div>
-
         </div>
 
-        <div class="row">
-
-        </div>
-    </div>
+    </form>
 
 </div>
 
@@ -48,6 +70,23 @@
     </option>
 </script>
 
+<script id="option-template" type="text/x-handlebars-template">
+    <div class="form-group">
+        <label for="{{ name }}">{{ name }}</label>
+        <select name="{{ name }}" id="{{ name }}" class="form-control">
+            {{#unless required}}
+            <option value=""></option>
+            {{/unless}}
+
+            {{#each options}}
+            <option value="{{ @index }}">
+                {{ this }}
+            </option>
+            {{/each}}
+        </select>
+    </div>
+</script>
+
 
 <div th:replace="fragments/common :: footer"></div>
 
@@ -55,14 +94,53 @@
     $(document).ready(function () {
         var $samples = $('.jqp-samples'),
                 $groups = $('.jqp-groups'),
-                $template = $('#select-template'),
+                $productTemplate = $('#select-template'),
+                $optionTemplate = $('#option-template'),
                 $products = $('#products');
 
         // compile template using Handlebars
-        var source = $template.html();
-        var template = Handlebars.compile(source);
+        var optionTemplate = Handlebars.compile($optionTemplate.html()),
+                productTemplate = Handlebars.compile($productTemplate.html());
+
+        $groups.selectableElement({
+            element: 'tbody .selectable'
+        });
+
+        $samples.selectableElement({
+            element: 'tbody .selectable'
+        });
 
         var productQuery = $.ajax('http://localhost:8081/products/');
+
+        function updateOptions(product) {
+            var optionsHtml = '';
+
+            if (!product._links.options) {
+                return;
+            }
+
+            var optionsQuery = $.ajax(product._links.options.href);
+            optionsQuery.then(function (data) {
+                var options = data._embedded.options;
+                $.each(options, function (index, option) {
+
+                    // has no options
+                    if (option.perSample) {
+                        return;
+                    }
+
+                    var context = {
+                        name: option.name,
+                        options: stringByCommasToArray(option.restrictedOptions),
+                        required: option.required
+                    };
+
+                    optionsHtml += optionTemplate(context);
+                });
+
+                $('.options').html('').html(optionsHtml);
+            });
+        }
 
         productQuery.then(function (data) {
             var products = data._embedded.products;
@@ -71,7 +149,7 @@
 
             $.each(products, function (index, product) {
                 product.index = index;
-                sampleHtml += template(product);
+                sampleHtml += productTemplate(product);
             });
 
             $products.append(sampleHtml);
@@ -89,6 +167,7 @@
                     validTypes.push(material.type.value);
                 });
 
+                updateOptions(products[valueSelected]);
 
                 var payload = {
                     data: {
@@ -98,7 +177,6 @@
 
                 samplesPager.load(payload);
                 groupsPager.load(payload);
-
             });
 
             samplesPager = $samples.pager({
@@ -127,8 +205,7 @@
             console.log(errorThrown);
         });
 
-    })
-    ;
+    });
 </script>
 
 </body>

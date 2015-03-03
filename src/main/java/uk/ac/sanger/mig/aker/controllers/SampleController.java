@@ -27,10 +27,12 @@ import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
+import uk.ac.sanger.mig.aker.repositories.TagRepository;
 import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
@@ -49,6 +51,9 @@ public class SampleController extends BaseController {
 
 	@Autowired
 	private AliasRepository aliasRepository;
+
+	@Autowired
+	private TagRepository tagRepository;
 
 	@Resource
 	private SampleService sampleService;
@@ -107,6 +112,7 @@ public class SampleController extends BaseController {
 		}
 
 		model.addAttribute("alias", new Alias());
+		model.addAttribute("tag", new Tag());
 
 		return view(Action.SHOW);
 	}
@@ -141,6 +147,25 @@ public class SampleController extends BaseController {
 			if (!bindingResult.hasErrors()) {
 				alias.setSample(sample);
 				aliasRepository.save(alias);
+			}
+
+			return "redirect:/samples/show/" + sample.getBarcode();
+		}
+
+		return "redirect:/samples/?404" + optSample.toString();
+	}
+
+	@RequestMapping(value = "/update/{barcode}/add-tag", method = RequestMethod.PUT)
+	public String addTag(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Tag tag,
+			BindingResult bindingResult) {
+		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
+
+		if (optSample.isPresent()) {
+			final Sample sample = optSample.get();
+
+			if (!bindingResult.hasErrors()) {
+				tag.setSample(sample);
+				tagRepository.save(tag);
 			}
 
 			return "redirect:/samples/show/" + sample.getBarcode();

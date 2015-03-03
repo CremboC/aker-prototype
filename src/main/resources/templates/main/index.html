@@ -11,13 +11,13 @@
         <div class="row">
             <h3>Groups</h3>
 
-            <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'})"></div>
+            <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'}, ${false})"></div>
         </div>
 
         <div class="row">
             <h3>Samples</h3>
 
-            <div th:replace="samples/table :: samplestable (${'jqp-append-before-samples'}, ${'jqp-load-more-samples'}, ${'jqp-metadata-samples'})"></div>
+            <div th:replace="samples/table :: samplestable (${'jqp-append-before-samples'}, ${'jqp-load-more-samples'}, ${'jqp-metadata-samples'}, ${false})"></div>
         </div>
     </div>
 

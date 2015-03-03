@@ -65,7 +65,7 @@
                     Samples from: <span th:text="*{name}"></span>
                 </h4>
 
-                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id})"></div>
+                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${false})"></div>
             </div>
 
             <div th:if="*{children != null}">
@@ -74,14 +74,14 @@
                         Samples from: <span th:text="${child.name}"></span>
                     </h4>
 
-                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id})"></div>
+                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${false})"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script th:replace="samples/table :: template"></script>
+<script th:replace="samples/table :: template (${false})"></script>
 
 <div th:include="fragments/common :: footer"></div>
 

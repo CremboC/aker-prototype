@@ -14,8 +14,8 @@
         </h2>
     </div>
 
-    <div class="col-md-10">
-        <div class="row">
+    <div class="row">
+        <div class="col-md-10">
             <div class="aliases">
                 <h3>Also known as</h3>
 
@@ -54,16 +54,33 @@
                     </li>
                 </ul>
             </div>
-        </div>
-    </div>
 
-    <div class="col-md-2">
-        <div class="row">
+            <div class="tags">
+                <h3>Tags</h3>
+
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="assignedTag : *{tags}">
+                        <td th:text="${assignedTag.name}"></td>
+                        <td th:text="${assignedTag.value}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-2">
             <h4>Actions</h4>
 
             <div class="btn-group-vertical btn-block">
                 <a class="btn btn-primary" data-toggle="modal" href="#add-alias">Add Alias</a>
-                <button type="button" class="btn btn-default">..</button>
+                <a class="btn btn-primary" data-toggle="modal" href="#add-tag">Add Tag</a>
                 <button type="button" class="btn btn-default">..</button>
             </div>
         </div>
@@ -74,7 +91,8 @@
 <div class="modal fade" id="add-alias">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form th:action="@{/samples/update/{barcode}/add-alias(barcode = ${sample.barcode})}" th:method="PUT" role="form"
+            <form th:action="@{/samples/update/{barcode}/add-alias(barcode = ${sample.barcode})}" th:method="PUT"
+                  role="form"
                   th:object="${alias}">
 
                 <div class="modal-header">
@@ -93,7 +111,48 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="submit" class="btn btn-primary" value="Add Alias" />
+                    <input type="submit" class="btn btn-primary" value="Add Alias"/>
+                </div>
+
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<div class="modal fade" id="add-tag">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/samples/update/{barcode}/add-tag(barcode = ${sample.barcode})}" th:method="PUT"
+                  role="form" th:object="${tag}">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Tag</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="tagName">Name</label>
+                        <select name="name" id="tagName" th:field="*{name}" class="form-control">
+                            <option value=""></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tagValue">Value</label>
+
+                        <div id="value-wrapper">
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Add Tag"/>
                 </div>
 
             </form>
@@ -105,6 +164,70 @@
 <!-- /.modal -->
 
 <div th:replace="fragments/common :: footer"></div>
+
+<script id="select-template" type="text/x-handlebars-template">
+    <select name="value" id="tagValue" class="form-control">
+        {{#each options}}
+        <option value="{{ this }}">{{ this }}</option>
+        {{/each}}
+    </select>
+</script>
+
+<script id="text-template" type="text/x-handlebars-template">
+    <input type="text" name="value" value="" class="form-control"/>
+</script>
+
+<script id="option-template" type="text/x-handlebars-template">
+    <option value="{{ name }}" data-index="{{ index }}">{{ name }}</option>
+</script>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        var tagQuery = $.ajax('http://localhost:8081/options/search/findByPerSampleTrue/');
+
+        // compile template using Handlebars
+        var selectTemplate = Handlebars.compile($('#select-template').html()),
+                textTemplate = Handlebars.compile($('#text-template').html()),
+                optionTemplate = Handlebars.compile($('#option-template').html());
+
+        tagQuery.then(function (data, status) {
+            console.log(data);
+            console.log(status);
+
+            var options = data._embedded.options;
+
+            var $nameSelect = $('#tagName'),
+                    $valueWrapper = $('#value-wrapper');
+
+            $.each(options, function (index, option) {
+                option.index = index;
+                $nameSelect.append(optionTemplate(option));
+            });
+
+            $nameSelect.on('change', function (e) {
+                $valueWrapper.html('');
+
+                var valueSelected = this.value;
+                var selectedOption = options[$(this).find(":selected").data('index')];
+
+                if (!selectedOption.restrictedOptions) {
+                    $valueWrapper.append(textTemplate(selectedOption));
+                } else {
+                    console.log(selectedOption.restrictedOptions);
+                    console.log(stringByCommasToArray(selectedOption.restrictedOptions));
+                    var context = {
+                        name: selectedOption.name,
+                        options: stringByCommasToArray(selectedOption.restrictedOptions)
+                    };
+                    $valueWrapper.append(selectTemplate(context));
+                }
+            });
+
+        }, function (a, b, c) {
+
+        })
+    });
+</script>
 
 </body>
 </html>

@@ -2,6 +2,16 @@
  * Created by pi1 on 17/02/2015.
  */
 
+/**
+ * regex converts 'Yes, No' to 'Yes,No' i.e. removes spaces after comma for split to work properly
+ * also removes last comma (and whitespace) at the end of the string
+ * @param string
+ * @returns {Array}
+ */
+function stringByCommasToArray(string) {
+    return string.replace(/[,\s]+/g, ',').replace(/[,\s]+$/g, '').split(',');
+}
+
 Handlebars.registerHelper('list', function (context, options) {
     if (context == undefined) {
         return;

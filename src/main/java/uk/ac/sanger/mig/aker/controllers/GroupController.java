@@ -120,7 +120,6 @@ public class GroupController extends BaseController {
 	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
 		Set<String> typeSet = new HashSet<>();
 		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
-		System.out.println(typeSet);
 		return groupRepository.findAllByTypeIn(typeSet, pageable);
 	}
 

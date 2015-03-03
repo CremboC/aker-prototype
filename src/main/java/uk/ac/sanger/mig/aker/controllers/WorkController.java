@@ -3,7 +3,6 @@ package uk.ac.sanger.mig.aker.controllers;
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -20,7 +19,7 @@ public class WorkController extends BaseController {
 	}
 
 	@RequestMapping("/")
-	public String index(Model model) {
+	public String index() {
 		return view(Action.INDEX);
 	}
 
