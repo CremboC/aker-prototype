@@ -74,29 +74,6 @@
 
 </div>
 
-<div class="modal fade" id="grid-modal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Grid</h4>
-            </div>
-            <div class="modal-body">
-                <form action="" id="grid">
-
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
 <script id="select-template" type="text/x-handlebars-template">
     <option value="{{ index }}${{ name }}" data-index="{{ index }}">
         {{ name }}
@@ -120,71 +97,6 @@
     </div>
 </script>
 
-<script id="grid-template" type="text/x-handlebars-template">
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            {{#each headers}}
-            <th>{{ this }}</th>
-            {{/each}}
-            {{#each options}}
-            <th>{{ this.name }}</th>
-            {{/each}}
-        </tr>
-        </thead>
-        <tbody>
-        {{#each samples}}
-        <tr>
-            <td>
-                <a href="/samples/show/{{ this.barcode }}" target="_blank">
-                    {{ barcode }}
-                </a>
-                <input type="hidden" value="{{ barcode }}" name="samples" />
-            </td>
-            {{#each ../options}}
-                {{#each ../tags}}
-                {{#ifCond this.name '==' ../this.name}}
-                <td>
-                    {{ this.value }}
-                </td>
-                {{ else }}
-                <td>
-                    {{log ../../this.restrictions}}
-                    {{#if ../../this.restrictions}}
-                    <select name="{{ ../../../../barcode }}${{ ../name }}" class="form-control">
-                        <option value=""></option>
-                        {{#each ../this.restrictions}}
-                        <option value="{{ this }}">{{ this }}</option>
-                        {{/each}}
-                    </select>
-                    {{ else }}
-                    <input type="text" name="{{ ../../../../barcode }}${{ ../name }}" class="form-control" required="required" />
-                    {{/if}}
-                </td>
-                {{/ifCond}}
-                {{/each}}
-                {{#unless ../tags}}
-                <td>
-                    {{#if ../restrictions}}
-                    <select name="{{ ../../../barcode }}${{ name }}" class="form-control">
-                        <option value=""></option>
-                        {{#each this.restrictions}}
-                        <option value="{{ this }}">{{ this }}</option>
-                        {{/each}}
-                    </select>
-                    {{ else }}
-                    <input type="text" name="{{ ../../../barcode }}${{ name }}" class="form-control" required="required" />
-                    {{/if}}
-                </td>
-                {{/unless}}
-            {{/each}}
-        </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</script>
-
-
 <div th:replace="fragments/common :: footer"></div>
 
 <script type="application/javascript">
@@ -198,8 +110,7 @@
 
         // compile template using Handlebars
         var optionTemplate = Handlebars.compile($('#option-template').html()),
-                productTemplate = Handlebars.compile($('#select-template').html()),
-                tableTemplate = Handlebars.compile($('#grid-template').html());
+                productTemplate = Handlebars.compile($('#select-template').html());
 
         $groups.selectableElement({
             element: 'tbody .selectable'
@@ -307,8 +218,6 @@
             $submit.on('click', function (e) {
                 e.preventDefault();
 
-                var $modal = $('#grid-modal').modal({show: false});
-
                 var order = {
                     product: [],
                     samples: [],
@@ -384,28 +293,50 @@
                         return opt.perSample;
                     });
 
-                    var context = {
-                        headers: ['Barcode'],
-                        options: [],
-                        samples: order.samples
+                    var finalOrder = {
+                        samples: [],
+                        product: '',
+                        options: []
                     };
 
-                    $.each(perSampleOptions, function (i, opt) {
-                        console.log(stringByCommasToArray(opt.restrictedOptions));
-                        context.options.push({
-                            name: opt.name,
-                            restrictions: stringByCommasToArray(opt.restrictedOptions)
+                    $.each(order.samples, function (i, sample) {
+                        finalOrder.samples.push({
+                            barcode: sample.barcode
                         });
                     });
 
-                    console.log(context);
+                    $.each(order.options, function (i, opt) {
+                        finalOrder.options.push({
+                            name: opt.name,
+                            value: opt.value
+                        });
+                    });
 
-                    var table = tableTemplate(context);
+                    finalOrder.product = {
+                        name: order.product.name,
+                        options: []
+                    };
 
-                    $('#grid').html(table);
-                    $modal.modal('show');
+                    $.each(perSampleOptions, function (i, opt) {
+                        finalOrder.product.options.push({
+                            name: opt.name,
+                            value: "",
+                            restrictedOptions: stringByCommasToArray(opt.restrictedOptions)
+                        });
+                    });
 
-                    console.log(order);
+                    var orderQuery = $.ajax('/work/order', {
+                        method: "POST",
+                        data: JSON.stringify(finalOrder),
+                        processData: false,
+                        contentType: 'application/json'
+                    });
+
+                    orderQuery.then(function (data) {
+                        if (data) {
+                            window.location.href = "/work/order";
+                        }
+                    });
                 });
 
             });

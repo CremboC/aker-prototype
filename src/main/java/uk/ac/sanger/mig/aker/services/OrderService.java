@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.services;
 
+import uk.ac.sanger.mig.aker.domain.WorkOrder;
 import uk.ac.sanger.mig.aker.messages.Order;
 
 /**
@@ -21,5 +22,8 @@ public interface OrderService {
 	 * @param message the message
 	 */
 	public void receiveConfirmation(String message);
+
+
+	public WorkOrder processOrder(WorkOrder order);
 
 }

@@ -49,7 +49,7 @@ public class Sample extends BaseEntity implements Serializable {
 	@JsonBackReference
 	private Set<Group> groups;
 
-	@OneToMany(mappedBy = "sample")
+	@OneToMany(mappedBy = "sample", fetch = FetchType.EAGER)
 	private Set<Tag> tags;
 
 	@Transient
