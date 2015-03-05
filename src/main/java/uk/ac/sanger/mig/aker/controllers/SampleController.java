@@ -1,6 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -8,8 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -216,18 +214,17 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
-		Set<String> typeSet = new HashSet<>();
-		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
-		return sampleRepository.findAllByTypeValueIn(typeSet, pageable);
+	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable) {
+		return sampleRepository.findAllByTypeValueIn(types, pageable);
 	}
 
 	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)
 	@ResponseBody
-	public Set<Sample> byBarcode(@RequestParam("barcodes") String barcodes) {
-		Set<String> barcodeSet = new HashSet<>();
-		CollectionUtils.addAll(barcodeSet, StringUtils.split(barcodes, ","));
-		return sampleRepository.findAllByBarcodeIn(barcodeSet);
+	public Set<Sample> byBarcode(@RequestParam(value = "barcodes", required = false) Collection<String> barcodes) {
+		if (barcodes.isEmpty()) {
+			return null;
+		}
+		return sampleRepository.findAllByBarcodeIn(barcodes);
 	}
 
 }

@@ -15,46 +15,53 @@
             </h2>
         </div>
 
-        <div class="row">
-            <div class="col-md-10">
-                <div class="form-group">
-                    <label for="products" class="h3">
-                        Choose product
-                    </label>
-                    <select name="product" id="products" class="form-control">
-                        <option value=""></option>
-                    </select>
-                </div>
+        <div class="row" id="work-form">
 
-                <div class="options-wrapper">
-                    <h3>
-                        Options
-                    </h3>
-
-                    <div class="options">
-
-                    </div>
-                </div>
-
-                <div class="groups-wrapper">
-                    <h3>Groups</h3>
-
-                    <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'}, ${true})"></div>
-                </div>
-
-                <div class="samples-wrapper">
-                    <h3>Samples</h3>
-
-                    <div th:replace="samples/table :: samplestable (${'append-samples'}, ${'load-samples'}, ${'metadata-samples'}, ${true})"></div>
-                </div>
-
+            <div class="show col-xs-2 col-xs-offset-5">
+                <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Loading...
             </div>
-            <div class="col-md-2">
-                <div data-spy="affix">
-                    <h4>
-                        Actions
-                    </h4>
-                    <a class="btn btn-primary btn-block" id="submit">Send Order</a>
+
+            <div class="hidden">
+                <div class="col-md-10">
+                    <div class="form-group">
+                        <label for="products" class="h3">
+                            Choose product
+                        </label>
+                        <select name="product" id="products" class="form-control">
+                            <option value=""></option>
+                        </select>
+                    </div>
+
+                    <div class="options-wrapper">
+                        <h3>
+                            Options
+                        </h3>
+
+                        <div class="options">
+
+                        </div>
+                    </div>
+
+                    <div class="groups-wrapper">
+                        <h3>Groups</h3>
+
+                        <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'}, ${true})"></div>
+                    </div>
+
+                    <div class="samples-wrapper">
+                        <h3>Samples</h3>
+
+                        <div th:replace="samples/table :: samplestable (${'append-samples'}, ${'load-samples'}, ${'metadata-samples'}, ${true})"></div>
+                    </div>
+
+                </div>
+                <div class="col-md-2">
+                    <div class="attached-affix" data-spy="affix" data-offset-top="165">
+                        <h4>
+                            Actions
+                        </h4>
+                        <a class="btn btn-primary btn-block" id="submit">Send Order</a>
+                    </div>
                 </div>
             </div>
 
@@ -72,7 +79,7 @@
                 <h4 class="modal-title">Grid</h4>
             </div>
             <div class="modal-body">
-                <div id="grid" style="width: 100%; height: 500px;">
+                <div id="grid">
                 </div>
             </div>
             <div class="modal-footer">
@@ -112,16 +119,41 @@
 <script id="grid-template" type="text/x-handlebars-template">
     <table class="table table-hover">
         <thead>
-        {{#each headers}}
         <tr>
-            <th></th>
+            {{#each headers}}
+            <th>{{ this }}</th>
+            {{/each}}
+            {{#each options}}
+            <th>{{ this }}</th>
+            {{/each}}
         </tr>
-        {{/each}}
         </thead>
         <tbody>
         {{#each samples}}
         <tr>
-            <td></td>
+            <td>
+                <a href="/samples/show/{{ this.barcode }}" target="_blank">
+                    {{ this.barcode }}
+                </a>
+            </td>
+            {{#each ../options}}
+            {{#each ../tags}}
+            {{#ifCond this.name '==' ../this}}
+            <td>
+                {{ this.value }}
+            </td>
+            {{ else }}
+            <td>
+
+            </td>
+            {{/ifCond}}
+            {{/each}}
+            {{#unless ../tags}}
+            <td>
+
+            </td>
+            {{/unless}}
+            {{/each}}
         </tr>
         {{/each}}
         </tbody>
@@ -133,16 +165,17 @@
 
 <script type="application/javascript">
     $(document).ready(function () {
-        var $samples = $('.jqp-samples'),
+
+        var $workForm = $('#work-form'),
+                $samples = $('.jqp-samples'),
                 $groups = $('.jqp-groups'),
-                $productTemplate = $('#select-template'),
-                $optionTemplate = $('#option-template'),
                 $products = $('#products'),
                 $submit = $('#submit');
 
         // compile template using Handlebars
-        var optionTemplate = Handlebars.compile($optionTemplate.html()),
-                productTemplate = Handlebars.compile($productTemplate.html());
+        var optionTemplate = Handlebars.compile($('#option-template').html()),
+                productTemplate = Handlebars.compile($('#select-template').html()),
+                tableTemplate = Handlebars.compile($('#grid-template').html());
 
         $groups.selectableElement({
             element: 'tbody .selectable'
@@ -187,6 +220,9 @@
         }
 
         productQuery.then(function (data) {
+            $workForm.find('.hidden').toggleClass('hidden');
+            $workForm.find('.show').remove();
+
             products = data._embedded.products;
             var sampleHtml = '';
             var samplesPager, groupsPager;
@@ -247,7 +283,8 @@
             $submit.on('click', function (e) {
                 e.preventDefault();
 
-//                var $modal = $('#grid-modal').modal();
+                var $modal = $('#grid-modal').modal({show: false});
+
                 var order = {
                     product: [],
                     samples: [],
@@ -266,15 +303,11 @@
                             break;
 
                         case 'samples':
-                            order.samples.push({
-                                barcode: input.value
-                            });
+                            order.samples.push(input.value);
                             break;
 
                         case 'groups':
-                            order.groups.push({
-                                id: input.value
-                            });
+                            order.groups.push(input.value);
                             break;
 
                         case 'options':
@@ -287,17 +320,71 @@
                     }
                 });
 
-                var samplesQuery = $.ajax('/samples/byGroup', {
-                    data: {
+                var samplesByGroupQuery, samplesByBarcodeQuery;
 
-                    }
+                if (order.groups.length != 0) {
+                    samplesByGroupQuery = $.ajax('/samples/byGroups', {
+                        data: {
+                            groups: order.groups.join(',')
+                        }
+                    });
+                }
+
+                if (order.samples.length != 0) {
+                    samplesByBarcodeQuery = $.ajax('/samples/byBarcodes', {
+                        data: {
+                            barcodes: order.samples.join(',')
+                        }
+                    });
+                }
+
+                $.when(samplesByGroupQuery, samplesByBarcodeQuery).then(function (byGroup, byBarcode) {
+                    var data = $.merge(
+                            !byGroup ? [] : byGroup[0],
+                            !byBarcode ? [] : byBarcode[0]
+                    );
+
+                    // need to find unique samples because user may have selected duplicate samples when choosing from groups
+                    // and samples individually
+                    var barcodes = [];
+                    var uniqueSamples = $.map(data, function (sample) {
+                        if (barcodes.indexOf(sample.barcode) === -1) {
+                            barcodes.push(sample.barcode);
+                            return sample;
+                        }
+                    });
+
+                    order.samples = uniqueSamples;
+
+                    var perSampleOptions = $.grep(order.product.options, function (opt) {
+                        return opt.perSample;
+                    });
+
+                    var context = {
+                        headers: ['Barcode'],
+                        options: [],
+                        samples: order.samples
+                    };
+
+                    $.each(perSampleOptions, function (i, opt) {
+                        context.options.push(opt.name);
+                        opt.restrictedOptions = stringByCommasToArray(opt.restrictedOptions);
+                    });
+
+                    $.each(order.samples, function (i, sample) {
+
+                    });
+
+                    console.log(context);
+
+                    var table = tableTemplate(context);
+
+                    $('#grid').html(table);
+                    $modal.modal('show');
+
+                    console.log(order);
                 });
 
-                samplesQuery.then(function (data, status) {
-                    console.log(data);
-                });
-
-                console.log(order);
             });
 
         }, function (xhr, status, errorThrown) {

@@ -26,6 +26,30 @@ Handlebars.registerHelper('list', function (context, options) {
     return ret + "</ul>";
 });
 
+Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+
+    switch (operator) {
+        case '==':
+            return (v1 == v2) ? options.fn(this) : options.inverse(this);
+        case '===':
+            return (v1 === v2) ? options.fn(this) : options.inverse(this);
+        case '<':
+            return (v1 < v2) ? options.fn(this) : options.inverse(this);
+        case '<=':
+            return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+        case '>':
+            return (v1 > v2) ? options.fn(this) : options.inverse(this);
+        case '>=':
+            return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+        case '&&':
+            return (v1 && v2) ? options.fn(this) : options.inverse(this);
+        case '||':
+            return (v1 || v2) ? options.fn(this) : options.inverse(this);
+        default:
+            return options.inverse(this);
+    }
+});
+
 /**
  * Watches an element to see when it's visible on the screen. Triggers event 'on.screen' on the element once it's visible
  * @returns {$.fn}
@@ -423,4 +447,8 @@ $.fn.createGroup = function (options) {
 
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
+    var $affix = $('.attached-affix');
+    if ($affix.length !== 0) {
+        $affix.data('offset-top', $affix.offset().top);
+    }
 });

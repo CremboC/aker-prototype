@@ -1,12 +1,10 @@
 package uk.ac.sanger.mig.aker.controllers;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thymeleaf.util.StringUtils;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
@@ -117,10 +114,8 @@ public class GroupController extends BaseController {
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byType(@RequestParam("types") String types, Pageable pageable) {
-		Set<String> typeSet = new HashSet<>();
-		CollectionUtils.addAll(typeSet, StringUtils.split(types, ","));
-		return groupRepository.findAllByTypeValueIn(typeSet, pageable);
+	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable) {
+		return groupRepository.findAllByTypeValueIn(types, pageable);
 	}
 
 }

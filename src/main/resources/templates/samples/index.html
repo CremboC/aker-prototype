@@ -57,22 +57,25 @@
             </div>
 
             <div class="col-md-2">
-                <div>
-                    <h5>
-                        Samples
-                    </h5>
-                    <a th:href="@{/samples/create/}" class="btn btn-primary btn-block">
-                        Request Samples
-                    </a>
-                </div>
+                <div class="attached-affix" data-spy="affix" data-offset-top="60">
+                    <div>
+                        <h5>
+                            Samples
+                        </h5>
+                        <a th:href="@{/samples/create/}" class="btn btn-primary btn-block">
+                            Request Samples
+                        </a>
+                    </div>
 
-                <div>
-                    <h5>
-                        Actions
-                    </h5>
-                    <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">Create
-                        Group
-                    </button>
+                    <div>
+                        <h5>
+                            Actions
+                        </h5>
+                        <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">
+                            Create
+                            Group
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -111,7 +114,7 @@
                         <div class="form-group">
                             <label for="groupName">Group Name</label>
                             <input type="text" id="groupName" class="form-control" required="required"
-                                   th:field="*{name}" />
+                                   th:field="*{name}"/>
                         </div>
 
                     </div>
@@ -128,7 +131,7 @@
         <script id="sample-template" type="text/x-handlebars-template">
             <tr id="{{barcode}}" class="selectable">
                 <td>
-                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" data-type="{{ type.value }}" />
+                    <input type="checkbox" value="{{barcode}}" th:field="*{samples}" data-type="{{ type.value }}"/>
                 </td>
                 <td class="barcode">
                     <a href="/samples/show/{{ barcode }}">

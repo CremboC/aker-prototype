@@ -51,3 +51,8 @@ nav {
 .selected {
     background-color: #f5f5f5;
 }
+
+.affix.attached-affix {
+    top: 0;
+    width: 165px;
+}

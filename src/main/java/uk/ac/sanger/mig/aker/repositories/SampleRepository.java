@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.repositories;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -22,9 +23,9 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 
 	public List<Sample> findByTypeId(long id);
 
-	public Set<Sample> findAllByBarcodeIn(Set<String> barcode);
+	public Set<Sample> findAllByBarcodeIn(Collection<String> barcode);
 
-	public Set<Sample> findAllByGroupsIdIn(Set<Long> groupId);
+	public Set<Sample> findAllByGroupsIdIn(Collection<Long> groupId);
 
 	public Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
 
