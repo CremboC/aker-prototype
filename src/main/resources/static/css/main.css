@@ -1,5 +1,5 @@
 body {
-
+    position: relative;
 }
 
 nav {
@@ -52,7 +52,10 @@ nav {
     background-color: #f5f5f5;
 }
 
-.affix.attached-affix {
-    top: 0;
+.affix {
+    /*top: 0px;*/
+}
+
+.work-order-actions {
     width: 165px;
 }

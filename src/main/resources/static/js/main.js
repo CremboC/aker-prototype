@@ -9,6 +9,9 @@
  * @returns {Array}
  */
 function stringByCommasToArray(string) {
+    if (!string) {
+        return [];
+    }
     return string.replace(/[,\s]+/g, ',').replace(/[,\s]+$/g, '').split(',');
 }
 

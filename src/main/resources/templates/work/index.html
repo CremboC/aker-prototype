@@ -56,11 +56,14 @@
 
                 </div>
                 <div class="col-md-2">
-                    <div class="attached-affix" data-spy="affix" data-offset-top="165">
-                        <h4>
-                            Actions
-                        </h4>
-                        <a class="btn btn-primary btn-block" id="submit">Send Order</a>
+                    <div id="actions" class="attached-affix" data-spy="affix" data-offset-top="165"
+                         data-offset-bottom="10">
+                        <div class="work-order-actions">
+                            <h4>
+                                Actions
+                            </h4>
+                            <a class="btn btn-primary btn-block" id="submit">Send Order</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -79,8 +82,9 @@
                 <h4 class="modal-title">Grid</h4>
             </div>
             <div class="modal-body">
-                <div id="grid">
-                </div>
+                <form action="" id="grid">
+
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -124,7 +128,7 @@
             <th>{{ this }}</th>
             {{/each}}
             {{#each options}}
-            <th>{{ this }}</th>
+            <th>{{ this.name }}</th>
             {{/each}}
         </tr>
         </thead>
@@ -133,26 +137,46 @@
         <tr>
             <td>
                 <a href="/samples/show/{{ this.barcode }}" target="_blank">
-                    {{ this.barcode }}
+                    {{ barcode }}
                 </a>
+                <input type="hidden" value="{{ barcode }}" name="samples" />
             </td>
             {{#each ../options}}
-            {{#each ../tags}}
-            {{#ifCond this.name '==' ../this}}
-            <td>
-                {{ this.value }}
-            </td>
-            {{ else }}
-            <td>
-
-            </td>
-            {{/ifCond}}
-            {{/each}}
-            {{#unless ../tags}}
-            <td>
-
-            </td>
-            {{/unless}}
+                {{#each ../tags}}
+                {{#ifCond this.name '==' ../this.name}}
+                <td>
+                    {{ this.value }}
+                </td>
+                {{ else }}
+                <td>
+                    {{log ../../this.restrictions}}
+                    {{#if ../../this.restrictions}}
+                    <select name="{{ ../../../../barcode }}${{ ../name }}" class="form-control">
+                        <option value=""></option>
+                        {{#each ../this.restrictions}}
+                        <option value="{{ this }}">{{ this }}</option>
+                        {{/each}}
+                    </select>
+                    {{ else }}
+                    <input type="text" name="{{ ../../../../barcode }}${{ ../name }}" class="form-control" required="required" />
+                    {{/if}}
+                </td>
+                {{/ifCond}}
+                {{/each}}
+                {{#unless ../tags}}
+                <td>
+                    {{#if ../restrictions}}
+                    <select name="{{ ../../../barcode }}${{ name }}" class="form-control">
+                        <option value=""></option>
+                        {{#each this.restrictions}}
+                        <option value="{{ this }}">{{ this }}</option>
+                        {{/each}}
+                    </select>
+                    {{ else }}
+                    <input type="text" name="{{ ../../../barcode }}${{ name }}" class="form-control" required="required" />
+                    {{/if}}
+                </td>
+                {{/unless}}
             {{/each}}
         </tr>
         {{/each}}
@@ -367,12 +391,11 @@
                     };
 
                     $.each(perSampleOptions, function (i, opt) {
-                        context.options.push(opt.name);
-                        opt.restrictedOptions = stringByCommasToArray(opt.restrictedOptions);
-                    });
-
-                    $.each(order.samples, function (i, sample) {
-
+                        console.log(stringByCommasToArray(opt.restrictedOptions));
+                        context.options.push({
+                            name: opt.name,
+                            restrictions: stringByCommasToArray(opt.restrictedOptions)
+                        });
                     });
 
                     console.log(context);
