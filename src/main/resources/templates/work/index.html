@@ -232,11 +232,30 @@
                         case 'product':
                             var productIndex = input.value.split('$')[0];
 
-                            order.product = products[productIndex];
+                            order.product = {
+                                name: products[productIndex].name,
+                                options: products[productIndex].options
+                            };
+
+                            var perSampleOptions = $.grep(order.product.options, function (opt) {
+                                return opt.perSample;
+                            });
+
+                            order.product.options = [];
+
+                            $.each(perSampleOptions, function (i, opt) {
+                                order.product.options.push({
+                                    name: opt.name,
+                                    value: "",
+                                    restrictedOptions: stringByCommasToArray(opt.restrictedOptions)
+                                });
+                            });
                             break;
 
                         case 'samples':
-                            order.samples.push(input.value);
+                            order.samples.push({
+                                barcode: input.value
+                            });
                             break;
 
                         case 'groups':
@@ -253,92 +272,18 @@
                     }
                 });
 
-                var samplesByGroupQuery, samplesByBarcodeQuery;
-
-                if (order.groups.length != 0) {
-                    samplesByGroupQuery = $.ajax('/samples/byGroups', {
-                        data: {
-                            groups: order.groups.join(',')
-                        }
-                    });
-                }
-
-                if (order.samples.length != 0) {
-                    samplesByBarcodeQuery = $.ajax('/samples/byBarcodes', {
-                        data: {
-                            barcodes: order.samples.join(',')
-                        }
-                    });
-                }
-
-                $.when(samplesByGroupQuery, samplesByBarcodeQuery).then(function (byGroup, byBarcode) {
-                    var data = $.merge(
-                            !byGroup ? [] : byGroup[0],
-                            !byBarcode ? [] : byBarcode[0]
-                    );
-
-                    // need to find unique samples because user may have selected duplicate samples when choosing from groups
-                    // and samples individually
-                    var barcodes = [];
-                    var uniqueSamples = $.map(data, function (sample) {
-                        if (barcodes.indexOf(sample.barcode) === -1) {
-                            barcodes.push(sample.barcode);
-                            return sample;
-                        }
-                    });
-
-                    order.samples = uniqueSamples;
-
-                    var perSampleOptions = $.grep(order.product.options, function (opt) {
-                        return opt.perSample;
-                    });
-
-                    var finalOrder = {
-                        samples: [],
-                        product: '',
-                        options: []
-                    };
-
-                    $.each(order.samples, function (i, sample) {
-                        finalOrder.samples.push({
-                            barcode: sample.barcode
-                        });
-                    });
-
-                    $.each(order.options, function (i, opt) {
-                        finalOrder.options.push({
-                            name: opt.name,
-                            value: opt.value
-                        });
-                    });
-
-                    finalOrder.product = {
-                        name: order.product.name,
-                        options: []
-                    };
-
-                    $.each(perSampleOptions, function (i, opt) {
-                        finalOrder.product.options.push({
-                            name: opt.name,
-                            value: "",
-                            restrictedOptions: stringByCommasToArray(opt.restrictedOptions)
-                        });
-                    });
-
-                    var orderQuery = $.ajax('/work/order', {
-                        method: "POST",
-                        data: JSON.stringify(finalOrder),
-                        processData: false,
-                        contentType: 'application/json'
-                    });
-
-                    orderQuery.then(function (data) {
-                        if (data) {
-                            window.location.href = "/work/order";
-                        }
-                    });
+                var orderQuery = $.ajax('/work/order', {
+                    method: "POST",
+                    data: JSON.stringify(order),
+                    processData: false,
+                    contentType: 'application/json'
                 });
 
+                orderQuery.then(function (data) {
+                    if (data) {
+                        window.location.href = "/work/order";
+                    }
+                });
             });
 
         }, function (xhr, status, errorThrown) {

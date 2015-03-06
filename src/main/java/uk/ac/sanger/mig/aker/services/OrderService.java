@@ -23,7 +23,11 @@ public interface OrderService {
 	 */
 	public void receiveConfirmation(String message);
 
-
-	public WorkOrder processOrder(WorkOrder order);
+	/**
+	 * Process an order in the following manner: gets all relevant tags (options).
+	 *
+	 * @param order a work order partially filled
+	 */
+	public void processOrder(WorkOrder order);
 
 }

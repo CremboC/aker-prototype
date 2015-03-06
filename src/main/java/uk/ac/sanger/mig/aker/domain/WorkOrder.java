@@ -1,8 +1,10 @@
 package uk.ac.sanger.mig.aker.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,6 +12,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author pi1
@@ -19,17 +23,19 @@ import org.springframework.stereotype.Component;
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class WorkOrder {
 
-	private Set<OrderSample> samples = new HashSet<>();
+	private List<OrderSample> samples = new ArrayList<>();
+	private List<Long> groups = new ArrayList<>();
 	private OrderProduct product = new OrderProduct();
 	private Set<OrderOption> options = new HashSet<>();
 
+	@JsonIgnore
 	private boolean processed = false;
 
-	public Set<OrderSample> getSamples() {
+	public List<OrderSample> getSamples() {
 		return samples;
 	}
 
-	public void setSamples(Set<OrderSample> samples) {
+	public void setSamples(List<OrderSample> samples) {
 		this.samples = samples;
 	}
 
@@ -65,6 +71,14 @@ public class WorkOrder {
 				.append("options", options)
 				.append("processed", processed)
 				.toString();
+	}
+
+	public List<Long> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<Long> groups) {
+		this.groups = groups;
 	}
 
 	public static class OrderSample {

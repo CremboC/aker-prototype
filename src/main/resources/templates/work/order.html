@@ -14,7 +14,8 @@
     </div>
 
     <div>
-        <form action="">
+        <form th:action="@{/work/submit}" th:method="put" th:object="${workOrder}">
+
             <table class="table table-hover">
                 <thead>
                 <tr>
@@ -24,40 +25,47 @@
                     <th>
                         Main Alias
                     </th>
-                    <th th:each="option : ${order.product.options}" th:text="${option.name}">
+                    <th th:each="option : *{product.options}" th:text="${option.name}">
                     </th>
                 </tr>
                 </thead>
                 <tbody>
 
-                <tr th:each="sample : ${order.samples}">
+                <tr th:each="sample, stat : *{samples}">
                     <td>
                         <span th:text="${sample.barcode}"></span>
-                        <input type="hidden" th:name="${'samples[' + sample.barcode + '][barcode]'}" th:value="${sample.barcode}" />
+                        <input type="hidden"
+                               th:field="*{samples['__${stat.index}__'].barcode}"
+                               th:value="${sample.barcode}"/>
                     </td>
                     <td>
 
                     </td>
-                    <td th:each="option : ${order.product.options}" th:with="value = ${sample.options[option.name]}">
-                        <select th:if="${!option.restrictedOptions.isEmpty()}"
-                                th:name="${'samples[' + sample.barcode + '][options][' + option.name + ']'}"
+                    <td th:each="productOption, optStat : ${workOrder.product.options}"
+                        th:with="value = *{samples['__${stat.index}__'].options['__${productOption.name}__']}">
+
+                        <select th:if="${!productOption.restrictedOptions.isEmpty()}"
+                                th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
                                 class="form-control">
                             <option value=""></option>
-                            <option th:each="opt : ${option.restrictedOptions}"
+                            <option th:each="opt : ${productOption.restrictedOptions}"
+                                    th:value="${opt}"
                                     th:text="${opt}"
                                     th:selected="${opt == value}">
                             </option>
                         </select>
 
-                        <input th:if="${option.restrictedOptions.isEmpty()}"
-                               th:name="${'samples[' + sample.barcode + '][options][' + option.name + ']'}"
+                        <input th:if="${productOption.restrictedOptions.isEmpty()}"
+                               th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
                                th:value="${value}"
                                type="text"
-                               class="form-control" required="required"/>
+                               class="form-control" />
                     </td>
                 </tr>
                 </tbody>
             </table>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 

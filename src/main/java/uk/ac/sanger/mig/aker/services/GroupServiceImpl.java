@@ -57,7 +57,7 @@ public class GroupServiceImpl implements GroupService {
 
 		final Set<Long> groups = groupRequest.getGroups();
 		if (groups != null) {
-			final Set<Group> byParentIdIn = repository.findAllByIdIn(groups.toArray(new Long[groups.size()]));
+			final Set<Group> byParentIdIn = repository.findAllByIdIn(groups);
 
 			if (byParentIdIn != null && !byParentIdIn.isEmpty()) {
 				Group group = new Group();

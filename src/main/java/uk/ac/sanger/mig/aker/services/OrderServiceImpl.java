@@ -1,6 +1,8 @@
 package uk.ac.sanger.mig.aker.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,9 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.WorkOrder;
+import uk.ac.sanger.mig.aker.domain.WorkOrder.OrderSample;
 import uk.ac.sanger.mig.aker.messages.Order;
+import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,6 +41,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Resource
 	private SampleRepository sampleRepository;
+
+	@Resource
+	private GroupRepository groupRepository;
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
@@ -67,16 +76,21 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public WorkOrder processOrder(WorkOrder order) {
-
+	public void processOrder(WorkOrder order) {
 		// fetch all barcodes
-		final List<String> barcodes = order.getSamples()
+		final Set<String> barcodes = order.getSamples()
 				.stream()
 				.map(b -> b.getBarcode())
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 
 		// query db to get all sample information
-		final Set<Sample> samples = sampleRepository.findAllByBarcodeIn(barcodes);
+		Set<Sample> samples = new HashSet<>();
+		if (!barcodes.isEmpty()) {
+			samples = sampleRepository.findAllByBarcodeIn(barcodes);
+		}
+
+		// get all samples from groups
+		order.getSamples().addAll(groupsToOrderSamples(order.getGroups(), barcodes, samples));
 
 		// convert to a barcode -> sample map for quick access
 		final Map<String, Sample> sampleMap = samples
@@ -86,11 +100,14 @@ public class OrderServiceImpl implements OrderService {
 						s -> s
 				));
 
-		final Set<WorkOrder.OrderOption> options = order.getProduct().getOptions();
-		final List<String> optionNames = options.stream().map(o -> o.getName()).collect(Collectors.toList());
+		// put all per-sample options names into a list to make check if needed easier
+		final List<String> optionNames = order.getProduct().getOptions()
+				.stream()
+				.map(o -> o.getName())
+				.collect(Collectors.toList());
 
 		// set tags for all samples
-		for (WorkOrder.OrderSample orderSample : order.getSamples()) {
+		for (OrderSample orderSample : order.getSamples()) {
 			final Sample sample = sampleMap.get(orderSample.getBarcode());
 
 			// foreach tag found in db, add it to the order sample object with the format name -> value
@@ -102,9 +119,50 @@ public class OrderServiceImpl implements OrderService {
 						}
 					});
 
+			// insert all options which are not set (makes form template simpler)
+			optionNames.stream()
+					.filter(optionName -> !orderSample.getOptions().containsKey(optionName))
+					.forEach(optionName -> orderSample.getOptions().put(optionName, null));
+
 		}
 
+		order.getSamples().sort((s1, s2) -> s1.getBarcode().compareTo(s2.getBarcode()));
+
 		order.setProcessed(true);
-		return null;
+	}
+
+	/**
+	 * Converts group ids into a list of OrderSample.
+	 *
+	 * @param groupIds group ids
+	 * @param barcodes barcodes to omit – to make sure there are no duplicates
+	 * @param samples  sample set
+	 * @return list of order samples
+	 */
+	private List<OrderSample> groupsToOrderSamples(List<Long> groupIds, Set<String> barcodes, Set<Sample> samples) {
+		List<OrderSample> orderSamples = new ArrayList<>();
+
+		final Set<Group> groups = groupRepository.findAllByIdIn(groupIds);
+
+		for (Group group : groups) {
+			for (Sample sample : group.getSamples()) {
+				if (barcodes.contains(sample.getBarcode())) {
+					continue;
+				}
+
+				samples.add(sample);
+
+				OrderSample os = new OrderSample();
+				os.setBarcode(sample.getBarcode());
+
+				for (Tag tag : sample.getTags()) {
+					os.getOptions().put(tag.getName(), tag.getValue());
+				}
+
+				orderSamples.add(os);
+			}
+		}
+
+		return orderSamples;
 	}
 }

@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.repositories;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
 
 	public Set<Group> findAllByParentIdIn(Long... groupIds);
 
-	public Set<Group> findAllByIdIn(Long... groups);
+	public Set<Group> findAllByIdIn(Collection<Long> groups);
 
 	public Set<Group> findAllByIdNotIn(Long... groups);
 
