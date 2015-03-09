@@ -1,5 +1,8 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.io.File;
+import java.io.IOException;
+
 import uk.ac.sanger.mig.aker.domain.WorkOrder;
 import uk.ac.sanger.mig.aker.messages.Order;
 
@@ -29,5 +32,12 @@ public interface OrderService {
 	 * @param order a work order partially filled
 	 */
 	public void processOrder(WorkOrder order);
+
+	/**
+	 * Prints an order into a CSV format
+	 *
+	 * @param order to print
+	 */
+	public File printOrder(WorkOrder order) throws IOException;
 
 }

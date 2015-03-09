@@ -1,10 +1,15 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -63,6 +68,20 @@ public class WorkController extends BaseController {
 		order.setSamples(update.getSamples());
 
 		return order;
+	}
+
+	@RequestMapping(value = "/csv", method = RequestMethod.GET, produces = "text/csv")
+	@ResponseBody
+	public FileSystemResource generateCsv(HttpServletResponse response) {
+		try {
+			final File file = orderService.printOrder(order);
+			response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
+
+			return new FileSystemResource(file.getAbsolutePath());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

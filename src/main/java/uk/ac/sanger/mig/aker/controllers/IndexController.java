@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.messages.Order;
 import uk.ac.sanger.mig.aker.services.OrderService;
@@ -33,6 +34,7 @@ public class IndexController extends BaseController {
 	}
 
 	@RequestMapping("/rabbit")
+	@ResponseBody
 	public String rabbit() throws InterruptedException, JsonProcessingException {
 
 		final Order test = new Order("Hello from RabbitMQ!");
@@ -43,7 +45,7 @@ public class IndexController extends BaseController {
 		orderService.sendOrder(test2);
 		orderService.sendOrder(test3);
 
-		return view(Action.INDEX);
+		return "Hai";
 	}
 
 }

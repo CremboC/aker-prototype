@@ -1,7 +1,11 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +14,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,6 +29,7 @@ import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.WorkOrder;
+import uk.ac.sanger.mig.aker.domain.WorkOrder.OrderOption;
 import uk.ac.sanger.mig.aker.domain.WorkOrder.OrderSample;
 import uk.ac.sanger.mig.aker.messages.Order;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
@@ -49,6 +57,9 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
+	@Value("${general.exportPath}")
+	private String exportPath;
+
 	@Value("${messaging.queue}")
 	private String receivingQueue;
 
@@ -63,15 +74,15 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	@RabbitListener(queues = "test")
 	@Override
+	@RabbitListener(queues = "test")
 	public void receiveConfirmation(String message) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			final Order order = mapper.readValue(message, Order.class);
 			System.out.println(order.getMessage());
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+
 		}
 	}
 
@@ -126,9 +137,48 @@ public class OrderServiceImpl implements OrderService {
 
 		}
 
+		// finally sort samples by barcode
 		order.getSamples().sort((s1, s2) -> s1.getBarcode().compareTo(s2.getBarcode()));
 
 		order.setProcessed(true);
+	}
+
+	@Override
+	public File printOrder(WorkOrder order) throws IOException {
+
+		final Set<OrderOption> options = order.getProduct().getOptions();
+		String[] headers = new String[options.size()];
+
+		final File outputFile = new File(exportPath + File.separator + "order-work.csv");
+		outputFile.getParentFile().mkdirs();
+
+		int i = 0;
+		for (final OrderOption option : options) {
+			headers[i++] = option.getName();
+		}
+
+		Writer output = new FileWriter(outputFile);
+		final CSVPrinter csv = new CSVPrinter(output, CSVFormat.DEFAULT);
+
+//		csv.printRecord(headers);
+
+		for (OrderSample sample : order.getSamples()) {
+			final Collection<String> values = sample.getOptions().values();
+
+			Object[] record = new Object[] {
+					sample.getBarcode(),
+					""
+			};
+
+			record = ArrayUtils.addAll(record, values.toArray());
+
+			csv.printRecord(record);
+		}
+
+		csv.close();
+		output.close();
+
+		return outputFile;
 	}
 
 	/**
