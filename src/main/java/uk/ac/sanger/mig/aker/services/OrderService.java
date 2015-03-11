@@ -3,7 +3,7 @@ package uk.ac.sanger.mig.aker.services;
 import java.io.File;
 import java.io.IOException;
 
-import uk.ac.sanger.mig.aker.domain.WorkOrder;
+import uk.ac.sanger.mig.aker.domain.OrderRequest;
 import uk.ac.sanger.mig.aker.messages.Order;
 
 /**
@@ -22,7 +22,7 @@ public interface OrderService {
 	/**
 	 * Handles messages received on a specific RabbitMQ queue
 	 *
-	 * @param message the message
+	 * @param message the message§
 	 */
 	public void receiveConfirmation(String message);
 
@@ -31,13 +31,13 @@ public interface OrderService {
 	 *
 	 * @param order a work order partially filled
 	 */
-	public void processOrder(WorkOrder order);
+	public void processOrder(OrderRequest order);
 
 	/**
 	 * Prints an order into a CSV format
 	 *
 	 * @param order to print
 	 */
-	public File printOrder(WorkOrder order) throws IOException;
+	public File printOrder(OrderRequest order) throws IOException;
 
 }

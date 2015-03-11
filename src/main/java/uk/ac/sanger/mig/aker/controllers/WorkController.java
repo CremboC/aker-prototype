@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import uk.ac.sanger.mig.aker.domain.WorkOrder;
+import uk.ac.sanger.mig.aker.domain.OrderRequest;
 import uk.ac.sanger.mig.aker.services.OrderService;
 
 /**
@@ -34,7 +34,7 @@ public class WorkController extends BaseController {
 	private OrderService orderService;
 
 	@Autowired
-	private WorkOrder order;
+	private OrderRequest order;
 
 	@PostConstruct
 	private void init() {
@@ -48,7 +48,7 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
-	public Boolean bindOrder(@RequestBody WorkOrder newOrder) {
+	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
 		orderService.processOrder(newOrder);
 		order = newOrder;
 
@@ -57,6 +57,10 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/order", method = RequestMethod.GET)
 	public String order(Model model) {
+		if (!order.isProcessed()) {
+			return "redirect:/work/";
+		}
+
 		model.addAttribute("workOrder", order);
 
 		return view("order");
@@ -64,7 +68,7 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/submit", method = RequestMethod.PUT)
 	@ResponseBody
-	public WorkOrder submit(@ModelAttribute WorkOrder update) {
+	public OrderRequest submit(@ModelAttribute OrderRequest update) {
 		order.setSamples(update.getSamples());
 
 		return order;

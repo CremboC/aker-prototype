@@ -16,57 +16,103 @@
     <div>
         <form th:action="@{/work/submit}" th:method="put" th:object="${workOrder}">
 
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>
-                        Barcode
-                    </th>
-                    <th>
-                        Main Alias
-                    </th>
-                    <th th:each="option : *{product.options}" th:text="${option.name}">
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
+            <input type="hidden" th:value="*{samples.size()}" name="sample_count" id="sample-count"/>
 
-                <tr th:each="sample, stat : *{samples}">
-                    <td>
-                        <span th:text="${sample.barcode}"></span>
-                        <input type="hidden"
-                               th:field="*{samples['__${stat.index}__'].barcode}"
-                               th:value="${sample.barcode}"/>
-                    </td>
-                    <td>
+            <div>
+                <h3>Product</h3>
 
-                    </td>
-                    <td th:each="productOption, optStat : ${workOrder.product.options}"
-                        th:with="value = *{samples['__${stat.index}__'].options['__${productOption.name}__']}">
+                <span th:text="*{product.name}"></span>
+                <input type="hidden" name="project.name" th:value="*{product.name}" id="product-name"/>
 
-                        <select th:if="${!productOption.restrictedOptions.isEmpty()}"
-                                th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
-                                class="form-control">
-                            <option value=""></option>
-                            <option th:each="opt : ${productOption.restrictedOptions}"
-                                    th:value="${opt}"
-                                    th:text="${opt}"
-                                    th:selected="${opt == value}">
-                            </option>
-                        </select>
+                <h3>Estimated Cost</h3>
 
-                        <input th:if="${productOption.restrictedOptions.isEmpty()}"
-                               th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
-                               th:value="${value}"
-                               type="text"
-                               class="form-control" />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                £<span th:text="*{estimateCost}"></span>
+
+                <h3>Options</h3>
+
+                <ul class="list-unstyled">
+                    <li th:each="option : *{options}">
+                        <b th:text="${option.name}"></b>
+                        <span th:text="${option.value}"></span>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="order-grid">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>
+                            Barcode
+                        </th>
+                        <th>
+                            Main Alias
+                        </th>
+                        <th th:each="option : *{product.options}" th:text="${option.name}">
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:each="sample, stat : *{samples}">
+                        <td>
+                            <span th:text="${sample.barcode}"></span>
+                            <input type="hidden"
+                                   th:field="*{samples['__${stat.index}__'].barcode}"
+                                   th:value="${sample.barcode}"/>
+                        </td>
+                        <td>
+
+                        </td>
+                        <td th:each="productOption, optStat : ${workOrder.product.options}"
+                            th:with="value = *{samples['__${stat.index}__'].options['__${productOption.name}__']}">
+
+                            <select th:if="${!productOption.restrictedOptions.isEmpty()}"
+                                    th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
+                                    class="form-control">
+                                <option value=""></option>
+                                <option th:each="opt : ${productOption.restrictedOptions}"
+                                        th:value="${opt}"
+                                        th:text="${opt}"
+                                        th:selected="${opt == value}">
+                                </option>
+                            </select>
+
+                            <input th:if="${productOption.restrictedOptions.isEmpty()}"
+                                   th:field="*{samples['__${stat.index}__'].options['__${productOption.name}__']}"
+                                   th:value="${value}"
+                                   type="text"
+                                   class="form-control"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="project-code">
+                <h2>
+                    Charging
+                </h2>
+
+                <div class="form-group" id="project-search">
+                    <label for="project-code">Project Code</label>
+
+                    <div class="input-group">
+                        <span class="input-group-addon hidden" id="basic-addon1">
+                            <span class="glyphicon glyphicon-ok" id="status"></span>
+                        </span>
+                        <input type="text" th:field="*{project.code}" id="project-code" class="form-control"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary">Confirm</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
 
             <a th:href="@{/work/csv}" class="btn btn-default">Generate CSV</a>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" disabled="disabled" id="submit">Submit</button>
         </form>
     </div>
 
@@ -74,10 +120,65 @@
 
 <div th:replace="fragments/common :: footer"></div>
 
+<script id="form-group-template" type="text/x-handlebars-template">
+    <span class="{{#if success}} alert-success {{else}} alert-danger {{/if}}">
+        <p>
+            {{ text }}
+        </p>
+    </span>
+</script>
+
 <script type="application/javascript">
     $(document).ready(function () {
+        var $project = $('#project-search'), searchQuery;
+        var formGroup = $('#form-group-template').handlebars();
+        var $submit = $('#submit');
 
+        $project.find('button').on('click', function (e) {
+            e.preventDefault();
 
+            var projectCode = $project.find('input').val();
+
+            searchQuery = $.ajax({
+                url: 'http://localhost:8082/authorities/search/by-type-and-code',
+                data: {
+                    type: $('#product-name').val(),
+                    code: projectCode
+                }
+            });
+
+            searchQuery.then(function (data, status) {
+                var html;
+
+                console.log(data);
+                if (!data) {
+                    return;
+                }
+
+                var quantity = data._embedded.purchasingAuthorities[0].quantity;
+                var sampleCount = $('#sample-count').val();
+
+                var remaining = quantity - sampleCount;
+
+                if (remaining > 0) {
+                    html = formGroup({
+                        text: 'Valid order. Credit remaining after order: ' + remaining,
+                        success: true
+                    });
+                    $submit.removeAttr('disabled');
+                    $project.addClass('has-success');
+                    $project.find('.input-group-addon').css({
+                        color: 'green'
+                    }).toggleClass('hidden');
+                } else {
+                    html = formGroup({
+                        text: 'Insufficient amount of credit.',
+                        success: false
+                    });
+                }
+                $('.project-code').append(html);
+            });
+        });
     });
 </script>
 

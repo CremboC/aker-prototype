@@ -54,6 +54,14 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 });
 
 /**
+ * Shortcut to Handlebars.compile(this.html());
+ * @returns {*}
+ */
+$.fn.handlebars = function () {
+    return Handlebars.compile(this.html());
+};
+
+/**
  * Watches an element to see when it's visible on the screen. Triggers event 'on.screen' on the element once it's visible
  * @returns {$.fn}
  */

@@ -59,3 +59,8 @@ nav {
 .work-order-actions {
     width: 165px;
 }
+
+.order-grid {
+    max-height: 700px;
+    overflow-y: scroll;
+}

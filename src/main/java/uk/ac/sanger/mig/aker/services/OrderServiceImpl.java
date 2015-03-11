@@ -28,9 +28,9 @@ import org.springframework.stereotype.Service;
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Tag;
-import uk.ac.sanger.mig.aker.domain.WorkOrder;
-import uk.ac.sanger.mig.aker.domain.WorkOrder.OrderOption;
-import uk.ac.sanger.mig.aker.domain.WorkOrder.OrderSample;
+import uk.ac.sanger.mig.aker.domain.OrderRequest;
+import uk.ac.sanger.mig.aker.domain.OrderRequest.OrderOption;
+import uk.ac.sanger.mig.aker.domain.OrderRequest.OrderSample;
 import uk.ac.sanger.mig.aker.messages.Order;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public void processOrder(WorkOrder order) {
+	public void processOrder(OrderRequest order) {
 		// fetch all barcodes
 		final Set<String> barcodes = order.getSamples()
 				.stream()
@@ -140,11 +140,14 @@ public class OrderServiceImpl implements OrderService {
 		// finally sort samples by barcode
 		order.getSamples().sort((s1, s2) -> s1.getBarcode().compareTo(s2.getBarcode()));
 
+		// set estimated cost
+		order.setEstimateCost(order.getProduct().getUnitCost() * order.getSamples().size());
+
 		order.setProcessed(true);
 	}
 
 	@Override
-	public File printOrder(WorkOrder order) throws IOException {
+	public File printOrder(OrderRequest order) throws IOException {
 
 		final Set<OrderOption> options = order.getProduct().getOptions();
 		String[] headers = new String[options.size()];

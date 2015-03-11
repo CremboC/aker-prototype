@@ -21,15 +21,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Component
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class WorkOrder {
+public class OrderRequest {
 
 	private List<OrderSample> samples = new ArrayList<>();
 	private List<Long> groups = new ArrayList<>();
 	private OrderProduct product = new OrderProduct();
+	private OrderProject project = new OrderProject();
 	private Set<OrderOption> options = new HashSet<>();
 
 	@JsonIgnore
 	private boolean processed = false;
+
+	private Double estimateCost;
 
 	public List<OrderSample> getSamples() {
 		return samples;
@@ -63,6 +66,30 @@ public class WorkOrder {
 		this.processed = processed;
 	}
 
+	public List<Long> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<Long> groups) {
+		this.groups = groups;
+	}
+
+	public Double getEstimateCost() {
+		return estimateCost;
+	}
+
+	public void setEstimateCost(Double estimateCost) {
+		this.estimateCost = estimateCost;
+	}
+
+	public OrderProject getProject() {
+		return project;
+	}
+
+	public void setProject(OrderProject project) {
+		this.project = project;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this)
@@ -71,14 +98,6 @@ public class WorkOrder {
 				.append("options", options)
 				.append("processed", processed)
 				.toString();
-	}
-
-	public List<Long> getGroups() {
-		return groups;
-	}
-
-	public void setGroups(List<Long> groups) {
-		this.groups = groups;
 	}
 
 	public static class OrderSample {
@@ -153,6 +172,7 @@ public class WorkOrder {
 	public static class OrderProduct {
 		private String name;
 		private Set<OrderOption> options = new LinkedHashSet<>();
+		private Double unitCost;
 
 		public String getName() {
 			return name;
@@ -170,12 +190,33 @@ public class WorkOrder {
 			this.options = options;
 		}
 
+		public Double getUnitCost() {
+			return unitCost;
+		}
+
+		public void setUnitCost(Double unitCost) {
+			this.unitCost = unitCost;
+		}
+
 		@Override
 		public String toString() {
 			return new ToStringBuilder(this)
 					.append("name", name)
 					.append("options", options)
 					.toString();
+		}
+	}
+
+	public static class OrderProject {
+
+		private String code;
+
+		public String getCode() {
+			return code;
+		}
+
+		public void setCode(String code) {
+			this.code = code;
 		}
 	}
 
