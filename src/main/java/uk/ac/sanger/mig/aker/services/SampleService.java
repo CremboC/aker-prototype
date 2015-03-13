@@ -41,7 +41,5 @@ public interface SampleService {
 	 */
 	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode);
 
-	public List<Sample> findAll();
-
-	public Page<Sample> findAll(Pageable pageable);
+	public Page<Sample> findAll(Pageable p);
 }

@@ -9,6 +9,8 @@
 
     <form th:action="@{/work/request}" method="POST">
 
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
         <div class="page-header">
             <h2>
                 Order Work
@@ -107,6 +109,9 @@
                 $groups = $('.jqp-groups'),
                 $products = $('#products'),
                 $submit = $('#submit');
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
 
         // compile template using Handlebars
         var optionTemplate = Handlebars.compile($('#option-template').html()),
@@ -274,10 +279,13 @@
                 });
 
                 var orderQuery = $.ajax('/work/order', {
-                    method: "POST",
+                    method: $('form').attr('method'),
                     data: JSON.stringify(order),
                     processData: false,
-                    contentType: 'application/json'
+                    contentType: 'application/json',
+                    beforeSend: function (request) {
+                        request.setRequestHeader(header, token);
+                    }
                 });
 
                 orderQuery.then(function (data) {

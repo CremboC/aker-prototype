@@ -52,6 +52,9 @@ public class Sample extends BaseEntity implements Serializable {
 	@OneToMany(mappedBy = "sample", fetch = FetchType.EAGER)
 	private Set<Tag> tags;
 
+	@Column(nullable = false)
+	private String owner;
+
 	@Transient
 	private Alias mainAlias = null;
 
@@ -156,5 +159,13 @@ public class Sample extends BaseEntity implements Serializable {
 
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 }

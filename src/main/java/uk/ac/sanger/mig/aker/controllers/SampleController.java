@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -97,10 +98,15 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping("/show/{barcode}")
-	public String show(@PathVariable("barcode") String barcode, Model model) {
+	public String show(@PathVariable("barcode") String barcode, Model model, Principal user) {
 		final Optional<Sample> sample = sampleService.findByBarcode(barcode);
 		if (sample.isPresent()) {
 			model.addAttribute("sample", sample.get());
+
+			if (!sample.get().getOwner().equals(user.getName())) {
+				return "redirect:/";
+			}
+
 		} else {
 			return "redirect:/samples/?404";
 		}
@@ -120,7 +126,7 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
-	public String store(@Valid @ModelAttribute SampleRequest request, BindingResult bindingResult, Model model) {
+	public String store(@Valid @ModelAttribute SampleRequest request, Errors bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("types", typeService.findAll());
 			return view(Action.CREATE);
@@ -131,12 +137,19 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/update/{barcode}/add-alias", method = RequestMethod.PUT)
-	public String addAlias(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Alias alias,
-			BindingResult bindingResult) {
+	public String addAlias(
+			@PathVariable("barcode") String barcode,
+			@Valid @ModelAttribute Alias alias,
+			Principal user,
+			Errors bindingResult) {
 		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
+
+			if (!sample.getOwner().equals(user.getName())) {
+				return "redirect:/";
+			}
 
 			if (!bindingResult.hasErrors()) {
 				alias.setSample(sample);
@@ -150,12 +163,19 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/update/{barcode}/add-tag", method = RequestMethod.PUT)
-	public String addTag(@PathVariable("barcode") String barcode, @Valid @ModelAttribute Tag tag,
-			BindingResult bindingResult) {
+	public String addTag(
+			@PathVariable("barcode") String barcode,
+			@Valid @ModelAttribute Tag tag,
+			Principal user,
+			Errors bindingResult) {
 		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
+
+			if (!sample.getOwner().equals(user.getName())) {
+				return "redirect:/";
+			}
 
 			if (!bindingResult.hasErrors()) {
 				tag.setSample(sample);
@@ -169,7 +189,7 @@ public class SampleController extends BaseController {
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding) {
+	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
 		if (!binding.hasErrors()) {
 			final Set<Sample> allByBarcodeIn = sampleRepository.findAllByBarcodeIn(groupRequest.getSamples());
 
@@ -207,24 +227,26 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/byGroups", method = RequestMethod.GET)
 	@ResponseBody
-	public Set<Sample> byGroup(@RequestParam("groups") Set<Long> groupIds) {
+	public Set<Sample> byGroup(@RequestParam("groups") Collection<Long> groupIds) {
 		return sampleRepository.findAllByGroupsIdIn(groupIds);
 	}
 
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable) {
-		return sampleRepository.findAllByTypeValueIn(types, pageable);
+	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal owner) {
+		return sampleRepository.findAllByTypeValueInAndOwner(types, owner.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)
 	@ResponseBody
-	public Set<Sample> byBarcode(@RequestParam(value = "barcodes", required = false) Collection<String> barcodes) {
+	public Set<Sample> byBarcode(
+			@RequestParam(value = "barcodes", required = false) Collection<String> barcodes,
+			Principal owner) {
 		if (barcodes.isEmpty()) {
 			return null;
 		}
-		return sampleRepository.findAllByBarcodeIn(barcodes);
+		return sampleRepository.findAllByBarcodeInAndOwner(barcodes, owner.getName());
 	}
 
 }

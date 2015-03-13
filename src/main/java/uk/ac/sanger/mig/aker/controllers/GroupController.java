@@ -1,5 +1,7 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import java.security.Principal;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
@@ -10,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +24,6 @@ import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
-import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
 
 /**
@@ -39,9 +40,6 @@ public class GroupController extends BaseController {
 	@Autowired
 	private GroupRepository groupRepository;
 
-	@Autowired
-	private SampleRepository sampleRepository;
-
 	@PostConstruct
 	private void init() {
 		setTemplatePath("groups");
@@ -56,8 +54,8 @@ public class GroupController extends BaseController {
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	public Page<Group> json(Pageable pageable) {
-		final Page<Group> all = groupService.findAll(pageable);
+	public Page<Group> json(Pageable pageable, Principal principal) {
+		final Page<Group> all = groupRepository.findAllByOwner(principal.getName(), pageable);
 
 		// remove parent's parent to simlify things for convertion into json..
 		StreamSupport.stream(all.spliterator(), false) // get stream
@@ -68,10 +66,14 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
-	public String show(@PathVariable Long id, Model model) {
+	public String show(@PathVariable Long id, Model model, Principal user) {
 		final Group group = groupRepository.findOne(id);
 
-		final Iterable<Group> allGroups = groupRepository.findAllByIdNotIn(id);
+		if (!group.getOwner().equals(user.getName())) {
+			return "redirect:/";
+		}
+
+		final Collection<Group> allGroups = groupRepository.findAllByIdNotAndOwner(id, user.getName());
 
 		final Set<Group> byParentId = groupRepository.findByParentId(group.getId());
 		if (!byParentId.isEmpty()) {
@@ -85,13 +87,18 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/update/{id}/add-subgroup", method = RequestMethod.PUT)
-	public String addSubgroup(@PathVariable long id, @ModelAttribute Group addGroup, BindingResult result) {
+	public String addSubgroup(@PathVariable long id, @ModelAttribute Group addGroup, Errors result, Principal user) {
 		if (addGroup.getId() == id) {
 			return "redirect:/groups/show/" + id;
 		}
 
 		Group group = groupRepository.findOne(id);
 		Group subgroup = groupRepository.findOne(addGroup.getId());
+
+		if (!group.getOwner().equals(user.getName()) || !subgroup.getOwner().equals(user.getName())) {
+			return "redirect:/";
+		}
+
 
 		if (!result.hasErrors()) {
 			subgroup.setParent(group);
@@ -102,7 +109,7 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, BindingResult binding) {
+	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
 		if (!binding.hasErrors()) {
 			groupService.createGroup(groupRequest);
 
@@ -114,8 +121,8 @@ public class GroupController extends BaseController {
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable) {
-		return groupRepository.findAllByTypeValueIn(types, pageable);
+	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal user) {
+		return groupRepository.findAllByTypeValueInAndOwner(types, user.getName(), pageable);
 	}
 
 }

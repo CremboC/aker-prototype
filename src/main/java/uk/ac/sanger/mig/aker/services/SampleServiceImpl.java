@@ -1,6 +1,7 @@
 package uk.ac.sanger.mig.aker.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
@@ -44,8 +46,8 @@ public class SampleServiceImpl implements SampleService {
 		final Type type = request.getType();
 		final Status pendingStatus = statusRepository.findByValue("pending");
 
-		List<Sample> newSamples = new ArrayList<>(amount);
-		List<Alias> aliases = new ArrayList<>(amount);
+		Collection<Sample> newSamples = new ArrayList<>(amount);
+		Collection<Alias> aliases = new ArrayList<>(amount);
 
 		Integer lastId = repository.lastId();
 		lastId = lastId == null ? 0 : lastId;
@@ -55,6 +57,7 @@ public class SampleServiceImpl implements SampleService {
 			s.setType(type);
 			s.setBarcode(s.createBarcode(i));
 			s.setStatus(pendingStatus);
+			s.setOwner(SecurityContextHolder.getContext().getAuthentication().getName());
 
 			final Alias l = new Alias();
 			l.setName("Created Sample");
@@ -99,13 +102,8 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public List<Sample> findAll() {
-		return null;
-	}
-
-	@Override
 	public Page<Sample> findAll(Pageable pageable) {
-		final Page<Sample> all = repository.findAll(pageable);
+		final Page<Sample> all = repository.findAllByOwner(SecurityContextHolder.getContext().getAuthentication().getName(), pageable);
 
 		// set main label for all samples
 		all.forEach(s -> {
@@ -118,7 +116,7 @@ public class SampleServiceImpl implements SampleService {
 		return all;
 	}
 
-	private Optional<Alias> findMainAlias(Set<Alias> aliases) {
+	private Optional<Alias> findMainAlias(Collection<Alias> aliases) {
 		return aliases.stream().filter(l -> l.isMain()).findAny();
 	}
 

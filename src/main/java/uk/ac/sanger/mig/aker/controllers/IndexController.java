@@ -48,4 +48,9 @@ public class IndexController extends BaseController {
 		return "Hai";
 	}
 
+	@RequestMapping("/login")
+	public String login() {
+		return "login";
+	}
+
 }

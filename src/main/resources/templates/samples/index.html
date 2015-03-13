@@ -19,6 +19,8 @@
 
     <form th:action="@{/samples/group/}" th:object="${groupRequest}" method="POST" role="form">
 
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
         <div class="row">
             <div class="col-md-10">
                 <table class="table table-condensed table-hover table-selectable" id="jqp-samples">

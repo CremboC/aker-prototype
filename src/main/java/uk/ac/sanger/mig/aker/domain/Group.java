@@ -30,9 +30,8 @@ public class Group extends BaseEntity {
 	@Column
 	private String name;
 
-	@ManyToOne
-	@JoinColumn(name = "created_by")
-	private User owner;
+	@Column(nullable = false)
+	private String owner;
 
 	@ManyToMany
 	@JoinTable(
@@ -61,14 +60,6 @@ public class Group extends BaseEntity {
 
 	public void setSamples(Set<Sample> samples) {
 		this.samples = samples;
-	}
-
-	public User getOwner() {
-		return owner;
-	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
 	}
 
 	public String getName() {
@@ -139,5 +130,13 @@ public class Group extends BaseEntity {
 
 	public void setType(Type type) {
 		this.type = type;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getOwner() {
+		return owner;
 	}
 }
