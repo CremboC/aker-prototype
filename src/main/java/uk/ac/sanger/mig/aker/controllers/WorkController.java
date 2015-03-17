@@ -46,6 +46,17 @@ public class WorkController extends BaseController {
 		return view(Action.INDEX);
 	}
 
+	@RequestMapping(value = "/order", method = RequestMethod.GET)
+	public String order(Model model) {
+		if (order == null || !order.isProcessed()) {
+			return "redirect:/work/";
+		}
+
+		model.addAttribute("workOrder", order);
+
+		return view("order");
+	}
+
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
 	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
@@ -55,18 +66,14 @@ public class WorkController extends BaseController {
 		return newOrder.isProcessed();
 	}
 
-	@RequestMapping(value = "/order", method = RequestMethod.GET)
-	public String order(Model model) {
-		if (!order.isProcessed()) {
-			return "redirect:/work/";
-		}
-
-		model.addAttribute("workOrder", order);
-
-		return view("order");
+	@RequestMapping(value = "/clear", method = RequestMethod.GET)
+	@ResponseBody
+	public Boolean clear() {
+		this.order = null;
+		return true;
 	}
 
-	@RequestMapping(value = "/submit", method = RequestMethod.PUT)
+	@RequestMapping(value = "/submit", method = RequestMethod.POST)
 	@ResponseBody
 	public OrderRequest submit(@ModelAttribute OrderRequest update) {
 		order.setSamples(update.getSamples());

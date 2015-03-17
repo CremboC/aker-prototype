@@ -186,41 +186,7 @@
 
 <div th:replace="fragments/common :: footer"></div>
 
-<script type="application/javascript">
-    $(document).ready(function () {
-
-        var $samples = $('#jqp-samples');
-
-        $samples.pager({
-            url: '/samples/json/',
-            template: '#sample-template',
-            loadButton: '#jqp-load-more-samples',
-            appendBefore: '#jqp-append-before-samples',
-            scrollLoad: true
-        });
-
-        $samples.selectableElement({
-            element: 'tbody .selectable',
-            singleType: true
-        });
-
-        $('#create-group').createGroup({
-            modal: '#groupModal',
-            confirm: '#modalConfirm',
-            template: '#modal-sample-template',
-            mode: 'samples'
-        });
-
-        $samples.on('element.selected', function (event) {
-            var $button = $('#create-group');
-            if (event.count > 0) {
-                $button.removeAttr('disabled');
-            } else {
-                $button.attr('disabled', 'disabled');
-            }
-        });
-    });
-</script>
+<script type="application/javascript" th:src="@{/js/samples/index.js}"></script>
 
 </body>
 </html>

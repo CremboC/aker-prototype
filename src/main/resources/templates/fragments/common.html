@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head id="headerFragment" th:fragment="head">
+
     <meta name="_csrf" th:content="${_csrf.token}"/>
-    <!-- default header name is X-CSRF-TOKEN -->
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/3.3.2/css/bootstrap.min.css}"/>
@@ -51,7 +51,6 @@
 </div>
 
 <div class="container" th:fragment="footer">
-
     <script type="application/javascript" th:src="@{/webjars/jquery/2.1.3/jquery.min.js}"></script>
     <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.2/js/bootstrap.min.js}"></script>
     <script type="application/javascript" th:src="@{/webjars/handlebars/3.0.0/handlebars.js}"></script>

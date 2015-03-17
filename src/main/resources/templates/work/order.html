@@ -13,7 +13,7 @@
         </h1>
     </div>
 
-    <div>
+    <div class="form-wrapper">
         <form th:action="@{/work/submit}" th:method="put" th:object="${workOrder}">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -24,7 +24,7 @@
                 <h3>Product</h3>
 
                 <span th:text="*{product.name}"></span>
-                <input type="hidden" name="project.name" th:value="*{product.name}" id="product-name"/>
+                <input type="hidden" th:field="*{product.name}" th:value="*{product.name}" class="product-name"/>
 
                 <h3>Estimated Cost</h3>
 
@@ -33,9 +33,13 @@
                 <h3>Options</h3>
 
                 <ul class="list-unstyled">
-                    <li th:each="option : *{options}">
+                    <li th:each="option, iter : *{options}">
                         <b th:text="${option.name}"></b>
                         <span th:text="${option.value}"></span>
+
+                        <input type="hidden" th:field="*{options['__${iter.index}__'].name}" th:value="${option.name}"/>
+                        <input type="hidden" th:field="*{options['__${iter.index}__'].value}"
+                               th:value="${option.value}"/>
                     </li>
                 </ul>
 
@@ -115,8 +119,16 @@
 
             </div>
 
-            <a th:href="@{/work/csv}" class="btn btn-default">Generate CSV</a>
-            <button type="submit" class="btn btn-primary" disabled="disabled" id="submit">Submit</button>
+            <p>
+                <a th:href="@{/work/csv}" class="btn btn-default">Generate CSV</a>
+                <button type="submit" class="btn btn-primary submit" disabled="disabled" id="submit">
+                    Submit
+                </button>
+                <button type="submit" class="btn btn-primary submit" disabled="disabled" id="submit-ws">
+                    Submit
+                    <small>WS</small>
+                </button>
+            </p>
         </form>
     </div>
 
@@ -132,59 +144,16 @@
     </span>
 </script>
 
-<script type="application/javascript">
-    $(document).ready(function () {
-        var $project = $('#project-search'), searchQuery;
-        var formGroup = $('#form-group-template').handlebars();
-        var $submit = $('#submit');
-
-        $project.find('button').on('click', function (e) {
-            e.preventDefault();
-
-            var projectCode = $project.find('input').val();
-
-            searchQuery = $.ajax({
-                url: 'http://localhost:8082/authorities/search/by-type-and-code',
-                data: {
-                    type: $('#product-name').val(),
-                    code: projectCode
-                }
-            });
-
-            searchQuery.then(function (data, status) {
-                var html;
-
-                console.log(data);
-                if (!data) {
-                    return;
-                }
-
-                var quantity = data._embedded.purchasingAuthorities[0].quantity;
-                var sampleCount = $('#sample-count').val();
-
-                var remaining = quantity - sampleCount;
-
-                if (remaining > 0) {
-                    html = formGroup({
-                        text: 'Valid order. Credit remaining after order: ' + remaining,
-                        success: true
-                    });
-                    $submit.removeAttr('disabled');
-                    $project.addClass('has-success');
-                    $project.find('.input-group-addon').css({
-                        color: 'green'
-                    }).toggleClass('hidden');
-                } else {
-                    html = formGroup({
-                        text: 'Insufficient amount of credit.',
-                        success: false
-                    });
-                }
-                $('.project-code').append(html);
-            });
-        });
-    });
+<script id="submitted-template" type="text/x-handlebars-template">
+    <div class="text-center">
+        <h1>
+            <span class="glyphicon glyphicon-ok text-success"></span>
+            {{ text }}
+        </h1>
+    </div>
 </script>
+
+<script type="application/javascript" th:src="@{/js/work/order.js}"></script>
 
 </body>
 </html>

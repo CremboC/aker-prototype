@@ -31,7 +31,6 @@ import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.TagRepository;
-import uk.ac.sanger.mig.aker.seeders.SampleSeeder;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
 import uk.ac.sanger.mig.aker.services.TypeService;
@@ -62,26 +61,9 @@ public class SampleController extends BaseController {
 	@Resource
 	private GroupService groupService;
 
-	@Autowired
-	private SampleSeeder seeder;
-
 	@PostConstruct
 	private void init() {
 		setTemplatePath("samples");
-	}
-
-	@RequestMapping("/seed")
-	@ResponseBody
-	public String seed() {
-		seeder.seed();
-		return "Done";
-	}
-
-	@RequestMapping("/seedSamples")
-	@ResponseBody
-	public String seedSamples() {
-		seeder.seedSamples();
-		return "Done";
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
