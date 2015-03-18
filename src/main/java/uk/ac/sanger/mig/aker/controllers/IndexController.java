@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.messages.Order;
-import uk.ac.sanger.mig.aker.services.OrderService;
+import uk.ac.sanger.mig.aker.services.WorkOrderService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class IndexController extends BaseController {
 
 	@Resource
-	private OrderService orderService;
+	private WorkOrderService workOrderService;
 
 	@PostConstruct
 	private void init() {
@@ -41,9 +41,9 @@ public class IndexController extends BaseController {
 		final Order test2 = new Order("Hello from RabbitMQ! 2");
 		final Order test3 = new Order("Hello from RabbitMQ! 3");
 
-		orderService.sendOrder(test);
-		orderService.sendOrder(test2);
-		orderService.sendOrder(test3);
+		workOrderService.sendOrder(test);
+		workOrderService.sendOrder(test2);
+		workOrderService.sendOrder(test3);
 
 		return "Hai";
 	}

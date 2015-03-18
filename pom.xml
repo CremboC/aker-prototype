@@ -13,6 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <tomcat.version>8.0.18</tomcat.version>
+        <spring-loaded.version>1.2.1.RELEASE</spring-loaded.version>
         <mysql.version>5.1.34</mysql.version>
         <java.version>1.8</java.version>
     </properties>

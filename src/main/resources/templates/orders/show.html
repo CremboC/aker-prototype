@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/common :: header">...</div>
+
+<input type="hidden" name="id" th:value="${id}" />
+
+<div class="container">
+
+    <div class="page-header">
+        <h1>
+            Order Overview
+        </h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 append">
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="fragments/common :: footer"></div>
+
+<script id="order-template" type="text/x-handlebars-template">
+    <div>
+        <div class="id">
+            <a href="/orders/show/{{ id }}">
+                {{ id }}
+            </a>
+        </div>
+        <div class="product">
+            <a href="/orders/show/{{ id }}">
+                {{ product.name }}
+            </a>
+        </div>
+        <div class="count">
+            {{ samples.length }}
+        </div>
+        <div class="date">
+            {{ created }}
+        </div>
+    </div>
+</script>
+
+<script type="application/javascript" th:src="@{/js/orders/show.js}"></script>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.OrderRequest;
-import uk.ac.sanger.mig.aker.services.OrderService;
+import uk.ac.sanger.mig.aker.services.WorkOrderService;
 
 /**
  * @author pi1
@@ -31,7 +32,7 @@ import uk.ac.sanger.mig.aker.services.OrderService;
 public class WorkController extends BaseController {
 
 	@Resource
-	private OrderService orderService;
+	private WorkOrderService workOrderService;
 
 	@Autowired
 	private OrderRequest order;
@@ -47,12 +48,13 @@ public class WorkController extends BaseController {
 	}
 
 	@RequestMapping(value = "/order", method = RequestMethod.GET)
-	public String order(Model model) {
+	public String order(Model model, Principal principal) {
 		if (order == null || !order.isProcessed()) {
 			return "redirect:/work/";
 		}
 
 		model.addAttribute("workOrder", order);
+		model.addAttribute("principal", principal);
 
 		return view("order");
 	}
@@ -60,7 +62,7 @@ public class WorkController extends BaseController {
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
 	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
-		orderService.processOrder(newOrder);
+		workOrderService.processOrder(newOrder);
 		order = newOrder;
 
 		return newOrder.isProcessed();
@@ -85,7 +87,7 @@ public class WorkController extends BaseController {
 	@ResponseBody
 	public FileSystemResource generateCsv(HttpServletResponse response) {
 		try {
-			final File file = orderService.printOrder(order);
+			final File file = workOrderService.printOrder(order);
 			response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
 
 			return new FileSystemResource(file.getAbsolutePath());

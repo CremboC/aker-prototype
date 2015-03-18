@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/common :: header">...</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h1>
+            Orders
+        </h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Product
+                    </th>
+                    <th>
+                        Sample Count
+                    </th>
+                    <th>
+                        Submission Date
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="append">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="fragments/common :: footer"></div>
+
+<script id="order-template" type="text/x-handlebars-template">
+    <tr>
+        <td class="id">
+            <a href="/orders/show/{{ id }}">
+                {{ id }}
+            </a>
+        </td>
+        <td class="product">
+            <a href="/orders/show/{{ id }}">
+                {{ product.name }}
+            </a>
+        </td>
+        <td class="count">
+            {{ samples.length }}
+        </td>
+        <td class="date">
+            {{ created }}
+        </td>
+    </tr>
+</script>
+
+<script type="application/javascript" th:src="@{/js/orders/index.js}"></script>
+
+</body>
+</html>

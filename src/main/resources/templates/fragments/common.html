@@ -45,6 +45,11 @@
                         Work
                     </a>
                 </li>
+                <li th:classappend="${uri.startsWith('/orders/')} ? active ">
+                    <a th:href="@{/orders/}">
+                        Orders
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
