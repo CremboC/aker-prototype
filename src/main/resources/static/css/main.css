@@ -64,3 +64,11 @@ nav {
     max-height: 700px;
     overflow-y: scroll;
 }
+
+.table-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

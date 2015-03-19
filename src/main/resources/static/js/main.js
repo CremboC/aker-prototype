@@ -29,6 +29,11 @@ Handlebars.registerHelper('list', function (context, options) {
     return ret + "</ul>";
 });
 
+Handlebars.registerHelper('date', function (object) {
+    var date = new Date(object);
+    return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+});
+
 Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
     switch (operator) {

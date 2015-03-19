@@ -5,9 +5,9 @@
 
 <div th:replace="fragments/common :: header">...</div>
 
-<input type="hidden" name="id" th:value="${id}" />
+<input type="hidden" name="id" th:value="${id}"/>
 
-<div class="container">
+<div class="container" id="order-view">
 
     <div class="page-header">
         <h1>
@@ -15,9 +15,10 @@
         </h1>
     </div>
 
-    <div class="row">
-        <div class="col-md-12 append">
-
+    <div class="row append">
+        <div class="loading text-center">
+            <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
+            Loading...
         </div>
     </div>
 
@@ -26,23 +27,70 @@
 <div th:replace="fragments/common :: footer"></div>
 
 <script id="order-template" type="text/x-handlebars-template">
-    <div>
-        <div class="id">
-            <a href="/orders/show/{{ id }}">
-                {{ id }}
-            </a>
-        </div>
-        <div class="product">
+    <div class="col-xs-12">
+        <h3>Product: </h3>
+
+        <p>
             <a href="/orders/show/{{ id }}">
                 {{ product.name }}
             </a>
-        </div>
-        <div class="count">
+        </p>
+
+        <h3>Number of Samples: </h3>
+
+        <p>
             {{ samples.length }}
-        </div>
-        <div class="date">
+        </p>
+
+        <h3>Submission date: </h3>
+
+        <p>
             {{ created }}
-        </div>
+        </p>
+    </div>
+    <div class="col-xs-12">
+        <h3>Samples: </h3>
+        <table class="table table-condensed table-hover samples-table">
+            <thead>
+            <tr>
+                <th width="20%">
+                    <span class="glyphicon glyphicon-barcode" style="vertical-align: -1px"></span>
+                    Barcode
+                </th>
+                <th>Status</th>
+                <th width="5%" class="text-center">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each samples}}
+            <tr id="{{ barcode }}">
+                <td>
+                    {{ barcode }}
+                </td>
+                <td>{{ currentStatus.name }}</td>
+                <td class="text-center cursor-pointer" data-extend="#{{ barcode }}-companion">
+                    <span class="glyphicon glyphicon-menu-down"></span>
+                </td>
+            </tr>
+            <tr class="hidden active" id="{{ barcode }}-companion">
+                <th>
+                    Status History
+                </th>
+                <td colspan="2" class="small">
+                    {{#each statusHistory}}
+                        <p>
+                            <b>Date: </b> {{ date created }}
+                            <b>Status: </b> {{ status.name }}
+                        </p>
+                    {{/each}}
+                </td>
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
+
     </div>
 </script>
 

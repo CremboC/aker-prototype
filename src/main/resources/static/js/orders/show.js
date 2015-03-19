@@ -18,6 +18,18 @@ $(document).ready(function () {
         var created = new Date(order.created);
         order.created = created.getDate() + "/" + (created.getMonth() + 1) + "/" + created.getFullYear() + " " + created.getHours() + ":" + created.getMinutes();
 
-        $append.append(template(order));
+        $append.html('').html(template(order));
+    }, function (xhr, status, error) {
+        $append.html('').html('<span class="glyphicon glyphicon-warning-sign"></span>Server problem...')
     });
+
+    $append.on('click', '[data-extend]', function(e) {
+        e.preventDefault();
+
+        var $this = $(this),
+            $companion = $($this.data('extend'));
+
+        $companion.toggleClass('hidden');
+        $this.find('.glyphicon').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
+    })
 });
