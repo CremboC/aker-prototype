@@ -11,7 +11,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 
 /**
@@ -42,4 +41,9 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 	@Query("select max(s.id) from Sample s")
 	public Integer lastId();
 
+	@Query("select s from Sample s where s.barcode like %:search% and s.owner = :owner")
+	Collection<Sample> searchByBarcode(@Param("search") String sample, @Param("owner") String owner);
+
+	@Query("select s from Sample s join s.aliases as a where lower(a.name) like %:search% and s.owner = :owner")
+	Collection<Sample> searchByAlias(@Param("search") String alias, @Param("owner") String owner);
 }

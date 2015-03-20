@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/common :: header">...</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h1>Search Results</h1>
+    </div>
+
+    <div class="col-md-12">
+        <ul>
+            <li th:each="result : ${results}">
+                <a th:href="${result.path + result.identifier}">
+                    <b th:text="${result.identifier}"></b>
+                    <span th:text="${result.searchResult}"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<div th:replace="fragments/common :: footer"></div>
+
+<script type="application/javascript" th:src="@{/js/search/index.js}"></script>
+
+</body>
+</html>

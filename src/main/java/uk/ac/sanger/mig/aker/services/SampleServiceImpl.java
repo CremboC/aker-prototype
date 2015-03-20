@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
@@ -92,28 +95,38 @@ public class SampleServiceImpl implements SampleService {
 
 	@Override
 	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode) {
-		final Set<Sample> samples = repository.findAllByBarcodeIn(barcode);
-
-		if (!samples.isEmpty()) {
-			return Optional.of(samples);
-		}
-
-		return Optional.empty();
+		return Optional.ofNullable(repository.findAllByBarcodeIn(barcode));
 	}
 
 	@Override
 	public Page<Sample> findAll(Pageable pageable) {
-		final Page<Sample> all = repository.findAllByOwner(SecurityContextHolder.getContext().getAuthentication().getName(), pageable);
+		final String owner = SecurityContextHolder.getContext().getAuthentication().getName();
+		final Page<Sample> all = repository.findAllByOwner(owner, pageable);
 
 		// set main label for all samples
-		all.forEach(s -> {
-			final Optional<Alias> alias = findMainAlias(s.getAliases());
-			if (alias.isPresent()) {
-				s.setMainAlias(alias.get());
-			}
-		});
+		all.forEach(this::setMainAlias);
 
 		return all;
+	}
+
+	@Override
+	public Collection<Searchable<?>> search(String query) {
+		final String owner = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		final Collection<Sample> byBarcode = repository.searchByBarcode(query, owner);
+		final Collection<Sample> byAlias = repository.searchByAlias(query, owner);
+
+		final List<Sample> allResults = Stream.of(byBarcode, byAlias).flatMap(o -> o.stream()).collect(
+				Collectors.toList());
+
+		allResults.forEach(this::setMainAlias);
+
+		return allResults.stream().collect(Collectors.toList());
+	}
+
+	private void setMainAlias(Sample sample) {
+		final Alias mainAlias = findMainAlias(sample.getAliases()).orElseThrow(IllegalStateException::new);
+		sample.setMainAlias(mainAlias);
 	}
 
 	private Optional<Alias> findMainAlias(Collection<Alias> aliases) {

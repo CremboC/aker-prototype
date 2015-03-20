@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table(name = "samples")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Sample extends BaseEntity implements Serializable {
+public class Sample extends BaseEntity implements Serializable, Searchable<String> {
 
 	public final static int BARCODE_SIZE = 10;
 
@@ -167,5 +167,20 @@ public class Sample extends BaseEntity implements Serializable {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	@Override
+	public String getIdentifier() {
+		return barcode;
+	}
+
+	@Override
+	public String getPath() {
+		return "/samples/show/";
+	}
+
+	@Override
+	public String getSearchResult() {
+		return mainAlias.getName();
 	}
 }

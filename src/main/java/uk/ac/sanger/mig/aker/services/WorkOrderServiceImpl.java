@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class WorkOrderServiceImpl implements WorkOrderService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Resource
 	private SampleRepository sampleRepository;
@@ -62,6 +63,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
 	@Value("${messaging.queue}")
 	private String receivingQueue;
+
+	private Map<String, Sample> sampleMap;
+	private List<String> optionNames;
 
 	@Override
 	public void sendOrder(Order order) {
@@ -87,10 +91,11 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
 	@Override
 	public void processOrder(OrderRequest order) {
+
 		// fetch all barcodes
 		final Set<String> barcodes = order.getSamples()
 				.stream()
-				.map(b -> b.getBarcode())
+				.map(s -> s.getBarcode())
 				.collect(Collectors.toSet());
 
 		// query db to get all sample information
@@ -103,7 +108,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		order.getSamples().addAll(groupsToOrderSamples(order.getGroups(), barcodes, samples));
 
 		// convert to a barcode -> sample map for quick access
-		final Map<String, Sample> sampleMap = samples
+		sampleMap = samples
 				.stream()
 				.collect(Collectors.toMap(
 						s -> s.getBarcode(),
@@ -111,39 +116,28 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 				));
 
 		// put all per-sample options names into a list to make check if needed easier
-		final List<String> optionNames = order.getProduct().getOptions()
+		optionNames = order.getProduct().getOptions()
 				.stream()
-				.map(o -> o.getName())
+				.map(OrderOption::getName)
 				.collect(Collectors.toList());
 
 		// set tags for all samples
-		for (OrderSample orderSample : order.getSamples()) {
-			final Sample sample = sampleMap.get(orderSample.getBarcode());
+		final List<OrderSample> processedOrderSamples = order.getSamples()
+				.stream()
+				.sorted(Comparator.comparing(s -> s.getBarcode()))
+				.parallel()
+				.map(this::processOrderSample)
+				.collect(Collectors.toList());
 
-			// foreach tag found in db, add it to the order sample object with the format name -> value
-			sample.getTags()
-					.stream()
-					.forEach(tag -> {
-						if (optionNames.contains(tag.getName())) {
-							orderSample.getOptions().put(tag.getName(), tag.getValue());
-						}
-					});
-
-			// insert all options which are not set (makes form template simpler)
-			optionNames.stream()
-					.filter(optionName -> !orderSample.getOptions().containsKey(optionName))
-					.forEach(optionName -> orderSample.getOptions().put(optionName, null));
-
-		}
-
-		// finally sort samples by barcode
-		order.getSamples().sort((s1, s2) -> s1.getBarcode().compareTo(s2.getBarcode()));
+		order.setSamples(processedOrderSamples);
 
 		// set estimated cost
 		final Double unitCost = Optional.ofNullable(order.getProduct().getUnitCost()).orElse(0.0);
 		order.setEstimateCost(unitCost * order.getSamples().size());
 
 		order.setProcessed(true);
+		sampleMap.clear();
+		optionNames.clear();
 	}
 
 	@Override
@@ -163,7 +157,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		Writer output = new FileWriter(outputFile);
 		final CSVPrinter csv = new CSVPrinter(output, CSVFormat.DEFAULT);
 
-//		csv.printRecord(headers);
+		//		csv.printRecord(headers);
 
 		for (OrderSample sample : order.getSamples()) {
 			final Collection<String> values = sample.getOptions().values();
@@ -185,6 +179,33 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 	}
 
 	/**
+	 * Process an order sample:
+	 * <ul>
+	 *     <li>Get all samples tags</li>
+	 *     <li>Insert all missing options (i.e. required for product, but sample has no tag for it)</li>
+	 * </ul>
+	 *
+	 * @param orderSample object to process
+	 * @return processed sample
+	 */
+	private OrderSample processOrderSample(OrderSample orderSample) {
+		final Sample sample = sampleMap.get(orderSample.getBarcode());
+
+		// foreach tag found in db, add it to the order sample object with the format name -> value
+		sample.getTags()
+				.stream()
+				.filter(t -> optionNames.contains(t.getName()))
+				.forEach(t -> orderSample.getOptions().put(t.getName(), t.getValue()));
+
+		// insert all options which are not set (makes form template simpler)
+		optionNames.stream()
+				.filter(optionName -> !orderSample.getOptions().containsKey(optionName))
+				.forEach(optionName -> orderSample.getOptions().put(optionName, null));
+
+		return orderSample;
+	}
+
+	/**
 	 * Converts group ids into a list of OrderSample.
 	 *
 	 * @param groupIds group ids
@@ -192,7 +213,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 	 * @param samples  sample set
 	 * @return list of order samples
 	 */
-	private Collection<OrderSample> groupsToOrderSamples(Collection<Long> groupIds, Collection<String> barcodes, Collection<Sample> samples) {
+	private Collection<OrderSample> groupsToOrderSamples(Collection<Long> groupIds, Collection<String> barcodes,
+			Collection<Sample> samples) {
 		Collection<OrderSample> orderSamples = new ArrayList<>();
 
 		final Set<Group> groups = groupRepository.findAllByIdIn(groupIds);

@@ -57,7 +57,7 @@ public class GroupController extends BaseController {
 	public Page<Group> json(Pageable pageable, Principal principal) {
 		final Page<Group> all = groupRepository.findAllByOwner(principal.getName(), pageable);
 
-		// remove parent's parent to simlify things for convertion into json..
+		// remove parent's parent to simplify things for conversion into json..
 		StreamSupport.stream(all.spliterator(), false) // get stream
 				.filter(g -> g.getParent() != null) // filter groups with no parent
 				.forEach(g -> g.getParent().setParent(null)); // set parent's parent to null

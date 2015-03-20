@@ -51,7 +51,30 @@
                     </a>
                 </li>
             </ul>
+            <form th:action="@{/search/samples/}" method="get" class="navbar-form navbar-right" role="form">
+
+                <div class="form-group">
+                    <label class="sr-only" for="search-samples">Search Samples</label>
+
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               name="search"
+                               id="search-samples"
+                               placeholder="Search Samples"
+                               th:value="${param.search != null ? param.search[0] : ''}" />
+
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+            </form>
         </div>
+
     </nav>
 </div>
 

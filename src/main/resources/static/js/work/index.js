@@ -158,9 +158,11 @@ $(document).ready(function () {
                         break;
 
                     case 'samples':
-                        order.samples.push({
-                            barcode: input.value
-                        });
+                        if (input.value !== "") {
+                            order.samples.push({
+                                barcode: input.value
+                            });
+                        }
                         break;
 
                     case 'groups':
