@@ -26,7 +26,7 @@ import org.springframework.context.annotation.PropertySource;
 @EnableRabbit
 public class RabbitMqConfig {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Value("${messaging.queue}")
 	private String queueName;

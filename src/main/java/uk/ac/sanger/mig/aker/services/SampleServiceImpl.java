@@ -94,8 +94,8 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Optional<Set<Sample>> findAllByBarcode(Set<String> barcode) {
-		return Optional.ofNullable(repository.findAllByBarcodeIn(barcode));
+	public Set<Sample> findAllByBarcode(Set<String> barcode) {
+		return repository.findAllByBarcodeIn(barcode);
 	}
 
 	@Override
@@ -116,8 +116,10 @@ public class SampleServiceImpl implements SampleService {
 		final Collection<Sample> byBarcode = repository.searchByBarcode(query, owner);
 		final Collection<Sample> byAlias = repository.searchByAlias(query, owner);
 
-		final List<Sample> allResults = Stream.of(byBarcode, byAlias).flatMap(o -> o.stream()).collect(
-				Collectors.toList());
+		final List<Sample> allResults = Stream
+				.of(byBarcode, byAlias)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 
 		allResults.forEach(this::setMainAlias);
 
@@ -130,7 +132,11 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	private Optional<Alias> findMainAlias(Collection<Alias> aliases) {
-		return aliases.stream().filter(l -> l.isMain()).findAny();
+		return aliases.stream().filter(Alias::isMain).findAny();
 	}
 
+	@Override
+	public SampleRepository getRepository() {
+		return repository;
+	}
 }

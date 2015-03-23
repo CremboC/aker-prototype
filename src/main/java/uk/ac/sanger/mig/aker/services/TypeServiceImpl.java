@@ -1,8 +1,7 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,14 @@ public class TypeServiceImpl implements TypeService {
 	private TypeRepository typeRepository;
 
 	@Override
-	public List<Type> findAll() {
-		final Iterable<Type> all = typeRepository.findAll();
-		all.forEach(type -> type.setValue(WordUtils.capitalizeFully(type.getValue())));
-		return IteratorUtils.toList(all.iterator());
+	public Collection<Type> findAll() {
+		final Collection<Type> types = typeRepository.findAll();
+		types.forEach(type -> type.setValue(WordUtils.capitalizeFully(type.getValue())));
+		return types;
+	}
+
+	@Override
+	public TypeRepository getRepository() {
+		return typeRepository;
 	}
 }

@@ -1,7 +1,6 @@
 package uk.ac.sanger.mig.aker.services;
 
 import java.io.IOException;
-import java.security.Principal;
 
 /**
  * @author pi1
@@ -12,10 +11,18 @@ public interface OrderService {
 	/**
 	 * Query a source for JSON of orders
 	 *
-	 * @param principal current user
+	 * @param owner current user
 	 * @return JSON of orders
 	 */
-	String queryOrders(Principal principal) throws IOException;
+	String queryOrders(String owner) throws IOException;
 
-	String queryOrder(Long id, Principal principal) throws IOException;
+	/**
+	 * Query details of a single order
+	 *
+	 * @param id an identifier as defined by the orders microservice
+	 * @param owner the owner, to crosscheck.
+	 * @return a JSON  of the order
+	 * @throws IOException upon failure to reach the microservice
+	 */
+	String queryOrder(Long id, String owner) throws IOException;
 }

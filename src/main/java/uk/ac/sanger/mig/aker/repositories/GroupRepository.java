@@ -27,7 +27,5 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
 
 	public Collection<Group> findAllByIdNotAndOwner(Long group, String owner);
 
-	public Page<Sample> findAllByTypeValueIn(Set<String> types, Pageable pageable);
-
 	public Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
 }

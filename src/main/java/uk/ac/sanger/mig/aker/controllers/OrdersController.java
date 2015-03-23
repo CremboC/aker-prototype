@@ -34,13 +34,13 @@ public class OrdersController extends BaseController {
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
 	@ResponseBody
 	private String orders(Principal principal) throws IOException {
-		return orderService.queryOrders(principal);
+		return orderService.queryOrders(principal.getName());
 	}
 
 	@RequestMapping(value = "/json/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	private String order(@PathVariable Long id, Principal principal) throws IOException {
-		return orderService.queryOrder(id, principal);
+		return orderService.queryOrder(id, principal.getName());
 	}
 
 	@RequestMapping("/")

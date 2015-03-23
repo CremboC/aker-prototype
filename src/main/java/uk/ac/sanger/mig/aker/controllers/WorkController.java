@@ -47,6 +47,15 @@ public class WorkController extends BaseController {
 		return view(Action.INDEX);
 	}
 
+	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
+	@ResponseBody
+	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
+		workOrderService.processOrder(newOrder);
+		order = newOrder;
+
+		return newOrder.isProcessed();
+	}
+
 	@RequestMapping(value = "/order", method = RequestMethod.GET)
 	public String order(Model model, Principal principal) {
 		if (order == null || !order.isProcessed()) {
@@ -57,15 +66,6 @@ public class WorkController extends BaseController {
 		model.addAttribute("principal", principal);
 
 		return view("order");
-	}
-
-	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
-	@ResponseBody
-	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
-		workOrderService.processOrder(newOrder);
-		order = newOrder;
-
-		return newOrder.isProcessed();
 	}
 
 	@RequestMapping(value = "/clear", method = RequestMethod.GET)

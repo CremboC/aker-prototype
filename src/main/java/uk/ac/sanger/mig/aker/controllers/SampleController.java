@@ -43,8 +43,6 @@ import uk.ac.sanger.mig.aker.services.TypeService;
 @RequestMapping("/samples")
 public class SampleController extends BaseController {
 
-	@Autowired
-	private SampleRepository sampleRepository;
 
 	@Autowired
 	private AliasRepository aliasRepository;
@@ -61,9 +59,13 @@ public class SampleController extends BaseController {
 	@Resource
 	private GroupService groupService;
 
+	private SampleRepository sampleRepository;
+
 	@PostConstruct
 	private void init() {
 		setTemplatePath("samples");
+		sampleRepository = sampleService.getRepository();
+
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)

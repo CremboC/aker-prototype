@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +15,14 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import static java.util.Comparator.*;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +80,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		}
 	}
 
+	@RabbitListener(queues = "test")
 	@Override
 	public void receiveConfirmation(String message) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -85,7 +88,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 			final Order order = mapper.readValue(message, Order.class);
 			System.out.println(order.getMessage());
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		}
 	}
 
@@ -95,7 +98,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		// fetch all barcodes
 		final Set<String> barcodes = order.getSamples()
 				.stream()
-				.map(s -> s.getBarcode())
+				.map(OrderSample::getBarcode)
 				.collect(Collectors.toSet());
 
 		// query db to get all sample information
@@ -111,7 +114,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		sampleMap = samples
 				.stream()
 				.collect(Collectors.toMap(
-						s -> s.getBarcode(),
+						Sample::getBarcode,
 						s -> s
 				));
 
@@ -124,7 +127,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		// set tags for all samples
 		final List<OrderSample> processedOrderSamples = order.getSamples()
 				.stream()
-				.sorted(Comparator.comparing(s -> s.getBarcode()))
+				.sorted(comparing(OrderSample::getBarcode))
 				.parallel()
 				.map(this::processOrderSample)
 				.collect(Collectors.toList());
@@ -136,6 +139,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		order.setEstimateCost(unitCost * order.getSamples().size());
 
 		order.setProcessed(true);
+
 		sampleMap.clear();
 		optionNames.clear();
 	}
@@ -181,8 +185,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 	/**
 	 * Process an order sample:
 	 * <ul>
-	 *     <li>Get all samples tags</li>
-	 *     <li>Insert all missing options (i.e. required for product, but sample has no tag for it)</li>
+	 * <li>Get all samples tags</li>
+	 * <li>Insert all missing options (i.e. required for product, but sample has no tag for it)</li>
 	 * </ul>
 	 *
 	 * @param orderSample object to process
@@ -198,9 +202,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 				.forEach(t -> orderSample.getOptions().put(t.getName(), t.getValue()));
 
 		// insert all options which are not set (makes form template simpler)
+		final Map<String, String> options = orderSample.getOptions();
 		optionNames.stream()
-				.filter(optionName -> !orderSample.getOptions().containsKey(optionName))
-				.forEach(optionName -> orderSample.getOptions().put(optionName, null));
+				.filter(optionName -> !options.containsKey(optionName))
+				.forEach(optionName -> options.put(optionName, null));
 
 		return orderSample;
 	}
@@ -221,10 +226,12 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
 		for (Group group : groups) {
 			for (Sample sample : group.getSamples()) {
+				// ignore samples we already know about
 				if (barcodes.contains(sample.getBarcode())) {
 					continue;
 				}
 
+				// otherwise add them to the list
 				samples.add(sample);
 
 				OrderSample os = new OrderSample();

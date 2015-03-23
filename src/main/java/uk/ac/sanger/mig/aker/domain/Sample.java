@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 /**
@@ -180,6 +181,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	}
 
 	@Override
+	@JsonIgnore
 	public String getSearchResult() {
 		return mainAlias.getName();
 	}

@@ -129,7 +129,9 @@ $(document).ready(function () {
                 options: []
             };
 
-            var form = $('form').serializeArray();
+            var $orderForm = $('#order-form');
+
+            var form = $orderForm.serializeArray();
 
             $.each(form, function (index, input) {
                 switch (input.name) {
@@ -179,8 +181,9 @@ $(document).ready(function () {
                 }
             });
 
-            var orderQuery = $.ajax('/work/order', {
-                method: $('form').attr('method'),
+            var orderQuery = $.ajax({
+                url: $orderForm.attr('action'),
+                method: $orderForm.attr('method'),
                 data: JSON.stringify(order),
                 processData: false,
                 contentType: 'application/json',
@@ -191,7 +194,8 @@ $(document).ready(function () {
 
             orderQuery.then(function (data) {
                 if (data) {
-                    window.location.href = "/work/order";
+                    console.log(data);
+                    window.location.href = $orderForm.attr('action');
                 }
             });
         });

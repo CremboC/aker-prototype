@@ -7,7 +7,7 @@
 
 <div class="container">
 
-    <form th:action="@{/work/request}" method="POST">
+    <form th:action="@{/work/order}" method="POST" id="order-form">
 
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 

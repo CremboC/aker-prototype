@@ -37,12 +37,12 @@ public class GroupController extends BaseController {
 	@Autowired
 	private GroupService groupService;
 
-	@Autowired
 	private GroupRepository groupRepository;
 
 	@PostConstruct
 	private void init() {
 		setTemplatePath("groups");
+		groupRepository = groupService.getRepository();
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
@@ -55,14 +55,14 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	public Page<Group> json(Pageable pageable, Principal principal) {
-		final Page<Group> all = groupRepository.findAllByOwner(principal.getName(), pageable);
+		final Page<Group> groups = groupRepository.findAllByOwner(principal.getName(), pageable);
 
 		// remove parent's parent to simplify things for conversion into json..
-		StreamSupport.stream(all.spliterator(), false) // get stream
+		StreamSupport.stream(groups.spliterator(), false) // get stream
 				.filter(g -> g.getParent() != null) // filter groups with no parent
 				.forEach(g -> g.getParent().setParent(null)); // set parent's parent to null
 
-		return all;
+		return groups;
 	}
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
@@ -98,7 +98,6 @@ public class GroupController extends BaseController {
 		if (!group.getOwner().equals(user.getName()) || !subgroup.getOwner().equals(user.getName())) {
 			return "redirect:/";
 		}
-
 
 		if (!result.hasErrors()) {
 			subgroup.setParent(group);
