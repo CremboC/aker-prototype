@@ -1,7 +1,9 @@
-package uk.ac.sanger.mig.aker.domain;
+package uk.ac.sanger.mig.aker.requests;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
+
+import uk.ac.sanger.mig.aker.domain.Type;
 
 /**
  * @author pi1

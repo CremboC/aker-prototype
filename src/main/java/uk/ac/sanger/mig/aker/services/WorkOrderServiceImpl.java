@@ -22,16 +22,15 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.domain.OrderRequest;
-import uk.ac.sanger.mig.aker.domain.OrderRequest.OrderOption;
-import uk.ac.sanger.mig.aker.domain.OrderRequest.OrderSample;
+import uk.ac.sanger.mig.aker.requests.OrderRequest;
+import uk.ac.sanger.mig.aker.requests.OrderRequest.OrderOption;
+import uk.ac.sanger.mig.aker.requests.OrderRequest.OrderSample;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.messages.Order;
@@ -80,7 +79,6 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		}
 	}
 
-	@RabbitListener(queues = "test")
 	@Override
 	public void receiveConfirmation(String message) {
 		ObjectMapper mapper = new ObjectMapper();

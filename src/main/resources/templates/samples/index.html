@@ -74,8 +74,10 @@
                             Actions
                         </h5>
                         <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">
-                            Create
-                            Group
+                            Create Group
+                        </button>
+                        <button type="submit" class="btn btn-success btn-block" id="create-labware" disabled="disabled">
+                            Create Labware
                         </button>
                     </div>
                 </div>
@@ -124,6 +126,62 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" id="modalConfirm">Confirm Group</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Labware Modal -->
+        <div class="modal fade" id="labwareModal" tabindex="-1" role="dialog" aria-labelledby="labwareModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h2 class="modal-title" id="labwareModalLabel">Create Labware</h2>
+                    </div>
+
+                    <div class="modal-body">
+                        <h4>Selected Samples</h4>
+
+                        <div class="create-group-modal">
+                            <table class="table table-condensed table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Barcode</th>
+                                    <th>Main Label</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="labwareSize">Choose size</label>
+                            <select name="size" id="labwareSize" class="form-control">
+                                <option value=""> -- Select One -- </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="labwareType">Choose type</label>
+                            <select name="type" id="labwareType" class="form-control">
+                            	<option value=""> -- Select One -- </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="labwareModalConfirm">Create Labware</button>
                     </div>
 
                 </div>

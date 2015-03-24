@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;

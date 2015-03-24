@@ -3,7 +3,8 @@
  */
 $(document).ready(function () {
 
-    var $samples = $('#jqp-samples');
+    var $samples = $('#jqp-samples'),
+        typesQuery, sizesQuery;
 
     $samples.pager({
         url: '/samples/json/',
@@ -18,19 +19,64 @@ $(document).ready(function () {
         singleType: true
     });
 
-    $('#create-group').createGroup({
+    $('#create-group').group({
         modal: '#groupModal',
         confirm: '#modalConfirm',
         template: '#modal-sample-template',
         mode: 'samples'
     });
 
+    $('#create-labware').group({
+        modal: '#labwareModal',
+        confirm: '#labwareModalConfirm',
+        template: '#modal-sample-template',
+        mode: 'samples',
+        action: '/labware/create'
+    });
+
     $samples.on('element.selected', function (event) {
-        var $button = $('#create-group');
+        var $buttons = $('#create-group, #create-labware');
         if (event.count > 0) {
-            $button.removeAttr('disabled');
+            $buttons.removeAttr('disabled');
         } else {
-            $button.attr('disabled', 'disabled');
+            $buttons.attr('disabled', 'disabled');
+        }
+    });
+
+    typesQuery = $.get('/labware/get/types');
+    sizesQuery = $.get('/labware/get/sizes');
+
+    sizesQuery.then(function (data) {
+        var sizes = new JsonHal(data, "sizes");
+
+        if (sizes.present()) {
+            var results = sizes.get(),
+                $labwareSizes = $('#labwareSize');
+
+            $.each(results, function (index, sizeObj) {
+                var size = sizeObj.data,
+                    value = size.name,
+                    display = size.name + ' (' + size.columns + ' by ' + size.rows + ')';
+
+                $labwareSizes.append('<option value="' + value + '">' + display + '</option>');
+            });
+        }
+    });
+
+    typesQuery.then(function (data) {
+        var types = new JsonHal(data, "types");
+
+        if (types.present()) {
+            var results = types.get(),
+                $labwareTypes = $('#labwareType');
+
+            $.each(results, function (index, typeObj) {
+                var type = typeObj.data,
+                    value = type.name,
+                    display = type.name;
+
+                $labwareTypes.append('<option value="' + value + '">' + display + '</option>');
+            });
         }
     });
 });

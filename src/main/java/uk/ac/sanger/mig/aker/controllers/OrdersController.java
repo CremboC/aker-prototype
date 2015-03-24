@@ -1,6 +1,5 @@
 package uk.ac.sanger.mig.aker.controllers;
 
-import java.io.IOException;
 import java.security.Principal;
 
 import javax.annotation.PostConstruct;
@@ -33,14 +32,16 @@ public class OrdersController extends BaseController {
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
 	@ResponseBody
-	private String orders(Principal principal) throws IOException {
-		return orderService.queryOrders(principal.getName());
+	private String orders(Principal principal) {
+		// TODO: return proper error message
+		return orderService.queryOrders(principal.getName()).orElse("");
 	}
 
 	@RequestMapping(value = "/json/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	private String order(@PathVariable Long id, Principal principal) throws IOException {
-		return orderService.queryOrder(id, principal.getName());
+	private String order(@PathVariable Long id, Principal principal) {
+		// TODO: return proper error message
+		return orderService.queryOrder(id, principal.getName()).orElse("");
 	}
 
 	@RequestMapping("/")

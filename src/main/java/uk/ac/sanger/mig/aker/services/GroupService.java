@@ -3,7 +3,7 @@ package uk.ac.sanger.mig.aker.services;
 import java.util.Optional;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.domain.GroupRequest;
+import uk.ac.sanger.mig.aker.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
 /**

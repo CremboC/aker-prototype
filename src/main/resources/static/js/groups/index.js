@@ -16,7 +16,7 @@ $(document).ready(function () {
         element: 'tbody .selectable'
     });
 
-    $('#create-group').createGroup({
+    $('#create-group').group({
         modal: '#groupModal',
         confirm: '#modalConfirm',
         mode: 'groups',

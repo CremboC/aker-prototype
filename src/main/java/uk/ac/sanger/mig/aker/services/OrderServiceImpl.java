@@ -1,6 +1,6 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -20,12 +20,12 @@ public class OrderServiceImpl implements OrderService {
 	private String uri;
 
 	@Override
-	public String queryOrders(String owner) throws IOException {
+	public Optional<String> queryOrders(String owner) {
 		return UrlUtils.parse(uri + owner);
 	}
 
 	@Override
-	public String queryOrder(Long id, String owner) throws IOException {
+	public Optional<String> queryOrder(Long id, String owner) {
 		return UrlUtils.parse(uri + owner + "/" + id);
 	}
 }

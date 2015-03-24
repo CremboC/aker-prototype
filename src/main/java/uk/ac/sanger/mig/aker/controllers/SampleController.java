@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
-import uk.ac.sanger.mig.aker.domain.GroupRequest;
+import uk.ac.sanger.mig.aker.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;

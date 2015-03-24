@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.SampleRequest;
+import uk.ac.sanger.mig.aker.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 

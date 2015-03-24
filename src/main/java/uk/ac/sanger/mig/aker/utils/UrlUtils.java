@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.utils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -18,12 +19,16 @@ public class UrlUtils {
 	 *
 	 * @param path path to resource
 	 * @return resource result
-	 * @throws IOException
 	 */
-	public static String parse(String path) throws IOException {
-		final URL url = new URL(path);
-		try (final Scanner s = new Scanner(url.openStream())) {
-			return s.useDelimiter("\\A").hasNext() ? s.next() : "";
+	public static Optional<String> parse(String path) {
+		try {
+			final URL url = new URL(path);
+			try (final Scanner s = new Scanner(url.openStream())) {
+				return Optional.of(s.useDelimiter("\\A").hasNext() ? s.next() : "");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Optional.empty();
 		}
 	}
 }

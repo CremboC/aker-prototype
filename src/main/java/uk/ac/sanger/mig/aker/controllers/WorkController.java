@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import uk.ac.sanger.mig.aker.domain.OrderRequest;
+import uk.ac.sanger.mig.aker.requests.OrderRequest;
 import uk.ac.sanger.mig.aker.services.WorkOrderService;
 
 /**

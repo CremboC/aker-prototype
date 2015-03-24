@@ -365,19 +365,20 @@ $.fn.selectableElement = function (options) {
 };
 
 /**
- * Helper to create a group
+ * Helper to create a group or a labware
  *
  * @param options
  * @returns {$.fn}
  */
-$.fn.createGroup = function (options) {
+$.fn.group = function (options) {
 
     var defaults = {
         mode: '', // groups/samples
         modal: '', // modal selector
         template: '', // template selector
         confirm: '', // confirm button
-        form: 'form'
+        form: 'form',
+        action: null
     };
 
     var settings = $.extend({}, defaults, options);
@@ -415,14 +416,10 @@ $.fn.createGroup = function (options) {
         var elements = [];
         var serializedForm = $form.serializeArray();
 
-        console.log(serializedForm);
-
         $.each(serializedForm, function (index, input) {
-            console.log(input);
             if (!input.value || (input.name.indexOf("_") == 0)) {
                 return;
             }
-            console.log(input);
 
             var $row = $('#' + input.value);
 
@@ -455,11 +452,97 @@ $.fn.createGroup = function (options) {
 
     $confirmButton.on('click', function (e) {
         e.preventDefault();
+
+        if (settings.action !== null) {
+            $form.attr('action', settings.action);
+        }
+
         $form.submit();
     });
 
     return this;
 };
+
+/**
+ * Wrapper for dealing with JSON+HAL responses from a RESTful service
+ *
+ * @param data
+ * @param object name of the embedded object
+ * @constructor
+ */
+function JsonHal(data, object) {
+
+    var empty = data ? false : true,
+        embedded = empty ? [] : data._embedded;
+
+    /**
+     * Get the embedded data in this jsonHal query.
+     *
+     * @returns {Array}
+     */
+    this.get = function () {
+        if (empty) {
+            return []
+        }
+
+        var objects = [];
+        for (var i = 0; i < embedded[object].length; i++) {
+            var obj = embedded[object][i];
+
+            var wrapper = {
+                data: obj,
+                details: obj['_links']['self']['href'],
+                link: function (child) {
+                    var childLinks = this.data['_links'][child];
+                    if (!childLinks) {
+                        return null;
+                    }
+                    return childLinks;
+                }
+            };
+
+            objects.push(wrapper);
+        }
+
+        return objects;
+    };
+
+    /**
+     * Get the metadata for this jsonHal query. i.e. the 'page' key in the response.
+     * @returns {{size: number, totalElements: number, totalPages: number, number: number}}
+     */
+    this.meta = function () {
+        if (empty || !('page' in data)) {
+            return {
+                size: 0,
+                totalElements: null,
+                totalPages: null,
+                number: 0
+            };
+        }
+        return data.page;
+    };
+
+    /**
+     * Whether the data returned is empty. Recommend use is:
+     * if (!varr.empty()) {
+     *     // do something
+     * }
+     * @returns {boolean}
+     */
+    this.empty = function () {
+        return empty;
+    };
+
+    /**
+     * Reverse of this.empty()
+     *
+     * @returns {boolean}
+     */
+    this.present = function () {
+        return !empty;
+    };
+}
 
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();

@@ -1,4 +1,4 @@
-package uk.ac.sanger.mig.aker.domain;
+package uk.ac.sanger.mig.aker.requests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
