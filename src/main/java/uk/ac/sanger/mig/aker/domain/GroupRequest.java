@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.domain;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -13,10 +14,10 @@ public class GroupRequest {
 	@NotNull
 	private String name;
 
-	private Set<String> samples = null;
+	private Set<String> samples = new HashSet<>();
 
 	// if group request is of groups
-	private Set<Long> groups = null;
+	private Set<Long> groups = new HashSet<>();
 
 	private Type type;
 

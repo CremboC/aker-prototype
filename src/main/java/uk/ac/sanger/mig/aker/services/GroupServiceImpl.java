@@ -32,11 +32,11 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	public Optional<Group> createGroup(@NotNull GroupRequest groupRequest) {
 
-		if (groupRequest.getSamples() != null && !groupRequest.getSamples().isEmpty()) {
+		if (!groupRequest.getSamples().isEmpty()) {
 			return groupOfSamples(groupRequest);
 		}
 
-		if (groupRequest.getGroups() != null && !groupRequest.getGroups().isEmpty()) {
+		if (!groupRequest.getGroups().isEmpty()) {
 			return groupOfGroups(groupRequest);
 		}
 
@@ -83,7 +83,7 @@ public class GroupServiceImpl implements GroupService {
 		final Set<Long> groups = groupRequest.getGroups();
 		final Set<Group> byParentIdIn = repository.findAllByIdIn(groups);
 
-		if (byParentIdIn != null && !byParentIdIn.isEmpty()) {
+		if (!byParentIdIn.isEmpty()) {
 			Group group = new Group();
 			group.setName(groupRequest.getName());
 			group.setOwner(SecurityContextHolder.getContext().getAuthentication().getName());
