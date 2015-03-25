@@ -1,6 +1,8 @@
 package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -30,18 +32,18 @@ public class OrdersController extends BaseController {
 		setTemplatePath("orders");
 	}
 
-	@RequestMapping(value = "/json", method = RequestMethod.GET)
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	private String orders(Principal principal) {
+	private Collection<Object> orders(Principal principal) {
 		// TODO: return proper error message
-		return orderService.queryOrders(principal.getName()).orElse("");
+		return orderService.queryOrders(principal.getName());
 	}
 
-	@RequestMapping(value = "/json/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	private String order(@PathVariable Long id, Principal principal) {
+	private Map<String, Object> order(@PathVariable Long id, Principal principal) {
 		// TODO: return proper error message
-		return orderService.queryOrder(id, principal.getName()).orElse("");
+		return orderService.queryOrder(id, principal.getName());
 	}
 
 	@RequestMapping("/")

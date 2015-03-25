@@ -2,12 +2,13 @@ package uk.ac.sanger.mig.aker.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 
 /**
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 public class JsonUtils {
 
 	/**
-	 * Convert json string to Map string -> string
+	 * Convert json string to Map string -> object
 	 *
 	 * @param json to convert
 	 * @return map
@@ -36,14 +37,18 @@ public class JsonUtils {
 		return new HashMap<>();
 	}
 
-	public static List<Map<String, String>> toListOfMaps(String json) {
+	/**
+	 * Maps to a generic collection of maps
+	 * @param json to convert
+	 * @return collection of maps
+	 */
+	public static Collection<Object> toCollection(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 
-		final ArrayType arrayType = mapper.getTypeFactory()
-				.constructArrayType(List.class);
+		final CollectionType arrayType = mapper.getTypeFactory().constructCollectionType(List.class, Map.class);
 
 		try {
-			return (ArrayList<Map<String, String>>) mapper.readValue(json, arrayType);
+			return (Collection<Object>) mapper.readValue(json, arrayType);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

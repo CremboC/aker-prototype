@@ -1,7 +1,7 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.io.IOException;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author pi1
@@ -15,7 +15,7 @@ public interface OrderService {
 	 * @param owner current user
 	 * @return JSON of orders
 	 */
-	Optional<String> queryOrders(String owner);
+	Collection<Object> queryOrders(String owner);
 
 	/**
 	 * Query details of a single order
@@ -23,7 +23,6 @@ public interface OrderService {
 	 * @param id an identifier as defined by the orders microservice
 	 * @param owner the owner, to crosscheck.
 	 * @return a JSON  of the order
-	 * @throws IOException upon failure to reach the microservice
 	 */
-	Optional<String> queryOrder(Long id, String owner);
+	Map<String, Object> queryOrder(Long id, String owner);
 }

@@ -489,19 +489,28 @@ function JsonHal(data, object) {
         for (var i = 0; i < embedded[object].length; i++) {
             var obj = embedded[object][i];
 
-            var wrapper = {
+            var details = null;
+            if ('_links' in obj && 'self' in obj['_links']) {
+                details = obj['_links']['self'];
+            }
+
+            objects.push({
                 data: obj,
-                details: obj['_links']['self']['href'],
+                details: details,
                 link: function (child) {
+                    if (!('_links' in this.data)) {
+                        return null;
+                    }
+
                     var childLinks = this.data['_links'][child];
+
                     if (!childLinks) {
                         return null;
                     }
+
                     return childLinks;
                 }
-            };
-
-            objects.push(wrapper);
+            });
         }
 
         return objects;

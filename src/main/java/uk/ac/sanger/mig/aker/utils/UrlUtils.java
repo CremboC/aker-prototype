@@ -18,7 +18,7 @@ public class UrlUtils {
 	 * method will return the JSON as a string – this can later be passed to a controller
 	 *
 	 * @param path path to resource
-	 * @return resource result
+	 * @return resource result, <b>empty</b> upon failure to parse URL (IOException)
 	 */
 	public static Optional<String> parse(String path) {
 		try {

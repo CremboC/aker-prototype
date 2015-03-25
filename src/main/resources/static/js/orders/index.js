@@ -6,15 +6,10 @@ $(document).ready(function () {
     var template = $('#order-template').handlebars(),
         $append = $('.append');
 
-    ordersQuery = $.ajax({
-        url: '/orders/json/',
-        dataType: 'json'
-    });
+    ordersQuery = $.get('/orders/get/');
 
     ordersQuery.then(function (data) {
         var ordersHtml = $.map(data, function (order) {
-            var created = new Date(order.created);
-            order.created = created.getDate() + "/" + (created.getMonth() + 1) + "/" + created.getFullYear() + " " + created.getHours() + ":" + created.getMinutes();
             return template(order);
         });
 
