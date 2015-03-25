@@ -2,6 +2,7 @@
 
 Run using `mvn spring-boot:run` from the command line.
 
-Seed database with fake data by going to `/samples/seed/`
+## Requirements:
 
-Main page is `/samples/`
+* MySQL server with database `aker` (unless you change it in the properties file)
+* JDK 8
