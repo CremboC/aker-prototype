@@ -20,26 +20,26 @@ import uk.ac.sanger.mig.aker.domain.Sample;
 @Repository
 public interface SampleRepository extends PagingAndSortingRepository<Sample, Long> {
 
-	public Page<Sample> findAllByOwner(@Param("owner") String user, Pageable pageable);
+	Page<Sample> findAllByOwner(@Param("owner") String user, Pageable pageable);
 
-	public Sample findByBarcode(String barcode);
+	Sample findByBarcode(String barcode);
 
-	public List<Sample> findByTypeId(long id);
+	List<Sample> findByTypeId(long id);
 
-	public Set<Sample> findAllByBarcodeIn(Collection<String> barcode);
+	Set<Sample> findAllByBarcodeIn(Collection<String> barcode);
 
-	public Set<Sample> findAllByGroupsIdIn(Collection<Long> groupId);
+	Set<Sample> findAllByGroupsIdIn(Collection<Long> groupId);
 
-	public Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
+	Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
 
-	public Page<Sample> findAllByTypeValueIn(Set<String> types, Pageable pageable);
+	Page<Sample> findAllByTypeValueIn(Set<String> types, Pageable pageable);
 
-	public Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
+	Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
 
 	Set<Sample> findAllByBarcodeInAndOwner(Collection<String> barcodes, String name);
 
 	@Query("select max(s.id) from Sample s")
-	public Integer lastId();
+	Integer lastId();
 
 	@Query("select s from Sample s where s.barcode like %:search% and s.owner = :owner")
 	Collection<Sample> searchByBarcode(@Param("search") String sample, @Param("owner") String owner);

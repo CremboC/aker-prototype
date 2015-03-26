@@ -1,6 +1,8 @@
 package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -15,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import uk.ac.sanger.mig.aker.requests.LabwareRequest;
+import uk.ac.sanger.mig.aker.domain.external.LabwareSize;
+import uk.ac.sanger.mig.aker.domain.requests.LabwareRequest;
 import uk.ac.sanger.mig.aker.services.LabwareService;
 
 /**
@@ -35,32 +38,41 @@ public class LabwareController extends BaseController {
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	private String create(@Valid @ModelAttribute LabwareRequest labwareRequest, Errors errors, Model model) {
+	public String create(@Valid @ModelAttribute LabwareRequest labwareRequest, Errors errors, Model model) {
 		if (errors.hasErrors()) {
 			return "redirect:/";
 		}
 
+		final LabwareSize size = labwareService.findOneSize(labwareRequest.getSize());
+		final int totalSize = size.getColumns() * size.getRows();
+
+		Collection<String> emptySamples = new ArrayList<>(totalSize);
+		emptySamples.addAll(labwareRequest.getSamples());
+
+		labwareRequest.setSamples(emptySamples);
+
 		model.addAttribute("labware", labwareRequest);
+		model.addAttribute("size", size);
 
 		return view(Action.CREATE);
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	private Object queryLabware(Principal principal) {
-		return labwareService.queryAll(principal.getName()).orElse("");
+	public Object queryLabware(Principal principal) {
+		return labwareService.findAll(principal.getName()).orElse("");
 	}
 
 	@RequestMapping(value = "/get/types", method = RequestMethod.GET)
 	@ResponseBody
-	private Map<String, Object> queryTypes() {
-		return labwareService.queryTypes();
+	public Map<String, Object> queryTypes() {
+		return labwareService.findAllTypes();
 	}
 
 	@RequestMapping(value = "/get/sizes", method = RequestMethod.GET)
 	@ResponseBody
-	private Map<String, Object> querySizes() {
-		return labwareService.querySizes();
+	public Map<String, Object> querySizes() {
+		return labwareService.findAllSizes();
 	}
 
 }

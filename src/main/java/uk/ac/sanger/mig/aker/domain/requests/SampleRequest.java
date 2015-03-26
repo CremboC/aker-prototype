@@ -1,4 +1,4 @@
-package uk.ac.sanger.mig.aker.requests;
+package uk.ac.sanger.mig.aker.domain.requests;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;

@@ -1,6 +1,5 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -15,7 +14,7 @@ public interface OrderService {
 	 * @param owner current user
 	 * @return JSON of orders
 	 */
-	Collection<Object> queryOrders(String owner);
+	Map<String, Object> queryOrders(String owner);
 
 	/**
 	 * Query details of a single order

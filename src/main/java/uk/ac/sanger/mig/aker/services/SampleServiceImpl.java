@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.requests.SampleRequest;
+import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
@@ -94,7 +94,7 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Set<Sample> findAllByBarcode(Set<String> barcode) {
+	public Set<Sample> findAllByBarcode(Collection<String> barcode) {
 		return repository.findAllByBarcodeIn(barcode);
 	}
 

@@ -1,8 +1,4 @@
 /**
- * Created by pi1 on 17/02/2015.
- */
-
-/**
  * regex converts 'Yes, No' to 'Yes,No' i.e. removes spaces after comma for split to work properly
  * also removes last comma (and whitespace) at the end of the string
  * @param string
@@ -58,65 +54,81 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
     }
 });
 
-/**
- * Shortcut to Handlebars.compile(this.html());
- * @returns {*}
- */
-$.fn.handlebars = function () {
-    return Handlebars.compile(this.html());
-};
 
-/**
- * Watches an element to see when it's visible on the screen. Triggers event 'on.screen' on the element once it's visible
- * @returns {$.fn}
- */
-$.fn.watcher = function () {
+(function ($) {
+    /**
+     * Shortcut to Handlebars.compile(this.html());
+     * @returns {*}
+     */
+    $.fn.handlebars = function () {
+        return Handlebars.compile(this.html());
+    };
+})(jQuery);
 
-    var $watch = $(this);
-
-    var scrollTimeout;  // global for any pending scrollTimeout
-
-    $(window).scroll(function () {
-        if (scrollTimeout) {
-            // clear the timeout, if one is pending
-            clearTimeout(scrollTimeout);
-            scrollTimeout = null;
-        }
-        scrollTimeout = setTimeout(scrollHandler, 250);
-    });
-
-    var triggerEvent = function () {
-        $watch.trigger('on.screen');
+(function ($) {
+    $.fn.isAfter = function (sel) {
+        return this.prevAll().filter(sel).length !== 0;
     };
 
-    var isScrolledIntoView = function ($elem) {
-        var $window = $(window);
-
-        var docViewTop = $window.scrollTop();
-        var docViewBottom = docViewTop + $window.height();
-
-        var elemTop = $elem.offset().top;
-        var elemBottom = elemTop + $elem.height();
-
-        return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+    $.fn.isBefore = function (sel) {
+        return this.nextAll().filter(sel).length !== 0;
     };
+})(jQuery);
 
-    var init = function () {
-        if (isScrolledIntoView($watch)) {
-            triggerEvent();
-        }
+(function ($) {
+    /**
+     * Watches an element to see when it's visible on the screen. Triggers event 'on.screen' on the element once it's visible
+     * @returns {$.fn}
+     */
+    $.fn.watcher = function () {
+
+        var $watch = $(this);
+
+        var scrollTimeout;  // global for any pending scrollTimeout
+
+        $(window).scroll(function () {
+            if (scrollTimeout) {
+                // clear the timeout, if one is pending
+                clearTimeout(scrollTimeout);
+                scrollTimeout = null;
+            }
+            scrollTimeout = setTimeout(scrollHandler, 250);
+        });
+
+        var triggerEvent = function () {
+            $watch.trigger('on.screen');
+        };
+
+        var isScrolledIntoView = function ($elem) {
+            var $window = $(window);
+
+            var docViewTop = $window.scrollTop();
+            var docViewBottom = docViewTop + $window.height();
+
+            var elemTop = $elem.offset().top;
+            var elemBottom = elemTop + $elem.height();
+
+            return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+        };
+
+        var init = function () {
+            if (isScrolledIntoView($watch)) {
+                triggerEvent();
+            }
+        };
+
+        var scrollHandler = function () {
+            if (isScrolledIntoView($watch)) {
+                triggerEvent();
+            }
+        };
+
+        init();
+
+        return this;
     };
+})(jQuery);
 
-    var scrollHandler = function () {
-        if (isScrolledIntoView($watch)) {
-            triggerEvent();
-        }
-    };
-
-    init();
-
-    return this;
-};
 
 (function ($) {
 
@@ -327,24 +339,34 @@ $.fn.selectableElement = function (options) {
         checkedCount = 0,
         previousType;
 
-    $wrapper.on('click', settings.element, function (e) {
-        var $checkbox = $(this).find('input[type="checkbox"]');
-        var type = $checkbox.data('type');
+    var $lastSelected,
+        displayWarning = false;
+
+    /**
+     *
+     * @param $selectable the selectable
+     * @param isMultiselect is user selecting multiple rows?
+     */
+    var select = function ($selectable, isMultiselect) {
+        var $checkbox = $selectable.find('input[type="checkbox"]'),
+            type = $checkbox.data('type');
+
+        displayWarning = false;
 
         // user may click the checkbox itself, should still work
-        if (!$(this).is('input[type="checkbox"]')) {
-
+        if ($selectable.is('input[type="checkbox"]')) {
+            return;
         }
 
         if (settings.singleType && checkedCount > 0) {
             if (type !== previousType) {
-                alert('Type must be the same!');
+                displayWarning = true;
                 return;
             }
         }
 
         $checkbox.prop("checked", !$checkbox.prop("checked"));
-        $(this).toggleClass("selected");
+        $selectable.toggleClass("selected");
 
         if ($checkbox.prop("checked")) {
             checkedCount++;
@@ -352,13 +374,52 @@ $.fn.selectableElement = function (options) {
             checkedCount--;
         }
 
-
         previousType = type;
 
         $wrapper.trigger({
             type: 'element.selected',
             count: checkedCount
         });
+
+        $lastSelected = $selectable;
+    };
+
+    $wrapper.on('click', settings.element, function (e) {
+        var $this = $(this);
+
+        var isMultiselect = e.ctrlKey || e.metaKey;
+
+        if ($lastSelected && isMultiselect) {
+
+            var selectAll = function (index, element) {
+                select($(element), isMultiselect);
+            };
+
+            if ($this.isAfter($lastSelected)) {
+                $lastSelected.nextUntil($this).add($this).each(selectAll);
+            } else if ($this.isBefore($lastSelected)) {
+                var toSelect = $lastSelected.prevUntil($this).add($this);
+
+                if ($lastSelected.hasClass("selected")) {
+                    toSelect.add($lastSelected);
+                }
+
+                toSelect.each(selectAll);
+
+                $lastSelected = $this;
+            }
+
+        } else {
+            select($this, isMultiselect);
+        }
+
+        if (displayWarning) {
+            alert('Type must be the same!');
+        }
+
+        console.log($this);
+        console.log($lastSelected);
+
     });
 
     return this;
@@ -497,6 +558,9 @@ function JsonHal(data, object) {
             objects.push({
                 data: obj,
                 details: details,
+                identifier: function () {
+                    return this.data['_links']
+                },
                 link: function (child) {
                     if (!('_links' in this.data)) {
                         return null;

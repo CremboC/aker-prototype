@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.requests.GroupRequest;
+import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 

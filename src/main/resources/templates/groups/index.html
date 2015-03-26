@@ -32,7 +32,8 @@
                         </th>
                         <th>
                             Sample Count
-                            <span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title="Excluding children groups'"></span>
+                            <span class="glyphicon glyphicon-question-sign" data-toggle="tooltip"
+                                  title="Excluding children groups'"></span>
                         </th>
                         <th>
                             Details
@@ -50,7 +51,8 @@
                 <script id="group-template" type="text/x-handlebars-template">
                     <tr id="{{ id }}" class="selectable">
                         <td>
-                            <input type="checkbox" value="{{ id }}" th:field="*{groups}"/>
+                            <input type="checkbox" value="{{ id }}" name="groups"/>
+                            <input type="hidden" name="_groups" value="on" />
                         </td>
                         <td class="name">
                             <a href="/groups/show/{{ id }}">
@@ -102,7 +104,8 @@
                             <h4>Selected Groups</h4>
 
                             <p>
-                                <span class="text-danger">Warning:</span> A group can only have one parent group, and thus if you have selected
+                                <span class="text-danger">Warning:</span> A group can only have one parent group, and
+                                thus if you have selected
                                 groups which already have a parent, it will be overriden.
                             </p>
 
@@ -123,7 +126,7 @@
                             <div class="form-group">
                                 <label for="groupName">Group Name</label>
                                 <input type="text" id="groupName" class="form-control" required="required"
-                                       th:field="*{name}" />
+                                       th:field="*{name}"/>
                             </div>
 
                         </div>

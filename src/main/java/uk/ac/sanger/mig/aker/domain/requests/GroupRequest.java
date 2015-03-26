@@ -1,4 +1,4 @@
-package uk.ac.sanger.mig.aker.requests;
+package uk.ac.sanger.mig.aker.domain.requests;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,7 @@ import uk.ac.sanger.mig.aker.domain.Type;
  * @author pi1
  * @since February 2015
  */
-public class GroupRequest extends Grouping {
+public class GroupRequest extends SampleGroup {
 
 	@NotNull
 	private String name;

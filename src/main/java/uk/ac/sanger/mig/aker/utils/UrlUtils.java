@@ -5,11 +5,20 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author pi1
  * @since March 2015
  */
 public class UrlUtils {
+
+	private final static Logger logger = LoggerFactory.getLogger(UrlUtils.class);
+
+	private UrlUtils() {
+	}
+
 
 	/**
 	 * Given a string url/path, opens it, reads it and returns it as a string.
@@ -24,12 +33,17 @@ public class UrlUtils {
 		try {
 			final URL url = new URL(path);
 			try (final Scanner s = new Scanner(url.openStream())) {
-				return Optional.of(s.useDelimiter("\\A").hasNext() ? s.next() : "");
+				return Optional.of(readWholeString(s));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Attempted to parse " + path);
+			logger.error(e.getMessage());
 			return Optional.empty();
 		}
+	}
+
+	private static String readWholeString(Scanner s) {
+		return s.useDelimiter("\\A").hasNext() ? s.next() : "";
 	}
 }
 

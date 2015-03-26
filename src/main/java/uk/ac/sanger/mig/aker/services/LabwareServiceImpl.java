@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
+import uk.ac.sanger.mig.aker.domain.external.LabwareSize;
+import uk.ac.sanger.mig.aker.domain.external.LabwareType;
 import uk.ac.sanger.mig.aker.utils.JsonUtils;
 import uk.ac.sanger.mig.aker.utils.UrlUtils;
 
@@ -15,7 +17,7 @@ import uk.ac.sanger.mig.aker.utils.UrlUtils;
  * @since March 2015
  */
 @Service
-@PropertySource("properties/labware.properties")
+@PropertySource("classpath:properties/labware.properties")
 public class LabwareServiceImpl implements LabwareService {
 
 	@Value("${uri.host}")
@@ -28,29 +30,35 @@ public class LabwareServiceImpl implements LabwareService {
 	private String typesSuffix;
 
 	@Override
-	public Optional<String> queryAll(String owner) {
+	public Optional<String> findAll(String owner) {
 		return UrlUtils.parse(uri);
 	}
 
 	@Override
-	public Optional<String> queryOne(String owner, String identifier) {
+	public Optional<String> findOne(String owner, String identifier) {
 		return null;
 	}
 
 	@Override
-	public Map<String, Object> queryTypes() {
+	public Map<String, Object> findAllTypes() {
 		final Optional<String> maybeTypes = UrlUtils.parse(uri + typesSuffix);
 		return JsonUtils.toMap(maybeTypes.orElse(""));
 	}
 
 	@Override
-	public Map<String, Object> querySizes() {
+	public Map<String, Object> findAllSizes() {
 		final Optional<String> maybeSizes = UrlUtils.parse(uri + sizesSuffix);
 		return JsonUtils.toMap(maybeSizes.orElse(""));
 	}
 
 	@Override
-	public Optional<Map<String, String>> querySize(String name) {
-		return null;
+	public LabwareSize findOneSize(String name) {
+		final Optional<String> maybeSize = UrlUtils.parse(uri + sizesSuffix + name);
+		return JsonUtils.toObject(maybeSize.orElse(""), LabwareSize.class);
 	}
+
+	@Override
+	public LabwareType findOneType(String name) {
+		final Optional<String> maybeType = UrlUtils.parse(uri + typesSuffix + name);
+		return JsonUtils.toObject(maybeType.orElse(""), LabwareType.class);	}
 }

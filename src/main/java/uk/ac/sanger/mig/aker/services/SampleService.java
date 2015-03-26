@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.requests.SampleRequest;
+import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 
@@ -42,7 +42,7 @@ public interface SampleService extends RepositoryService<SampleRepository> {
 	 * @param barcode set of barcodes
 	 * @return potentially a set of samples
 	 */
-	public Set<Sample> findAllByBarcode(Set<String> barcode);
+	public Set<Sample> findAllByBarcode(Collection<String> barcode);
 
 	public Page<Sample> findAll(Pageable p);
 

@@ -9,10 +9,18 @@ $(document).ready(function () {
     ordersQuery = $.get('/orders/get/');
 
     ordersQuery.then(function (data) {
-        var ordersHtml = $.map(data, function (order) {
-            return template(order);
-        });
+        console.log(data);
+        var orders = new JsonHal(data, "orders");
 
-        $append.append(ordersHtml);
+        if (orders.present()) {
+
+            var ordersHtml = $.map(orders.get(), function (orderObj) {
+                var order = orderObj.data;
+
+                return template(order);
+            });
+
+            $append.append(ordersHtml);
+        }
     });
 });

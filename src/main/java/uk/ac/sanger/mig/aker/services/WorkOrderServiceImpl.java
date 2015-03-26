@@ -28,9 +28,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.requests.OrderRequest;
-import uk.ac.sanger.mig.aker.requests.OrderRequest.OrderOption;
-import uk.ac.sanger.mig.aker.requests.OrderRequest.OrderSample;
+import uk.ac.sanger.mig.aker.domain.requests.OrderRequest;
+import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderOption;
+import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderSample;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.messages.Order;

@@ -3,7 +3,7 @@ package uk.ac.sanger.mig.aker.services;
 import java.io.File;
 import java.io.IOException;
 
-import uk.ac.sanger.mig.aker.requests.OrderRequest;
+import uk.ac.sanger.mig.aker.domain.requests.OrderRequest;
 import uk.ac.sanger.mig.aker.messages.Order;
 
 /**

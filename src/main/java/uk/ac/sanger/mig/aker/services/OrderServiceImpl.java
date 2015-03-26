@@ -1,6 +1,5 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,17 +15,17 @@ import uk.ac.sanger.mig.aker.utils.UrlUtils;
  * @since March 2015
  */
 @Service
-@PropertySource("properties/orders.properties")
+@PropertySource("classpath:properties/orders.properties")
 public class OrderServiceImpl implements OrderService {
 
 	@Value("${uri}")
 	private String uri;
 
 	@Override
-	public Collection<Object> queryOrders(String owner) {
+	public Map<String, Object> queryOrders(String owner) {
 		final Optional<String> parse = UrlUtils.parse(uri + owner);
 
-		return JsonUtils.toCollection(parse.orElse(""));
+		return JsonUtils.toMap(parse.orElse(""));
 	}
 
 	@Override

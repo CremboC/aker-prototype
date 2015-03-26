@@ -19,13 +19,13 @@ import uk.ac.sanger.mig.aker.domain.Sample;
 @Repository
 public interface GroupRepository extends PagingAndSortingRepository<Group, Long> {
 
-	public Page<Group> findAllByOwner(@Param("owner") String user, Pageable pageable);
+	Page<Group> findAllByOwner(@Param("owner") String user, Pageable pageable);
 
-	public Set<Group> findByParentId(long parentId);
+	Set<Group> findByParentId(long parentId);
 
-	public Set<Group> findAllByIdIn(Collection<Long> groups);
+	Set<Group> findAllByIdIn(Collection<Long> groups);
 
-	public Collection<Group> findAllByIdNotAndOwner(Long group, String owner);
+	Collection<Group> findAllByIdNotAndOwner(Long group, String owner);
 
-	public Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
+	Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
 }

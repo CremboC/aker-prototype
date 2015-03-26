@@ -1,14 +1,16 @@
-package uk.ac.sanger.mig.aker.requests;
+package uk.ac.sanger.mig.aker.domain.requests;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
+ * A group of samples for labware
+ *
  * @author pi1
  * @since March 2015
  */
-public class LabwareRequest extends Grouping {
+public class LabwareRequest extends SampleGroup {
 
 	@NotNull
 	private String type;

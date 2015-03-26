@@ -1,7 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +33,7 @@ public class OrdersController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	private Collection<Object> orders(Principal principal) {
+	private Map<String, Object> orders(Principal principal) {
 		// TODO: return proper error message
 		return orderService.queryOrders(principal.getName());
 	}
