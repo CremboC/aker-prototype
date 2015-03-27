@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
+import uk.ac.sanger.mig.aker.services.SampleService;
 
 /**
  * @author pi1
@@ -37,7 +44,18 @@ public class GroupController extends BaseController {
 	@Autowired
 	private GroupService groupService;
 
+	@Autowired
+	private SampleService sampleService;
+
+	@Resource(name = "groupRequestValidator")
+	private Validator validator;
+
 	private GroupRepository groupRepository;
+
+	@InitBinder
+	protected void initBinder(WebDataBinder binder) {
+		binder.setValidator(validator);
+	}
 
 	@PostConstruct
 	private void init() {
@@ -52,7 +70,36 @@ public class GroupController extends BaseController {
 		return view(Action.INDEX);
 	}
 
-	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public String create(Model model) {
+		model.addAttribute("groupRequest", new GroupRequest());
+
+		return view(Action.CREATE);
+	}
+
+	@RequestMapping(value = "/store", method = RequestMethod.POST)
+	public String store(@Valid @ModelAttribute GroupRequest groupRequest, Errors errors) {
+		if (errors.hasErrors()) {
+			return view(Action.CREATE);
+		}
+
+		setGroupRequestType(groupRequest);
+		groupService.createGroup(groupRequest);
+
+		return "redirect:/groups/";
+	}
+
+	/**
+	 * Gets the first sample's in the group request
+	 * @param groupRequest
+	 */
+	private void setGroupRequestType(@NotNull GroupRequest groupRequest) {
+		final String barcode = groupRequest.getSamples().stream().findFirst().get();
+		final Sample sample = sampleService.getRepository().findByBarcode(barcode);
+		groupRequest.setType(sample.getType());
+	}
+
+	@RequestMapping(value = "/json", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Group> json(Pageable pageable, Principal principal) {
 		final Page<Group> groups = groupRepository.findAllByOwner(principal.getName(), pageable);
@@ -83,6 +130,7 @@ public class GroupController extends BaseController {
 		model.addAttribute("group", group);
 		model.addAttribute("subgroup", new Group());
 		model.addAttribute("groups", allGroups);
+
 		return view(Action.SHOW);
 	}
 

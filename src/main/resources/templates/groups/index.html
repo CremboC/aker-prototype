@@ -82,8 +82,11 @@
                 <h5>
                     Actions
                 </h5>
-                <button type="submit" class="btn btn-success btn-block" id="create-group" disabled="disabled">
-                    Create Group
+                <a th:href="@{/groups/create}" class="btn btn-primary btn-block" id="create-group">
+                    New Group
+                </a>
+                <button type="submit" class="btn btn-success btn-block hidden" id="create-parent-group">
+                    Create Parent Group
                 </button>
             </div>
 

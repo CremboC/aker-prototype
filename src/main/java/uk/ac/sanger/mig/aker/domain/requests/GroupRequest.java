@@ -17,7 +17,9 @@ public class GroupRequest extends SampleGroup {
 
 	@NotNull
 	private String name;
+
 	private Set<Long> groups = new HashSet<>();
+
 	private Type type;
 
 	public String getName() {

@@ -1,6 +1,3 @@
-/**
- * Created by pi1 on 17/03/2015.
- */
 $(document).ready(function () {
 
     var $groups = $('#jqp-groups');
@@ -16,7 +13,9 @@ $(document).ready(function () {
         element: 'tbody .selectable'
     });
 
-    $('#create-group').group({
+    var $createGroup = $('#create-parent-group');
+
+    $createGroup.group({
         modal: '#groupModal',
         confirm: '#modalConfirm',
         mode: 'groups',
@@ -24,11 +23,10 @@ $(document).ready(function () {
     });
 
     $groups.on('element.selected', function (event) {
-        var $button = $('#create-group');
         if (event.count > 0) {
-            $button.removeAttr('disabled');
+            $createGroup.removeClass('hidden');
         } else {
-            $button.attr('disabled', 'disabled');
+            $createGroup.addClass('hidden');
         }
     });
 });

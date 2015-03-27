@@ -23,10 +23,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="i : ${#numbers.sequence(0, size.columns)}">
-                    <td th:each="j : ${#numbers.sequence(0, size.rows)}"
-                        th:text="*{samples[__${(i * j) - 1}__]}"
-                        th:unless="*{samples.size() > __${i * j}__}">
+                <tr th:each="row : ${#numbers.sequence(0, size.rows)}">
+                    <td th:each="col : ${#numbers.sequence(0, size.columns)}">
+                        <div th:text="${'row:' + row}"></div>
+                        <div th:text="${'col:' + col}"></div>
+                        <div th:text="${'i:' + ((size.columns) * (row) + col)}"></div>
+                        <!--th:text="*{samples[__${(i * j) - 1}__]}"-->
+                        <!--th:unless="*{samples.size() > __${(i * j) - 1}__}">-->
 
                     </td>
                 </tr>

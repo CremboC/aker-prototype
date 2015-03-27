@@ -46,4 +46,7 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 
 	@Query("select s from Sample s join s.aliases as a where lower(a.name) like %:search% and s.owner = :owner")
 	Collection<Sample> searchByAlias(@Param("search") String alias, @Param("owner") String owner);
+
+	@Query("select count(distinct s.type) from Sample s where s.barcode in :samples")
+	Integer countDifferentTypes(@Param("samples") Collection<String> samples);
 }

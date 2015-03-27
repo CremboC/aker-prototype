@@ -41,7 +41,7 @@
     <script id="sample-template" type="text/x-handlebars-template" th:fragment="template (checkbox)">
         <tr id="{{ barcode }}" th:class="${checkbox ? 'selectable' : ''}">
             <td th:if="${checkbox}">
-                <input type="checkbox" value="{{ barcode }}" name="samples" />
+                <input type="checkbox" value="{{ barcode }}" name="samples" data-type="{{ type.value }}" />
             </td>
             <td width="15%">
                 <a href="/samples/show/{{ barcode }}">

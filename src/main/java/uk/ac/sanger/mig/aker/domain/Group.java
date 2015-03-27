@@ -118,7 +118,6 @@ public class Group extends BaseEntity {
 				.appendSuper(super.toString())
 				.append("name", name)
 				.append("owner", owner)
-				.append("samples", samples)
 				.append("parent", parent)
 				.append("children", children)
 				.toString();

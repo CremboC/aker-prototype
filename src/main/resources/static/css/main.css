@@ -86,3 +86,14 @@ nav {
     -webkit-user-select: text;
     -ms-user-select: text;
 }
+
+.contained-overflow {
+    height: 100px;
+    overflow-y: scroll;
+    padding-right: 10px;
+    margin-bottom: 10px;
+}
+
+.page-header {
+    margin-top: 15px;
+}
