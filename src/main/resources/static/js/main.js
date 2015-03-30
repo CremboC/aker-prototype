@@ -617,6 +617,58 @@ function JsonHal(data, object) {
     };
 }
 
+(function ($) {
+    jQuery.event.props.push('dataTransfer');
+
+    $.fn.draggable = function (options) {
+        var defaults = {
+
+        };
+
+        var settings = $.extend({}, defaults, options);
+
+        var $containers = $('.draggable-container'),
+            $draggable = $('.draggable');
+
+        $draggable.on({
+            dragstart: function(event) {
+                var $self = $(this);
+
+                event.originalEvent.dataTransfer.setData("draggable", $self.attr('id'));
+            },
+            drop: function(event) {
+                event.preventDefault();
+            }
+        });
+
+        $containers.on({
+            dragstart: function(event) {
+            },
+            dragover: function(event) {
+                event.preventDefault();
+            },
+            drop: function(event) {
+                var $self = $(this),
+                    allowsSingle = $self.data('single');
+
+                if (allowsSingle && $self.find('.draggable').length > 0) {
+                    return;
+                }
+
+                if (allowsSingle) {
+                    $self.html('');
+                }
+
+                event.preventDefault();
+
+                var data = event.dataTransfer.getData("draggable");
+
+                $self.append(document.getElementById(data));
+            }
+        });
+    }
+} (jQuery));
+
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
     var $affix = $('.attached-affix');

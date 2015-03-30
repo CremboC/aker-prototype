@@ -2,7 +2,7 @@ package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -38,7 +38,7 @@ public class LabwareController extends BaseController {
 	@Resource(name = "labwareRequestValidator")
 	private Validator validator;
 
-	@InitBinder
+	@InitBinder("labwareRequest")
 	protected void initBinder(WebDataBinder binder) {
 		binder.setValidator(validator);
 	}
@@ -49,7 +49,7 @@ public class LabwareController extends BaseController {
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public String create(@Valid @ModelAttribute LabwareRequest labwareRequest, Errors errors, Model model) {
+	public String create(@Valid @ModelAttribute("labwareRequest") LabwareRequest labwareRequest, Errors errors, Model model) {
 		if (errors.hasErrors()) {
 			return "redirect:/";
 		}
@@ -57,7 +57,7 @@ public class LabwareController extends BaseController {
 		final LabwareSize size = labwareService.findOneSize(labwareRequest.getSize());
 		final int totalSize = size.getColumns() * size.getRows();
 
-		Collection<String> emptySamples = new ArrayList<>(totalSize);
+		List<String> emptySamples = new ArrayList<>(totalSize);
 		emptySamples.addAll(labwareRequest.getSamples());
 
 		labwareRequest.setSamples(emptySamples);

@@ -52,7 +52,7 @@ public class GroupController extends BaseController {
 
 	private GroupRepository groupRepository;
 
-	@InitBinder
+	@InitBinder("groupRequest")
 	protected void initBinder(WebDataBinder binder) {
 		binder.setValidator(validator);
 	}
@@ -78,7 +78,7 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
-	public String store(@Valid @ModelAttribute GroupRequest groupRequest, Errors errors) {
+	public String store(@Valid @ModelAttribute("groupRequest") GroupRequest groupRequest, Errors errors) {
 		if (errors.hasErrors()) {
 			return view(Action.CREATE);
 		}

@@ -5,32 +5,57 @@
 
 <div th:replace="fragments/common :: header">...</div>
 
-<div class="container">
+<div class="container-fluid">
 
     <div class="page-header">
-        <h1>Labware Request</h1>
+        <h3>Labware Request</h3>
     </div>
 
     <form th:action="@{/labware/store/}" th:object="${labwareRequest}" method="POST" role="form">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div class="form-group">
-            <h3>Labware</h3>
-            <table class="table table-condensed table-hover">
+            <h3>Samples</h3>
+
+            <div class="sample-holder draggable-container">
+
+            </div>
+        </div>
+
+        <div class="form-group hide-select">
+            <table class="table table-bordered table-responsive">
                 <thead>
                 <tr>
                     <th></th>
+                    <th th:each="col : ${#numbers.sequence(1, size.columns)}">
+                        <span th:text="${#ids.seq(' ')}"></span>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="row : ${#numbers.sequence(0, size.rows)}">
+                <tr th:each="row : ${#numbers.sequence(1, size.rows)}">
                     <td th:each="col : ${#numbers.sequence(0, size.columns)}">
-                        <div th:text="${'row:' + row}"></div>
-                        <div th:text="${'col:' + col}"></div>
-                        <div th:text="${'i:' + ((size.columns) * (row) + col)}"></div>
-                        <!--th:text="*{samples[__${(i * j) - 1}__]}"-->
-                        <!--th:unless="*{samples.size() > __${(i * j) - 1}__}">-->
+                        <div th:if="${col == 0}" th:text="${{'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I',  'J', 'K', 'L', 'M', 'N', 'O', 'P'}[__${row - 1}__]}">
+                            R
+                        </div>
 
+                        <div th:unless="${col == 0}"
+                             th:with="seq =  ${#conversions.convert(#ids.seq(' '), 'Integer')}, isEmpty = ${seq &gt; labwareRequest.samples.size() - 2}"
+                             class="draggable-sample-container draggable-container"
+                             data-single="true">
+
+                            <div th:if="${isEmpty}">
+                                <i class="text-muted">
+                                    empty
+                                </i>
+                            </div>
+
+                            <div th:unless="${isEmpty}" draggable="true" class="draggable" th:id="*{samples[__${seq}__]}">
+                                <input type="hidden" th:field="*{samples[__${seq}__]}"
+                                       th:value="*{samples[__${seq}__]}"/>
+                                <span th:text="*{samples[__${seq}__]}" class="btn btn-default"></span>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
@@ -62,6 +87,8 @@
 </div>
 
 <div th:replace="fragments/common :: footer"></div>
+
+<script type="application/javascript" th:src="@{/js/labware/create.js}"></script>
 
 </body>
 </html>

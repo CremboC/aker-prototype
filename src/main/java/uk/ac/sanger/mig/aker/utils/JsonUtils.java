@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thymeleaf.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -114,6 +113,6 @@ public class JsonUtils {
 
 	private static void logFailedParsing(String json, Exception e) {
 		logger.error(e.getMessage() + " when mapping " + json);
-		logger.error(StringUtils.concat(e.getStackTrace()));
+		e.printStackTrace();
 	}
 }

@@ -15,7 +15,7 @@ import uk.ac.sanger.mig.aker.services.SampleService;
  * @author pi1
  * @since March 2015
  */
-@Component
+@Component("groupRequestValidator")
 public class GroupRequestValidator implements Validator {
 
 	@Autowired
