@@ -13,6 +13,6 @@ public interface RepositoryService<T extends CrudRepository<?, ? extends Seriali
 	/**
 	 * @return get the repository of this service
 	 */
-	public T getRepository();
+	T getRepository();
 
 }

@@ -22,7 +22,7 @@ public abstract class BaseEntity {
 
 	@Id
 	@GeneratedValue
-	protected long id;
+	protected Long id;
 
 	@CreatedDate
 	@Column(name = "create_date")
@@ -32,11 +32,11 @@ public abstract class BaseEntity {
 	@Column(name = "update_date")
 	protected Date update;
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

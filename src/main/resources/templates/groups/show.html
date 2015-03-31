@@ -46,12 +46,11 @@
 
     <div class="col-md-2">
         <div class="row">
-            <h4>Workflow</h4>
-            <a class="btn btn-primary btn-block">Order Work</a>
-
             <h4>Actions</h4>
 
-            <a th:if="${!groups.isEmpty()}" class="btn btn-primary btn-block" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
+            <a th:if="${!groups.isEmpty()}" class="btn btn-default btn-block" data-toggle="modal" href="#add-subgroup">Add
+                Subgroup</a>
+            <a class="btn btn-default btn-block" th:href="@{/groups/edit/{id}/(id = *{id})}">Edit</a>
             <a class="btn btn-danger btn-block">Delete Group</a>
         </div>
     </div>
@@ -65,7 +64,7 @@
                     Samples from: <span th:text="*{name}"></span>
                 </h4>
 
-                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${false})"></div>
+                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
             </div>
 
             <div th:if="*{children != null}">
@@ -74,16 +73,16 @@
                         Samples from: <span th:text="${child.name}"></span>
                     </h4>
 
-                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${false})"></div>
+                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${true})"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script th:replace="samples/table :: template (${false})"></script>
-
 <div th:include="fragments/common :: footer"></div>
+
+<script th:replace="samples/table :: template (${true})"></script>
 
 <div class="modal fade" id="add-subgroup">
     <div class="modal-dialog">
@@ -114,9 +113,7 @@
                 </div>
             </div>
             <!-- /.modal-content -->
-
         </form>
-
     </div>
     <!-- /.modal-dialog -->
 </div>

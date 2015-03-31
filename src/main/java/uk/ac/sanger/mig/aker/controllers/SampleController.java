@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
-import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.Type;
+import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
+import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.TagRepository;
@@ -42,7 +42,6 @@ import uk.ac.sanger.mig.aker.services.TypeService;
 @Controller
 @RequestMapping("/samples")
 public class SampleController extends BaseController {
-
 
 	@Autowired
 	private AliasRepository aliasRepository;
@@ -65,7 +64,6 @@ public class SampleController extends BaseController {
 	private void init() {
 		setTemplatePath("samples");
 		sampleRepository = sampleService.getRepository();
-
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
@@ -206,7 +204,7 @@ public class SampleController extends BaseController {
 	@RequestMapping(value = "/byGroup/{groupId}", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byGroupPaged(@PathVariable long groupId, Pageable pageable) {
-		return sampleRepository.findAllByGroupsIdIn(groupId, pageable);
+		return sampleService.findAllByGroupsIdIn(groupId, pageable);
 	}
 
 	@RequestMapping(value = "/byGroups", method = RequestMethod.GET)
@@ -215,11 +213,10 @@ public class SampleController extends BaseController {
 		return sampleRepository.findAllByGroupsIdIn(groupIds);
 	}
 
-
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal owner) {
-		return sampleRepository.findAllByTypeValueInAndOwner(types, owner.getName(), pageable);
+		return sampleService.findAllByTypeValueInAndOwner(types, owner.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)

@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import java.security.Principal;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
@@ -30,8 +31,8 @@ public class SearchController extends BaseController {
 	}
 
 	@RequestMapping("/samples")
-	private String samples(@RequestParam("search") String query, Model model) {
-		Collection<Searchable<?>> samples = sampleService.search(query);
+	private String samples(@RequestParam("search") String query, Model model, Principal principal) {
+		Collection<Searchable<?>> samples = sampleService.search(query, principal.getName());
 
 		model.addAttribute("results", samples);
 

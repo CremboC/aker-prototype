@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.domain;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -48,11 +49,14 @@ public class Group extends BaseEntity {
 
 	@Transient
 	@JsonIgnore
-	private Set<Group> children;
+	private Collection<Group> children;
 
 	@ManyToOne
 	@JoinColumn(name = "type_id")
 	private Type type;
+
+	@Transient
+	private boolean remove;
 
 	public Set<Sample> getSamples() {
 		return samples;
@@ -78,12 +82,36 @@ public class Group extends BaseEntity {
 		this.parent = parent;
 	}
 
-	public Set<Group> getChildren() {
+	public Collection<Group> getChildren() {
 		return children;
 	}
 
-	public void setChildren(Set<Group> children) {
+	public void setChildren(Collection<Group> children) {
 		this.children = children;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public boolean isRemove() {
+		return remove;
+	}
+
+	public void setRemove(boolean remove) {
+		this.remove = remove;
 	}
 
 	@Override
@@ -121,21 +149,5 @@ public class Group extends BaseEntity {
 				.append("parent", parent)
 				.append("children", children)
 				.toString();
-	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-
-	public String getOwner() {
-		return owner;
 	}
 }

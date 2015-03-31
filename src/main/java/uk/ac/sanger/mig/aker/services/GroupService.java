@@ -18,6 +18,8 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 	 * @param groupRequest group request with mandatory elements set
 	 * @return saved group
 	 */
-	public Optional<Group> createGroup(GroupRequest groupRequest);
+	Optional<Group> createGroup(GroupRequest groupRequest);
+
+	Group save(Group group);
 
 }

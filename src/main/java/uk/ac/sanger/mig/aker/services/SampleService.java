@@ -26,7 +26,7 @@ public interface SampleService extends RepositoryService<SampleRepository> {
 	 *
 	 * @param request sample request
 	 */
-	public List<Sample> createSamples(@NotNull SampleRequest request);
+	List<Sample> createSamples(@NotNull SampleRequest request);
 
 	/**
 	 * Find a sample by its barcode
@@ -34,7 +34,7 @@ public interface SampleService extends RepositoryService<SampleRepository> {
 	 * @param barcode barcode of the sample
 	 * @return a sample, if one is found
 	 */
-	public Optional<Sample> findByBarcode(@NotNull String barcode);
+	Optional<Sample> findByBarcode(@NotNull String barcode);
 
 	/**
 	 * Find samples using a set of barcodes
@@ -42,9 +42,13 @@ public interface SampleService extends RepositoryService<SampleRepository> {
 	 * @param barcode set of barcodes
 	 * @return potentially a set of samples
 	 */
-	public Set<Sample> findAllByBarcode(Collection<String> barcode);
+	Set<Sample> findAllByBarcode(Collection<String> barcode);
 
-	public Page<Sample> findAll(Pageable p);
+	Page<Sample> findAll(Pageable p);
 
-	public Collection<Searchable<?>> search(String sample);
+	Collection<Searchable<?>> search(String sample, String owner);
+
+	Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
+
+	Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
 }

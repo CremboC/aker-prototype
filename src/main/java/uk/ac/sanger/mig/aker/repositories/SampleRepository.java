@@ -30,13 +30,13 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 
 	Set<Sample> findAllByGroupsIdIn(Collection<Long> groupId);
 
-	Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
-
 	Page<Sample> findAllByTypeValueIn(Set<String> types, Pageable pageable);
 
 	Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
 
 	Set<Sample> findAllByBarcodeInAndOwner(Collection<String> barcodes, String name);
+
+	Page<Sample> findAllByGroupsId(long groupId, Pageable pageable);
 
 	@Query("select max(s.id) from Sample s")
 	Integer lastId();

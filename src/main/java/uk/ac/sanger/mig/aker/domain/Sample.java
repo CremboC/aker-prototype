@@ -59,10 +59,6 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	@Transient
 	private Alias mainAlias = null;
 
-	public long getId() {
-		return id;
-	}
-
 	public Type getType() {
 		return type;
 	}

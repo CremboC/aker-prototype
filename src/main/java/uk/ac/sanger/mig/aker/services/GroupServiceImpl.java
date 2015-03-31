@@ -3,7 +3,9 @@ package uk.ac.sanger.mig.aker.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.IteratorUtils;
@@ -12,8 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
-import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
 /**
@@ -41,6 +43,32 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		throw new IllegalStateException("Samples and groups are empty");
+	}
+
+	@Transactional
+	@Override
+	public Group save(@NotNull Group group) {
+		final List<Group> filteredChildren = group.getChildren()
+				.stream()
+				.filter(Group::isRemove)
+				.map(child -> {
+					child.setParent(null);
+					return child;
+				})
+				.collect(Collectors.toList());
+
+		repository.save(filteredChildren);
+
+		final Group parent = group.getParent();
+		if (parent.getId() == null) {
+			group.setParent(null);
+		} else {
+			group.setParent(repository.findOne(parent.getId()));
+		}
+
+		repository.save(group);
+
+		return group;
 	}
 
 	@Override

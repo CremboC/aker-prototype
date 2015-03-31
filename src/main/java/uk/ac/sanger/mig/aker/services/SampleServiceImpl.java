@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
+import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.StatusRepository;
@@ -82,12 +82,9 @@ public class SampleServiceImpl implements SampleService {
 		final Sample sample = repository.findByBarcode(barcode);
 
 		if (sample != null) {
-			final Optional<Alias> alias = findMainAlias(sample.getAliases());
-			if (alias.isPresent()) {
-				sample.setMainAlias(alias.get());
-
-				return Optional.of(sample);
-			}
+			final Alias alias = findMainAlias(sample.getAliases()).orElseThrow(IllegalStateException::new);
+			sample.setMainAlias(alias);
+			return Optional.of(sample);
 		}
 
 		return Optional.empty();
@@ -101,21 +98,20 @@ public class SampleServiceImpl implements SampleService {
 	@Override
 	public Page<Sample> findAll(Pageable pageable) {
 		final String owner = SecurityContextHolder.getContext().getAuthentication().getName();
-		final Page<Sample> all = repository.findAllByOwner(owner, pageable);
+		final Page<Sample> samples = repository.findAllByOwner(owner, pageable);
 
 		// set main label for all samples
-		all.forEach(this::setMainAlias);
+		samples.forEach(this::setMainAlias);
 
-		return all;
+		return samples;
 	}
 
 	@Override
-	public Collection<Searchable<?>> search(String query) {
-		final String owner = SecurityContextHolder.getContext().getAuthentication().getName();
-
+	public Collection<Searchable<?>> search(String query, String owner) {
 		final Collection<Sample> byBarcode = repository.searchByBarcode(query, owner);
 		final Collection<Sample> byAlias = repository.searchByAlias(query, owner);
 
+		// merges two collections into a single list
 		final List<Sample> allResults = Stream
 				.of(byBarcode, byAlias)
 				.flatMap(Collection::stream)
@@ -126,6 +122,30 @@ public class SampleServiceImpl implements SampleService {
 		return allResults.stream().collect(Collectors.toList());
 	}
 
+	@Override
+	public Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable) {
+		Page<Sample> samples = repository.findAllByGroupsId(groupId, pageable);
+
+		samples.forEach(this::setMainAlias);
+
+		return samples;
+	}
+
+	@Override
+	public Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable) {
+		final Page<Sample> samples = repository.findAllByTypeValueInAndOwner(types, owner, pageable);
+
+		samples.forEach(this::setMainAlias);
+
+		return samples;
+	}
+
+	/**
+	 * Find main alias from the sample (sample.getAliases mustn't be empty)
+	 *
+	 * @param sample sample
+	 * @throws IllegalStateException if sample doesn't have a main alias
+	 */
 	private void setMainAlias(Sample sample) {
 		final Alias mainAlias = findMainAlias(sample.getAliases()).orElseThrow(IllegalStateException::new);
 		sample.setMainAlias(mainAlias);
