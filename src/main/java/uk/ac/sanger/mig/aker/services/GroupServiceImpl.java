@@ -48,6 +48,7 @@ public class GroupServiceImpl implements GroupService {
 	@Transactional
 	@Override
 	public Group save(@NotNull Group group) {
+
 		final List<Group> filteredChildren = group.getChildren()
 				.stream()
 				.filter(Group::isRemove)

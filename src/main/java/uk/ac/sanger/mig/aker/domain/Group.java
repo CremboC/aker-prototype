@@ -1,6 +1,8 @@
 package uk.ac.sanger.mig.aker.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -41,7 +43,7 @@ public class Group extends BaseEntity {
 			inverseJoinColumns = @JoinColumn(name = "sample_id", referencedColumnName = "id")
 	)
 	@JsonManagedReference
-	private Set<Sample> samples;
+	private Set<Sample> samples = new HashSet<>();
 
 	@OneToOne
 	@JoinColumn(name = "parent_id")
@@ -49,7 +51,7 @@ public class Group extends BaseEntity {
 
 	@Transient
 	@JsonIgnore
-	private Collection<Group> children;
+	private Collection<Group> children = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "type_id")

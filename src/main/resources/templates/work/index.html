@@ -85,6 +85,7 @@
 <script id="option-template" type="text/x-handlebars-template">
     <div class="form-group">
         <label for="{{ name }}">{{ name }}</label>
+        {{#if options}}
         <select name="options" id="{{ name }}" class="form-control">
             {{#unless required}}
             <option value="{{ name }}$"></option>
@@ -96,6 +97,9 @@
             </option>
             {{/each}}
         </select>
+        {{ else }}
+        <input type="text" name="options" value="" data-index="{{ index }}" class="form-control"/>
+        {{/if}}
     </div>
 </script>
 
