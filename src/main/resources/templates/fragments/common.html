@@ -35,20 +35,33 @@
                         Samples
                     </a>
                 </li>
-                <li th:classappend="${uri.startsWith('/groups/')} ? active ">
-                    <a th:href="@{/groups/}">
+                <li th:classappend="${uri.startsWith('/groups/')} ? active" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         Groups
+                        <span class="caret"></span>
                     </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a th:href="@{/groups/}">View Groups</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/groups/create}">Create Group</a>
+                        </li>
+                    </ul>
                 </li>
-                <li th:classappend="${uri.startsWith('/work/')} ? active ">
-                    <a th:href="@{/work/}">
-                        Work
-                    </a>
-                </li>
-                <li th:classappend="${uri.startsWith('/orders/')} ? active ">
-                    <a th:href="@{/orders/}">
+                <li th:classappend="${uri.startsWith('/orders/')} ? active" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         Orders
+                        <span class="caret"></span>
                     </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a th:href="@{/orders/}">View Orders</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/work/}">Order Work</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
             <form th:action="@{/search/samples/}" method="get" class="navbar-form navbar-right" role="form">
