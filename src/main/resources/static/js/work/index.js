@@ -1,5 +1,5 @@
 /**
- * Created by pi1 on 17/03/2015.
+ * For WorkController@index
  */
 $(document).ready(function () {
 
@@ -173,10 +173,27 @@ $(document).ready(function () {
 
                     case 'options':
                         var split = input.value.split('$');
-                        order.options.push({
-                            name: split[0],
-                            value: split[1]
-                        });
+
+                        // handles normal inputs
+                        if (split.length == 1) {
+                            var $input = $('input[name=options]').filter(function () {
+                                return $(this).prop('value') == input.value;
+                            });
+
+                            order.options.push({
+                                name: $input.data('name'),
+                                value: input.value
+                            });
+                        }
+
+                        // handles select boxes
+                        if (split.length == 2) {
+                            order.options.push({
+                                name: split[0],
+                                value: split[1]
+                            });
+                        }
+
                         break;
                 }
             });
@@ -194,7 +211,6 @@ $(document).ready(function () {
 
             orderQuery.then(function (data) {
                 if (data) {
-                    console.log(data);
                     window.location.href = $orderForm.attr('action');
                 }
             });

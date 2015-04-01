@@ -1,7 +1,6 @@
 /**
- * Created by pi1 on 17/03/2015.
+ * For WorkController@order
  */
-
 $(document).ready(function () {
     var $project = $('#project-search');
     var searchQuery;
