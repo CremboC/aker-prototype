@@ -2,7 +2,6 @@ package uk.ac.sanger.mig.aker.services;
 
 import java.util.Collection;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +20,7 @@ public class TypeServiceImpl implements TypeService {
 
 	@Override
 	public Collection<Type> findAll() {
-		final Collection<Type> types = typeRepository.findAll();
-		types.forEach(type -> type.setValue(WordUtils.capitalizeFully(type.getValue())));
-		return types;
+		return typeRepository.findAll();
 	}
 
 	@Override

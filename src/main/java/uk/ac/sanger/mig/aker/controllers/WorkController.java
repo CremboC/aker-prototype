@@ -7,9 +7,8 @@ import java.security.Principal;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,14 +27,10 @@ import uk.ac.sanger.mig.aker.services.WorkOrderService;
  */
 @Controller
 @RequestMapping("/work")
-@Scope("session")
 public class WorkController extends BaseController {
 
 	@Resource
 	private WorkOrderService workOrderService;
-
-	@Autowired
-	private OrderRequest order;
 
 	@PostConstruct
 	private void init() {
@@ -49,15 +44,16 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
-	public Boolean bindOrder(@RequestBody OrderRequest newOrder) {
+	public Boolean bindOrder(@RequestBody OrderRequest newOrder, HttpSession session) {
 		workOrderService.processOrder(newOrder);
-		order = newOrder;
+		session.setAttribute("order", newOrder);
 
 		return newOrder.isProcessed();
 	}
 
 	@RequestMapping(value = "/order", method = RequestMethod.GET)
-	public String order(Model model, Principal principal) {
+	public String order(Model model, Principal principal, HttpSession session) {
+		OrderRequest order = (OrderRequest) session.getAttribute("order");
 		if (order == null || !order.isProcessed()) {
 			return "redirect:/work/";
 		}
@@ -70,14 +66,15 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/clear", method = RequestMethod.GET)
 	@ResponseBody
-	public Boolean clear() {
-		this.order = null;
+	public Boolean clear(HttpSession session) {
+		session.removeAttribute("order");
 		return true;
 	}
 
 	@RequestMapping(value = "/submit", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderRequest submit(@ModelAttribute OrderRequest update) {
+	public OrderRequest submit(@ModelAttribute OrderRequest update, HttpSession session) {
+		OrderRequest order = (OrderRequest) session.getAttribute("order");
 		order.setSamples(update.getSamples());
 
 		return order;
@@ -85,7 +82,8 @@ public class WorkController extends BaseController {
 
 	@RequestMapping(value = "/csv", method = RequestMethod.GET, produces = "text/csv")
 	@ResponseBody
-	public FileSystemResource generateCsv(HttpServletResponse response) {
+	public FileSystemResource generateCsv(HttpServletResponse response, HttpSession session) {
+		OrderRequest order = (OrderRequest) session.getAttribute("order");
 		try {
 			final File file = workOrderService.printOrder(order);
 			response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());

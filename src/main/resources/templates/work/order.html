@@ -55,9 +55,6 @@
                         <th>
                             Barcode
                         </th>
-                        <th>
-                            Main Alias
-                        </th>
                         <th th:each="option : *{product.options}" th:text="${option.name}">
                         </th>
                     </tr>
@@ -70,9 +67,6 @@
                             <input type="hidden"
                                    th:field="*{samples['__${stat.index}__'].barcode}"
                                    th:value="${sample.barcode}"/>
-                        </td>
-                        <td>
-
                         </td>
                         <td th:each="productOption, optStat : ${workOrder.product.options}"
                             th:with="value = *{samples['__${stat.index}__'].options['__${productOption.name}__']}">

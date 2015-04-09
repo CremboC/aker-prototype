@@ -42,23 +42,31 @@ public class LabwareServiceImpl implements LabwareService {
 	@Override
 	public Map<String, Object> findAllTypes() {
 		final Optional<String> maybeTypes = UrlUtils.parse(uri + typesSuffix);
+
+		// TODO: handle else
 		return JsonUtils.toMap(maybeTypes.orElse(""));
 	}
 
 	@Override
 	public Map<String, Object> findAllSizes() {
 		final Optional<String> maybeSizes = UrlUtils.parse(uri + sizesSuffix);
+
+		// TODO: handle else
 		return JsonUtils.toMap(maybeSizes.orElse(""));
 	}
 
 	@Override
 	public LabwareSize findOneSize(String name) {
 		final Optional<String> maybeSize = UrlUtils.parse(uri + sizesSuffix + name);
+
+		// TODO: handle else
 		return JsonUtils.toObject(maybeSize.orElse(""), LabwareSize.class);
 	}
 
 	@Override
 	public LabwareType findOneType(String name) {
 		final Optional<String> maybeType = UrlUtils.parse(uri + typesSuffix + name);
+
+		// TODO: handle else
 		return JsonUtils.toObject(maybeType.orElse(""), LabwareType.class);	}
 }
