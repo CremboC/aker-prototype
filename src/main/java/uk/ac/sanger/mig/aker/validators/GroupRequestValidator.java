@@ -1,6 +1,7 @@
 package uk.ac.sanger.mig.aker.validators;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.validation.Validator;
 
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.services.SampleService;
+import uk.ac.sanger.mig.aker.utils.SampleHelper;
 
 /**
  * @author pi1
@@ -33,7 +35,10 @@ public class GroupRequestValidator implements Validator {
 
 		GroupRequest groupRequest = (GroupRequest) obj;
 
-		final Collection<String> samples = groupRequest.getSamples();
+		final Collection<Long> samples = groupRequest.getSamples()
+				.stream()
+				.map(SampleHelper::idFromBarcode)
+				.collect(Collectors.toList());
 
 		if (!samples.isEmpty()) {
 			final Integer differentTypes = sampleService.getRepository().countDifferentTypes(samples);

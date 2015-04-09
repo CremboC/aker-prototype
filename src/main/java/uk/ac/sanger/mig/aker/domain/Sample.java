@@ -1,6 +1,8 @@
 package uk.ac.sanger.mig.aker.domain;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,10 +15,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import uk.ac.sanger.mig.aker.utils.SampleHelper;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -40,7 +43,8 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	private Status status;
 
-	@Column(nullable = false, unique = true)
+//	@Column(nullable = false, unique = true)
+	@Transient
 	private String barcode;
 
 	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
@@ -68,15 +72,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	}
 
 	public String getBarcode() {
-		return barcode;
-	}
-
-	public void setBarcode(String barcode) {
-		this.barcode = barcode;
-	}
-
-	public String createBarcode(long lastId) {
-		return "WTSI" + StringUtils.leftPad(String.valueOf(lastId), BARCODE_SIZE, '0');
+		return SampleHelper.getBarcode(id, BARCODE_SIZE);
 	}
 
 	public Set<Alias> getAliases() {
@@ -104,11 +100,59 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	}
 
 	public Alias getMainAlias() {
+		if (mainAlias == null) {
+			setMainAlias();
+		}
 		return mainAlias;
 	}
 
 	public void setMainAlias(Alias mainAlias) {
 		this.mainAlias = mainAlias;
+	}
+
+	/**
+	 * Find main alias from the sample (sample.getAliases mustn't be empty)
+	 *
+	 * @throws IllegalStateException if sample doesn't have a main alias
+	 */
+	private void setMainAlias() {
+		mainAlias = findMainAlias(aliases).orElseThrow(IllegalStateException::new);
+	}
+
+	private Optional<Alias> findMainAlias(Collection<Alias> aliases) {
+		return aliases.stream().filter(Alias::isMain).findAny();
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	@Override
+	public String getIdentifier() {
+		return barcode;
+	}
+
+	@Override
+	public String getPath() {
+		return "/samples/show/";
+	}
+
+	@Override
+	@JsonIgnore
+	public String getSearchResult() {
+		return mainAlias.getName();
 	}
 
 	@Override
@@ -148,37 +192,5 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 				.append("groups", groups)
 				.append("mainAlias", mainAlias)
 				.toString();
-	}
-
-	public Set<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-
-	@Override
-	public String getIdentifier() {
-		return barcode;
-	}
-
-	@Override
-	public String getPath() {
-		return "/samples/show/";
-	}
-
-	@Override
-	@JsonIgnore
-	public String getSearchResult() {
-		return mainAlias.getName();
 	}
 }

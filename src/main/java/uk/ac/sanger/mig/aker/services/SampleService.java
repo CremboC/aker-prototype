@@ -32,23 +32,25 @@ public interface SampleService extends RepositoryService<SampleRepository> {
 	 * Find a sample by its barcode
 	 *
 	 * @param barcode barcode of the sample
+	 * @param owner owner of the sample
 	 * @return a sample, if one is found
 	 */
-	Optional<Sample> findByBarcode(@NotNull String barcode);
+	Optional<Sample> byBarcode(@NotNull String barcode, String owner);
 
 	/**
 	 * Find samples using a set of barcodes
 	 *
 	 * @param barcode set of barcodes
+	 * @param owner owner of the sample
 	 * @return potentially a set of samples
 	 */
-	Set<Sample> findAllByBarcode(Collection<String> barcode);
+	Collection<Sample> byBarcode(Collection<String> barcode, String owner);
 
 	Page<Sample> findAll(Pageable p);
 
 	Collection<Searchable<?>> search(String sample, String owner);
 
-	Page<Sample> findAllByGroupsIdIn(long groupId, Pageable pageable);
+	Page<Sample> byGroup(long groupId, String owner, Pageable pageable);
 
-	Page<Sample> findAllByTypeValueInAndOwner(Set<String> types, String owner, Pageable pageable);
+	Page<Sample> byType(Set<String> types, String owner, Pageable pageable);
 }

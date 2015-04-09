@@ -1,5 +1,7 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -84,15 +86,17 @@ public class GroupServiceImpl implements GroupService {
 	 * @return a group, if one was successfully created
 	 */
 	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest) {
-		final Set<Sample> allByBarcode = sampleService.findAllByBarcode(groupRequest.getSamples());
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		final Collection<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), currentUser);
 
 		if (!allByBarcode.isEmpty()) {
 			Group group = new Group();
 
 			group.setName(groupRequest.getName());
-			group.setSamples(allByBarcode);
+			group.setSamples(new HashSet<>(allByBarcode));
 			group.setType(groupRequest.getType());
-			group.setOwner(SecurityContextHolder.getContext().getAuthentication().getName());
+			group.setOwner(currentUser);
 
 			group = repository.save(group);
 
@@ -109,13 +113,14 @@ public class GroupServiceImpl implements GroupService {
 	 * @return a group, if one was successfully created
 	 */
 	private Optional<Group> groupOfGroups(@NotNull GroupRequest groupRequest) {
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 		final Set<Long> groups = groupRequest.getGroups();
 		final Set<Group> byParentIdIn = repository.findAllByIdIn(groups);
 
 		if (!byParentIdIn.isEmpty()) {
 			Group group = new Group();
 			group.setName(groupRequest.getName());
-			group.setOwner(SecurityContextHolder.getContext().getAuthentication().getName());
+			group.setOwner(currentUser);
 			group = repository.save(group);
 
 			for (Group subGroup : byParentIdIn) {

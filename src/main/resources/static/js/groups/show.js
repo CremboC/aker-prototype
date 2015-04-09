@@ -1,6 +1,3 @@
-/**
- * Created by pi1 on 17/03/2015.
- */
 $(document).ready(function () {
     $('.jqp-samples').each(function () {
         var $this = $(this);

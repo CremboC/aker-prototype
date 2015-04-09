@@ -67,7 +67,7 @@
                 <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
             </div>
 
-            <div th:if="*{children != null}">
+            <div th:if="*{!children.isEmpty()}">
                 <div th:each="child : *{children}">
                     <h4 class="text-muted">
                         Samples from: <span th:text="${child.name}"></span>

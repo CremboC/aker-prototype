@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.sanger.mig.aker.domain.Alias;
+import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.Type;
@@ -34,6 +35,7 @@ import uk.ac.sanger.mig.aker.repositories.TagRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
 import uk.ac.sanger.mig.aker.services.TypeService;
+import uk.ac.sanger.mig.aker.utils.SampleHelper;
 
 /**
  * @author pi1
@@ -73,7 +75,7 @@ public class SampleController extends BaseController {
 		return view(Action.INDEX);
 	}
 
-	@RequestMapping(value = "/json", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/json", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> json(Pageable p) {
 		return sampleService.findAll(p);
@@ -81,15 +83,11 @@ public class SampleController extends BaseController {
 
 	@RequestMapping("/show/{barcode}")
 	public String show(@PathVariable("barcode") String barcode, Model model, Principal user) {
-		final Optional<Sample> sample = sampleService.findByBarcode(barcode);
+		final Optional<Sample> sample = sampleService.byBarcode(barcode, user.getName());
 		if (sample.isPresent()) {
 			model.addAttribute("sample", sample.get());
-
-			if (!sample.get().getOwner().equals(user.getName())) {
-				return "redirect:/";
-			}
-
 		} else {
+			// TODO: proper not found
 			return "redirect:/samples/?404";
 		}
 
@@ -124,14 +122,10 @@ public class SampleController extends BaseController {
 			@Valid @ModelAttribute Alias alias,
 			Principal user,
 			Errors bindingResult) {
-		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
+		final Optional<Sample> optSample = sampleService.byBarcode(barcode, user.getName());
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
-
-			if (!sample.getOwner().equals(user.getName())) {
-				return "redirect:/";
-			}
 
 			if (!bindingResult.hasErrors()) {
 				alias.setSample(sample);
@@ -150,14 +144,10 @@ public class SampleController extends BaseController {
 			@Valid @ModelAttribute Tag tag,
 			Principal user,
 			Errors bindingResult) {
-		final Optional<Sample> optSample = sampleService.findByBarcode(barcode);
+		final Optional<Sample> optSample = sampleService.byBarcode(barcode, user.getName());
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
-
-			if (!sample.getOwner().equals(user.getName())) {
-				return "redirect:/";
-			}
 
 			if (!bindingResult.hasErrors()) {
 				tag.setSample(sample);
@@ -173,29 +163,24 @@ public class SampleController extends BaseController {
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
 	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
 		if (!binding.hasErrors()) {
-			final Set<Sample> allByBarcodeIn = sampleRepository.findAllByBarcodeIn(groupRequest.getSamples());
+			final Collection<Sample> samples = sampleRepository.findAll(SampleHelper.idFromBarcode(groupRequest.getSamples()));
 
-			boolean singleType = true;
-			Type type = null;
-			for (final Sample sample : allByBarcodeIn) {
-				if (type == null) {
-					type = sample.getType();
-				}
-				if (!sample.getType().equals(type)) {
-					singleType = false;
-					break;
-				}
-			}
+			// gets the type of the first sample
+			final Type type = samples.stream().findFirst().get().getType();
 
-			groupRequest.setType(type);
+			// count if there is more than a single type
+			final boolean singleType = samples.stream().filter(s -> !s.getType().equals(type)).count() > 0;
 
 			if (singleType) {
-				groupService.createGroup(groupRequest);
-			} else {
-				throw new IllegalStateException("Shouldn't be possible to select types of multiple types");
-			}
+				groupRequest.setType(type);
 
-			return "redirect:/";
+				// TODO: handle failure to create group
+				final Group group = groupService.createGroup(groupRequest).orElseGet(() -> null);
+
+				return "redirect:/groups/show/" + group.getId();
+			} else {
+				throw new IllegalStateException("Shouldn't be possible to select samples of multiple types");
+			}
 		}
 
 		return view("group");
@@ -203,31 +188,31 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/byGroup/{groupId}", method = RequestMethod.GET)
 	@ResponseBody
-	public Page<Sample> byGroupPaged(@PathVariable long groupId, Pageable pageable) {
-		return sampleService.findAllByGroupsIdIn(groupId, pageable);
+	public Page<Sample> byGroupPaged(@PathVariable long groupId, Pageable pageable, Principal user) {
+		return sampleService.byGroup(groupId, user.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byGroups", method = RequestMethod.GET)
 	@ResponseBody
-	public Set<Sample> byGroup(@RequestParam("groups") Collection<Long> groupIds) {
+	public Set<Sample> byGroups(@RequestParam("groups") Collection<Long> groupIds) {
 		return sampleRepository.findAllByGroupsIdIn(groupIds);
 	}
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal owner) {
-		return sampleService.findAllByTypeValueInAndOwner(types, owner.getName(), pageable);
+		return sampleService.byType(types, owner.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)
 	@ResponseBody
-	public Set<Sample> byBarcode(
+	public Collection<Sample> byBarcode(
 			@RequestParam(value = "barcodes", required = false) Collection<String> barcodes,
 			Principal owner) {
 		if (barcodes.isEmpty()) {
 			return null;
 		}
-		return sampleRepository.findAllByBarcodeInAndOwner(barcodes, owner.getName());
+		return sampleService.byBarcode(barcodes, owner.getName());
 	}
 
 }

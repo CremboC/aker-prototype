@@ -25,17 +25,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
+import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.domain.requests.OrderRequest;
 import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderOption;
 import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderSample;
-import uk.ac.sanger.mig.aker.domain.Sample;
-import uk.ac.sanger.mig.aker.domain.Tag;
 import uk.ac.sanger.mig.aker.messages.Order;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
-import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +50,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Resource
-	private SampleRepository sampleRepository;
+	private SampleService sampleService;
 
 	@Resource
 	private GroupRepository groupRepository;
@@ -92,6 +92,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
 	@Override
 	public void processOrder(OrderRequest order) {
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		// fetch all barcodes
 		final Set<String> barcodes = order.getSamples()
@@ -100,9 +101,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 				.collect(Collectors.toSet());
 
 		// query db to get all sample information
-		Set<Sample> samples = new HashSet<>();
+		Collection<Sample> samples = new HashSet<>();
 		if (!barcodes.isEmpty()) {
-			samples = sampleRepository.findAllByBarcodeIn(barcodes);
+			samples = sampleService.byBarcode(barcodes, currentUser);
 		}
 
 		// get all samples from groups
