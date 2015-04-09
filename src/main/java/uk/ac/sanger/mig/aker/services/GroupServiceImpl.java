@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
@@ -72,6 +74,12 @@ public class GroupServiceImpl implements GroupService {
 		repository.save(group);
 
 		return group;
+	}
+
+	@Override
+	public Collection<Searchable<?>> search(String query, String name) {
+		// TODO: implement
+		return new ArrayList<>();
 	}
 
 	@Override

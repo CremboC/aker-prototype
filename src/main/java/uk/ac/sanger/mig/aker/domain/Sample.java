@@ -141,7 +141,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 
 	@Override
 	public String getIdentifier() {
-		return barcode;
+		return getBarcode();
 	}
 
 	@Override
@@ -151,8 +151,8 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 
 	@Override
 	@JsonIgnore
-	public String getSearchResult() {
-		return mainAlias.getName();
+	public String getSearchName() {
+		return getMainAlias().getName();
 	}
 
 	@Override

@@ -36,7 +36,7 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 	Page<Sample> findAllByGroupsIdAndOwner(long groupId, String owner, Pageable pageable);
 
 	@Query("select s from Sample s where s.id like %:search% and s.owner = :owner")
-	Collection<Sample> searchByBarcode(@Param("search") String sample, @Param("owner") String owner);
+	Collection<Sample> searchByBarcode(@Param("search") Long sample, @Param("owner") String owner);
 
 	@Query("select s from Sample s join s.aliases as a where lower(a.name) like %:search% and s.owner = :owner")
 	Collection<Sample> searchByAlias(@Param("search") String alias, @Param("owner") String owner);

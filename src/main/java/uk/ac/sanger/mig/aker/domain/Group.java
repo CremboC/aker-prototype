@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
  */
 @Entity
 @Table(name = "groups")
-public class Group extends BaseEntity {
+public class Group extends BaseEntity implements Searchable<Long> {
 
 	@Column
 	private String name;
@@ -151,5 +151,20 @@ public class Group extends BaseEntity {
 				.append("parent", parent)
 				.append("children", children)
 				.toString();
+	}
+
+	@Override
+	public Long getIdentifier() {
+		return id;
+	}
+
+	@Override
+	public String getPath() {
+		return "/groups/show/";
+	}
+
+	@Override
+	public String getSearchName() {
+		return name;
 	}
 }

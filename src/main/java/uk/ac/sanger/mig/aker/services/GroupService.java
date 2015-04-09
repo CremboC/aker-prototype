@@ -1,8 +1,10 @@
 package uk.ac.sanger.mig.aker.services;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import uk.ac.sanger.mig.aker.domain.Group;
+import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
@@ -22,4 +24,5 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 
 	Group save(Group group);
 
+	Collection<Searchable<?>> search(String query, String name);
 }

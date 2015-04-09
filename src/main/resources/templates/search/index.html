@@ -3,6 +3,8 @@
 <head lang="en" th:include="fragments/common :: head"></head>
 <body>
 
+<!--@thymesVar id="result" type="uk.ac.sanger.mig.aker.domain.Searchable"-->
+
 <div th:replace="fragments/common :: header">...</div>
 
 <div class="container">
@@ -13,10 +15,10 @@
 
     <div class="col-md-12">
         <ul>
-            <li th:each="result : ${results}">
-                <a th:href="${result.path + result.identifier}">
-                    <b th:text="${result.identifier}"></b>
-                    <span th:text="${result.searchResult}"></span>
+            <li th:each="result : ${results}" th:object="${result}">
+                <a th:href="*{path + identifier}">
+                    <b th:text="*{identifier}"></b>
+                    <span th:text="*{searchName}"></span>
                 </a>
             </li>
         </ul>

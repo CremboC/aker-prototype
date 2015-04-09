@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.IteratorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,8 @@ import uk.ac.sanger.mig.aker.utils.SampleHelper;
  */
 @Service
 public class SampleServiceImpl implements SampleService {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SampleRepository repository;
@@ -104,7 +108,16 @@ public class SampleServiceImpl implements SampleService {
 
 	@Override
 	public Collection<Searchable<?>> search(String query, String owner) {
-		final Collection<Sample> byBarcode = repository.searchByBarcode(query, owner);
+		Collection<Sample> byBarcode = new ArrayList<>();
+		try {
+			byBarcode = repository.searchByBarcode(Long.parseLong(query), owner);
+		} catch (NumberFormatException e) {
+			if (logger.isDebugEnabled()) {
+				e.printStackTrace();
+			}
+			logger.error(e.getMessage());
+		}
+
 		final Collection<Sample> byAlias = repository.searchByAlias(query, owner);
 
 		// merges two collections into a single list
