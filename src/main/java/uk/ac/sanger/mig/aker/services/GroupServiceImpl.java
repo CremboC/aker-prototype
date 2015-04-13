@@ -77,9 +77,9 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public Collection<Searchable<?>> search(String query, String name) {
-		// TODO: implement
-		return new ArrayList<>();
+	public Collection<Searchable<?>> search(String query, String owner) {
+		final Collection<Group> groups = repository.searchByName(query, owner);
+		return new ArrayList<>(groups);
 	}
 
 	@Override

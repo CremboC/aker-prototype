@@ -2,6 +2,8 @@ package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -37,7 +39,13 @@ public class SearchController extends BaseController {
 	@RequestMapping("/")
 	public String index(@RequestParam("search") String query, Model model, Principal principal) {
 		Collection<Searchable<?>> groups = groupService.search(query, principal.getName());
+		Collection<Searchable<?>> samples = sampleService.search(query, principal.getName());
 
+		Map<String, Collection<Searchable<?>>> results = new HashMap<>();
+		results.put("Groups", groups);
+		results.put("Samples", samples);
+
+		model.addAttribute("results", results);
 
 		return view(Action.INDEX);
 	}

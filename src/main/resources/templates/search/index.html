@@ -10,18 +10,24 @@
 <div class="container">
 
     <div class="page-header">
-        <h1>Search Results</h1>
+        <h4>Search Results</h4>
     </div>
 
-    <div class="col-md-12">
-        <ul>
-            <li th:each="result : ${results}" th:object="${result}">
-                <a th:href="*{path + identifier}">
-                    <b th:text="*{identifier}"></b>
-                    <span th:text="*{searchName}"></span>
-                </a>
-            </li>
-        </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div th:each="result : ${results}" th:unless="${result.value.isEmpty()}">
+                <h5 th:text="${result.key}"></h5>
+                <ul>
+                    <li th:each="searchable : ${result.value}" th:object="${searchable}">
+                        <a th:href="*{path + identifier}">
+                            <b th:text="*{identifier}"></b>
+                            <span th:text="*{searchName}"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
     </div>
 
 </div>
