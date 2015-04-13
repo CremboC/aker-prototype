@@ -72,28 +72,35 @@ $(document).ready(function () {
                 }
             }
 
-            submitQuery = $.ajax({
-                url: 'http://localhost:8083/orders/create/',
+            $.ajax({
+                url: '/work/update',
                 data: form,
                 method: 'post'
-            });
+            }).then(function (data) {
 
-            submitQuery.then(function (data) {
-                console.log(data);
-                if (data.processed) {
-                    var template = $('#submitted-template').handlebars();
-                    $(".form-wrapper").html('').html(template({
-                        text: 'Order Submitted'
-                    }));
+                submitQuery = $.ajax({
+                    url: 'http://localhost:8083/orders/create/',
+                    data: form,
+                    method: 'post'
+                });
 
-                    $.ajax({
-                        url: '/work/clear'
-                    });
-                }
-            }, function (a, b, c) {
-                console.log(a);
-                console.log(b);
-                console.log(c);
+                submitQuery.then(function (data) {
+                    console.log(data);
+                    if (data.processed) {
+                        var template = $('#submitted-template').handlebars();
+                        $(".form-wrapper").html('').html(template({
+                            text: 'Order Submitted'
+                        }));
+
+                        $.ajax({
+                            url: '/work/clear'
+                        });
+                    }
+                }, function (a, b, c) {
+                    console.log(a);
+                    console.log(b);
+                    console.log(c);
+                });
             });
 
         }

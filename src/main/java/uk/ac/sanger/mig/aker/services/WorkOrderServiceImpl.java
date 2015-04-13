@@ -36,6 +36,7 @@ import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderOption;
 import uk.ac.sanger.mig.aker.domain.requests.OrderRequest.OrderSample;
 import uk.ac.sanger.mig.aker.messages.Order;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
+import uk.ac.sanger.mig.aker.repositories.TagRepository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +55,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 
 	@Resource
 	private GroupRepository groupRepository;
+
+	@Resource
+	private TagRepository tagRepository;
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
@@ -179,6 +183,47 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		output.close();
 
 		return outputFile;
+	}
+
+	@Override
+	public void update(OrderRequest order) {
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		final Set<String> barcodes = order.getSamples().stream().map(OrderSample::getBarcode)
+				.collect(Collectors.toSet());
+
+		Collection<Sample> samples = sampleService.byBarcode(barcodes, currentUser);
+
+		Map<String, Sample> sampleMap = samples
+				.stream()
+				.collect(Collectors.toMap(
+						Sample::getBarcode,
+						s -> s
+				));
+
+		for (OrderSample orderSample : order.getSamples()) {
+			Sample sample = sampleMap.get(orderSample.getBarcode());
+			Collection<Tag> existingTags = tagRepository.findBySample(sample);
+
+			final Collection<Tag> tags = orderSample
+					.getOptions()
+					.entrySet()
+					.stream()
+					.filter(option -> !option.getValue().equals("")) // filter out empty values
+					.map(option -> {
+						Tag tag = new Tag();
+
+						tag.setName(option.getKey());
+						tag.setValue(option.getValue());
+						tag.setSample(sampleMap.get(orderSample.getBarcode()));
+
+						return tag;
+					})
+					.filter(tag -> !existingTags.contains(tag)) // filter tags that already exists
+					.collect(Collectors.toList());
+
+			tagRepository.save(tags);
+		}
 	}
 
 	/**

@@ -1,8 +1,8 @@
 package uk.ac.sanger.mig.aker.domain.requests;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ public class OrderRequest {
 	private List<Long> groups = new ArrayList<>();
 	private OrderProduct product = new OrderProduct();
 	private OrderProject project = new OrderProject();
-	private Set<OrderOption> options = new HashSet<>();
+	private Collection<OrderOption> options = new ArrayList<>();
 
 	@JsonIgnore
 	private boolean processed = false;
@@ -42,11 +42,11 @@ public class OrderRequest {
 		this.samples = samples;
 	}
 
-	public Set<OrderOption> getOptions() {
+	public Collection<OrderOption> getOptions() {
 		return options;
 	}
 
-	public void setOptions(Set<OrderOption> options) {
+	public void setOptions(Collection<OrderOption> options) {
 		this.options = options;
 	}
 
@@ -133,7 +133,7 @@ public class OrderRequest {
 		private String name;
 		private String value;
 
-		private Set<String> restrictedOptions = new HashSet<>();
+		private Collection<String> restrictedOptions = new ArrayList<>();
 
 		public String getValue() {
 			return value;
@@ -151,11 +151,11 @@ public class OrderRequest {
 			this.name = name;
 		}
 
-		public Set<String> getRestrictedOptions() {
+		public Collection<String> getRestrictedOptions() {
 			return restrictedOptions;
 		}
 
-		public void setRestrictedOptions(Set<String> restrictedOptions) {
+		public void setRestrictedOptions(Collection<String> restrictedOptions) {
 			this.restrictedOptions = restrictedOptions;
 		}
 

@@ -17,27 +17,36 @@ public interface WorkOrderService {
 	 *
 	 * @param order testing class...
 	 */
-	public void sendOrder(Order order);
+	void sendOrder(Order order);
 
 	/**
 	 * Handles messages received on a specific RabbitMQ queue
 	 *
 	 * @param message the message§
 	 */
-	public void receiveConfirmation(String message);
+	void receiveConfirmation(String message);
 
 	/**
 	 * Process an order in the following manner: gets all relevant tags (options).
 	 *
 	 * @param order a work order partially filled
 	 */
-	public void processOrder(OrderRequest order);
+	void processOrder(OrderRequest order);
 
 	/**
 	 * Prints an order into a CSV format
 	 *
 	 * @param order to print
 	 */
-	public File printOrder(OrderRequest order) throws IOException;
+	File printOrder(OrderRequest order) throws IOException;
 
+	/**
+	 * Save an order locally:
+	 * <ul>
+	 * <li>Update sample tags/options</li>
+	 * </ul>
+	 *
+	 * @param order
+	 */
+	void update(OrderRequest order);
 }

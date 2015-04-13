@@ -80,6 +80,13 @@ public class WorkController extends BaseController {
 		return order;
 	}
 
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@ResponseBody
+	public String update(@ModelAttribute OrderRequest order, HttpSession session) {
+		workOrderService.update(order);
+		return "";
+	}
+
 	@RequestMapping(value = "/csv", method = RequestMethod.GET, produces = "text/csv")
 	@ResponseBody
 	public FileSystemResource generateCsv(HttpServletResponse response, HttpSession session) {
