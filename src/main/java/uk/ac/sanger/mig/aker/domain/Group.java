@@ -3,10 +3,10 @@ package uk.ac.sanger.mig.aker.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -36,14 +36,14 @@ public class Group extends BaseEntity implements Searchable<Long> {
 	@Column(nullable = false)
 	private String owner;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "groups_samples",
 			joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "sample_id", referencedColumnName = "id")
 	)
 	@JsonManagedReference
-	private Set<Sample> samples = new HashSet<>();
+	private Collection<Sample> samples = new HashSet<>();
 
 	@OneToOne
 	@JoinColumn(name = "parent_id")
@@ -60,11 +60,11 @@ public class Group extends BaseEntity implements Searchable<Long> {
 	@Transient
 	private boolean remove;
 
-	public Set<Sample> getSamples() {
+	public Collection<Sample> getSamples() {
 		return samples;
 	}
 
-	public void setSamples(Set<Sample> samples) {
+	public void setSamples(Collection<Sample> samples) {
 		this.samples = samples;
 	}
 
@@ -139,6 +139,9 @@ public class Group extends BaseEntity implements Searchable<Long> {
 		return new HashCodeBuilder()
 				.appendSuper(super.hashCode())
 				.append(name)
+				.append(owner)
+				.append(parent)
+				.append(children)
 				.toHashCode();
 	}
 

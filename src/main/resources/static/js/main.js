@@ -239,7 +239,9 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
                     increasePage();
 
                     // convert the json content into html using the template
+                    var i = 0;
                     var sampleHtml = $.map($.makeArray(data.content), function (sample) {
+                        sample.index = i++;
                         return $(template(sample)).addClass(appendClass);
                     });
 

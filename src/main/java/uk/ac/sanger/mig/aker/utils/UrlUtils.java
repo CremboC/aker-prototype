@@ -19,7 +19,6 @@ public class UrlUtils {
 	private UrlUtils() {
 	}
 
-
 	/**
 	 * Given a string url/path, opens it, reads it and returns it as a string.
 	 * <p>

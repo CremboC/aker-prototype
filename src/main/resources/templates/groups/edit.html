@@ -14,7 +14,8 @@
         </h2>
     </div>
 
-    <form th:object="${group}" th:action="@{/groups/update/{id}(id = ${group.id})}" th:method="PUT" role="form">
+    <form th:action="@{/groups/update/{id}(id = ${group.id})}" th:method="PUT" role="form">
+
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div class="row">
@@ -80,36 +81,37 @@
             <div class="col-md-2">
                 <h4>Editing</h4>
                 <button type="submit" class="btn btn-success btn-block">Update</button>
+                <a th:if="${!groups.isEmpty()}" class="btn btn-primary btn-block" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
+                <a th:href="@{/groups/add-samples/{groupId}(groupId = *{id})}" class="btn btn-primary btn-block">Add Samples</a>
                 <a th:href="@{/groups/show/{groupId}(groupId = *{id})}" class="btn btn-default btn-block">Cancel</a>
 
                 <h4>Actions</h4>
 
-                <a th:if="${!groups.isEmpty()}" class="btn btn-default btn-block" data-toggle="modal"
-                   href="#add-subgroup">Add
-                    Subgroup</a>
-                <a class="btn btn-danger btn-block">Delete Group</a>
+                <a class="btn btn-danger btn-block" th:href="@{/group/delete/{groupId}(groupId = *{id})}">Delete Group</a>
             </div>
         </div>
 
-        <div class="col-md-12">
-            <div class="samples row">
-                <h4>Samples</h4>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="samples">
+                    <h4>Remove Samples</h4>
 
-                <div th:if="*{!samples.isEmpty()}">
-                    <h5 class="text-muted">
-                        Samples from: <span th:text="*{name}"></span>
-                    </h5>
+                    <div th:if="*{!samples.isEmpty()}">
+                        <h5 class="text-muted">
+                            Samples from: <span th:text="*{name}"></span>
+                        </h5>
 
-                    <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
-                </div>
+                        <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
+                    </div>
 
-                <div th:if="*{children != null}">
-                    <div th:each="child : *{children}">
-                        <h4 class="text-muted">
-                            Samples from: <span th:text="${child.name}"></span>
-                        </h4>
+                    <div th:if="*{children != null}">
+                        <div th:each="child : *{children}">
+                            <h4 class="text-muted">
+                                Samples from: <span th:text="${child.name}"></span>
+                            </h4>
 
-                        <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${true})"></div>
+                            <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${true})"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,7 +159,7 @@
 </div>
 <!-- /.modal -->
 
-<script type="application/javascript" th:src="@{/js/groups/show.js}"></script>
+<script type="application/javascript" th:src="@{/js/groups/edit.js}"></script>
 
 </body>
 </html>

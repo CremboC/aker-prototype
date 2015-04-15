@@ -50,10 +50,10 @@
                                 </i>
                             </div>
 
-                            <div th:unless="${isEmpty}" draggable="true" class="draggable" th:id="*{samples[__${seq}__]}">
-                                <input type="hidden" th:field="*{samples[__${seq}__]}"
-                                       th:value="*{samples[__${seq}__]}"/>
-                                <span th:text="*{samples[__${seq}__]}" class="btn btn-default"></span>
+                            <div th:unless="${isEmpty}" draggable="true" class="draggable" th:id="*{samples[__${seq}__].barcode}">
+                                <input type="hidden" th:field="*{samples[__${seq}__].barcode}"
+                                       th:value="*{samples[__${seq}__].barcode}"/>
+                                <span th:text="*{samples[__${seq}__].barcode}" class="btn btn-default"></span>
                             </div>
                         </div>
                     </td>

@@ -7,14 +7,16 @@
 
 <div class="container">
 
-    <div class="col-md-12">
-        <div class="row">
+    <div class="row">
+        <div class="col-md-12">
             <h3>Groups</h3>
 
             <div th:replace="groups/table :: groupstable (${'append-groups'}, ${'load-groups'}, ${'metadata-groups'}, ${false})"></div>
         </div>
+    </div>
 
-        <div class="row">
+    <div class="row">
+        <div class="col-md-12">
             <h3>Samples</h3>
 
             <div th:replace="samples/table :: samplestable (${'jqp-append-before-samples'}, ${'jqp-load-more-samples'}, ${'jqp-metadata-samples'}, ${false})"></div>

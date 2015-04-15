@@ -51,9 +51,10 @@ public class GroupServiceImpl implements GroupService {
 
 	@Transactional
 	@Override
-	public Group save(@NotNull Group group) {
+	public Optional<Group> save(@NotNull Group group) {
 
-		final List<Group> filteredChildren = group.getChildren()
+		// remove subgroups
+		final Collection<Group> filteredChildren = group.getChildren()
 				.stream()
 				.filter(Group::isRemove)
 				.map(child -> {
@@ -71,15 +72,37 @@ public class GroupServiceImpl implements GroupService {
 			group.setParent(repository.findOne(parent.getId()));
 		}
 
+		// remove samples
+		final Collection<Sample> filteredSamples = group.getSamples()
+				.stream()
+				.filter(sample -> sample.getBarcode() != null)
+				.collect(Collectors.toList());
+
+		group.setSamples(filteredSamples);
+
 		repository.save(group);
 
-		return group;
+		return Optional.of(group);
 	}
 
 	@Override
 	public Collection<Searchable<?>> search(String query, String owner) {
 		final Collection<Group> groups = repository.searchByName(query, owner);
 		return new ArrayList<>(groups);
+	}
+
+	@Override
+	public boolean delete(Long id, String owner) {
+		final Group group = repository.findOne(id);
+
+		if (group == null || !group.getOwner().equals(owner)) {
+			// illegal condition, shouldn't even be possible so no need to handle this gently
+			return false;
+		}
+
+		repository.delete(id);
+
+		return true;
 	}
 
 	@Override
@@ -123,18 +146,18 @@ public class GroupServiceImpl implements GroupService {
 	private Optional<Group> groupOfGroups(@NotNull GroupRequest groupRequest) {
 		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 		final Set<Long> groups = groupRequest.getGroups();
-		final Set<Group> byParentIdIn = repository.findAllByIdIn(groups);
+		final Set<Group> subGroups = repository.findAllByIdIn(groups);
 
-		if (!byParentIdIn.isEmpty()) {
+		if (!subGroups.isEmpty()) {
 			Group group = new Group();
 			group.setName(groupRequest.getName());
 			group.setOwner(currentUser);
 			group = repository.save(group);
 
-			for (Group subGroup : byParentIdIn) {
+			for (Group subGroup : subGroups) {
 				subGroup.setParent(group);
 			}
-			final List<Group> saved = IteratorUtils.toList(repository.save(byParentIdIn).iterator());
+			final List<Group> saved = IteratorUtils.toList(repository.save(subGroups).iterator());
 
 			if (group.getId() > 1 && !saved.isEmpty()) {
 				return Optional.of(group);

@@ -9,7 +9,6 @@ $(document).ready(function () {
     ordersQuery = $.get('/orders/get/');
 
     ordersQuery.then(function (data) {
-        console.log(data);
         var orders = new JsonHal(data, "orders");
 
         if (orders.present()) {

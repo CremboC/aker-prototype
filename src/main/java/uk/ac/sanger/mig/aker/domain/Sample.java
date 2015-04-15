@@ -43,7 +43,6 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	@ManyToOne(optional = false, cascade = CascadeType.ALL)
 	private Status status;
 
-//	@Column(nullable = false, unique = true)
 	@Transient
 	private String barcode;
 
@@ -71,8 +70,20 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 		this.type = type;
 	}
 
+	public void setBarcode(String barcode) {
+		this.barcode = barcode;
+	}
+
 	public String getBarcode() {
-		return SampleHelper.getBarcode(id, BARCODE_SIZE);
+		if (barcode != null) {
+			return barcode;
+		}
+
+		if (id != null) {
+			barcode = SampleHelper.getBarcode(id, BARCODE_SIZE);
+		}
+
+		return barcode;
 	}
 
 	public Set<Alias> getAliases() {

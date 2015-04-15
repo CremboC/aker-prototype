@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en" th:include="fragments/common :: head"></head>
+<body>
+
+<div th:replace="fragments/common :: header">...</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h2>Add Samples</h2>
+    </div>
+
+    <form th:action="@{/groups/store/}" th:object="${group}" method="POST" role="form">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="samples-wrapper">
+            <h3>Samples</h3>
+
+            <label>Select samples to add to the group:</label>
+
+            <div th:if="${#fields.hasErrors('samples')}" th:errors="*{samples}"></div>
+
+            <div class="contained-overflow">
+                <div th:replace="samples/table :: samplestable (${'append-samples'}, ${'load-samples'}, ${'metadata-samples'}, ${true})"></div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div th:replace="fragments/common :: footer"></div>
+
+<script type="application/javascript" th:src="@{/js/groups/create.js}"></script>
+
+
+</body>
+</html>

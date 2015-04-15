@@ -22,7 +22,9 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 	 */
 	Optional<Group> createGroup(GroupRequest groupRequest);
 
-	Group save(Group group);
+	Optional<Group> save(Group group);
 
 	Collection<Searchable<?>> search(String query, String name);
+
+	boolean delete(Long id, String owner);
 }

@@ -27,10 +27,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
+import uk.ac.sanger.mig.aker.domain.requests.Response;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
@@ -139,22 +142,46 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
-	public String update(@PathVariable Long id, @Valid @ModelAttribute("group") Group groupUpdate, Errors errors,
-			Principal principal) {
+	public ModelAndView update(
+			@PathVariable Long id,
+			@Valid @ModelAttribute("group") Group groupUpdate,
+			Errors errors,
+			Principal principal,
+			RedirectAttributes attributes) {
+
 		if (errors.hasErrors()) {
-			return view(Action.EDIT);
+			return new ModelAndView(view(Action.EDIT));
 		}
 
 		final Group group = groupRepository.findOne(id);
 
 		if (group == null || !group.getOwner().equals(principal.getName())) {
 			// illegal condition, shouldn't even be possible so no need to handle this gently
-			return "redirect:/groups";
+			return new ModelAndView("redirect:/groups/");
 		}
 
 		groupService.save(groupUpdate);
 
-		return "redirect:/groups/show/" + id;
+		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully update group."));
+
+		return new ModelAndView("redirect:/groups/show/" + id);
+	}
+
+	// TODO: change to DELETE. For the sake of simplicity, to make deletion work as a simple URL, GET is used
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+	public ModelAndView delete(@PathVariable Long id, Principal principal, RedirectAttributes attributes) {
+		boolean deleted = groupService.delete(id, principal.getName());
+
+		if (!deleted) {
+			// only fails to delete if owner is not matched or group doesn't exist
+			attributes.addFlashAttribute("status",
+					new Response(Response.Status.FAIL, "Doesn't exist or illegal operation."));
+			return new ModelAndView("redirect:/groups/");
+		}
+
+		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully deleted group."));
+
+		return new ModelAndView("redirect:/groups/");
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET)

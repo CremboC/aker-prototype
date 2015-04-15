@@ -201,6 +201,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 						s -> s
 				));
 
+		// create and save tags for each sample
 		for (OrderSample orderSample : order.getSamples()) {
 			Sample sample = sampleMap.get(orderSample.getBarcode());
 			Collection<Tag> existingTags = tagRepository.findBySample(sample);

@@ -48,10 +48,8 @@
         <div class="row">
             <h4>Actions</h4>
 
-            <a th:if="${!groups.isEmpty()}" class="btn btn-default btn-block" data-toggle="modal" href="#add-subgroup">Add
-                Subgroup</a>
             <a class="btn btn-default btn-block" th:href="@{/groups/edit/{id}/(id = *{id})}">Edit</a>
-            <a class="btn btn-danger btn-block">Delete Group</a>
+            <a class="btn btn-danger btn-block" th:href="@{/groups/delete/{id}/(id = *{id})}">Delete Group</a>
         </div>
     </div>
 
@@ -64,7 +62,7 @@
                     Samples from: <span th:text="*{name}"></span>
                 </h4>
 
-                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
+                <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${false})"></div>
             </div>
 
             <div th:if="*{!children.isEmpty()}">
@@ -73,7 +71,7 @@
                         Samples from: <span th:text="${child.name}"></span>
                     </h4>
 
-                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${true})"></div>
+                    <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${false})"></div>
                 </div>
             </div>
         </div>
@@ -82,7 +80,7 @@
 
 <div th:include="fragments/common :: footer"></div>
 
-<script th:replace="samples/table :: template (${true})"></script>
+<script th:replace="samples/table :: template (${false})"></script>
 
 <div class="modal fade" id="add-subgroup">
     <div class="modal-dialog">
