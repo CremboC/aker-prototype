@@ -36,11 +36,10 @@
                 <tr th:each="row : ${#numbers.sequence(1, size.rows)}">
                     <td th:each="col : ${#numbers.sequence(0, size.columns)}">
                         <div th:if="${col == 0}" th:text="${{'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I',  'J', 'K', 'L', 'M', 'N', 'O', 'P'}[__${row - 1}__]}">
-                            R
                         </div>
 
                         <div th:unless="${col == 0}"
-                             th:with="seq =  ${#conversions.convert(#ids.seq(' '), 'Integer')}, isEmpty = ${seq &gt; labwareRequest.samples.size() - 2}"
+                             th:with="seq = ${#conversions.convert(#ids.seq('  '), 'Integer') - 1}, isEmpty = ${seq &gt; labwareRequest.samples.size() - 1}"
                              class="draggable-sample-container draggable-container"
                              data-single="true">
 
@@ -50,10 +49,10 @@
                                 </i>
                             </div>
 
-                            <div th:unless="${isEmpty}" draggable="true" class="draggable" th:id="*{samples[__${seq}__].barcode}">
-                                <input type="hidden" th:field="*{samples[__${seq}__].barcode}"
-                                       th:value="*{samples[__${seq}__].barcode}"/>
-                                <span th:text="*{samples[__${seq}__].barcode}" class="btn btn-default"></span>
+                            <div th:unless="${isEmpty}" draggable="true" class="draggable" th:id="*{samples[__${seq}__]}">
+                                <input type="hidden" th:field="*{samples[__${seq}__]}"
+                                       th:value="*{samples[__${seq}__]}"/>
+                                <span th:text="*{samples[__${seq}__]}" class="btn btn-default"></span>
                             </div>
                         </div>
                     </td>
@@ -61,26 +60,6 @@
                 </tbody>
             </table>
         </div>
-
-        <!--<div class="alert alert-danger" th:if="${#fields.hasErrors('amount')}">-->
-        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-        <!--<strong>Validation Errors</strong>-->
-        <!--<p th:errors="*{amount}"></p>-->
-        <!--</div>-->
-
-        <!--<div class="form-group">-->
-        <!--<label for="type">Of Type</label>-->
-        <!--<select id="type" class="form-control" th:field="*{type}">-->
-        <!--<option th:each="type : ${types}" th:value="${type.id}" th:text="${type.value}">-->
-        <!--</option>-->
-        <!--</select>-->
-        <!--</div>-->
-
-        <!--<div class="alert alert-danger" th:if="${#fields.hasErrors('type')}">-->
-        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-        <!--<strong>Validation Errors</strong>-->
-        <!--<p th:errors="*{type}"></p>-->
-        <!--</div>-->
 
         <button type="submit" class="btn btn-primary">Request</button>
     </form>

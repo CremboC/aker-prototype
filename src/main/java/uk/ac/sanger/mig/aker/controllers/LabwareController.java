@@ -1,16 +1,14 @@
 package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import uk.ac.sanger.mig.aker.domain.external.LabwareSize;
 import uk.ac.sanger.mig.aker.domain.requests.LabwareRequest;
@@ -49,23 +48,42 @@ public class LabwareController extends BaseController {
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	public String create(@Valid @ModelAttribute("labwareRequest") LabwareRequest labwareRequest, Errors errors, Model model) {
+	public ModelAndView create(
+			@Valid @ModelAttribute("labwareRequest") LabwareRequest labwareRequest,
+			Errors errors,
+			HttpSession session) {
+
+		final ModelAndView mav = new ModelAndView();
+
 		if (errors.hasErrors()) {
-			return "redirect:/";
+			mav.setViewName(redirect("/"));
+			return mav;
 		}
 
-		final LabwareSize size = labwareService.findOneSize(labwareRequest.getSize());
-		final int totalSize = size.getColumns() * size.getRows();
+		session.setAttribute("labware", labwareRequest);
 
-		List<String> emptySamples = new ArrayList<>(totalSize);
-		emptySamples.addAll(labwareRequest.getSamples());
+		mav.setViewName(redirect("create"));
 
-		labwareRequest.setSamples(emptySamples);
+		return mav;
+	}
 
-		model.addAttribute("labware", labwareRequest);
-		model.addAttribute("size", size);
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
+	public ModelAndView submit(HttpSession session) {
+		final ModelAndView mav = new ModelAndView();
+		final LabwareRequest labware = (LabwareRequest) session.getAttribute("labware");
 
-		return view(Action.CREATE);
+		if (labware == null) {
+			mav.setViewName(redirect("/"));
+			return mav;
+		}
+
+		final LabwareSize size = labwareService.findOneSize(labware.getSize());
+
+		mav.addObject("size", size);
+		mav.addObject("labwareRequest", labware);
+
+		mav.setViewName(view(Action.CREATE));
+		return mav;
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)

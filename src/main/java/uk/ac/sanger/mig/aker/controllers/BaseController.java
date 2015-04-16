@@ -1,5 +1,7 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import org.springframework.util.Assert;
+
 /**
  * @author pi1
  * @since February 2015
@@ -29,6 +31,22 @@ public abstract class BaseController {
 			throw new IllegalStateException("Template path must be set");
 		}
 		return templatePath + "/" + view;
+	}
+
+	/**
+	 * Shortcut to a redirect. If "location" starts with a /, it is an absolute redirect, otherwise it's local.
+	 * E.g. <br>
+	 * <p>
+	 * <code>redirect("/samples/")</code> will result in <code>redirect:/samples/</code>
+	 * <p>
+	 * <code>redirect("create")</code>, inside a "groups" controller will result in <code>redirect:/groups/create</code>
+	 *
+	 * @param location location to redirect to
+	 * @return correctly formatted redirection string
+	 */
+	protected String redirect(String location) {
+		Assert.notNull(templatePath);
+		return "redirect:" + (!location.startsWith("/") ? "/" + templatePath + "/" + location : location);
 	}
 
 	public void setTemplatePath(String templatePath) {
