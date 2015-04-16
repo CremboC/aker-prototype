@@ -54,7 +54,7 @@ $(document).ready(function () {
         });
     });
 
-    $('#submit-ws').on('click', function (e) {
+    $('#submit').on('click', function (e) {
         e.preventDefault();
 
         var $self = $(this);
@@ -92,14 +92,12 @@ $(document).ready(function () {
                             text: 'Order Submitted'
                         }));
 
-                        $.ajax({
-                            url: '/work/clear'
-                        });
+                        $.get('/work/clear');
                     }
-                }, function (a, b, c) {
-                    console.log(a);
-                    console.log(b);
-                    console.log(c);
+                }, function (xhr, status, errorThrown) {
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(errorThrown);
                 });
             });
 

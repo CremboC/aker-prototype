@@ -67,7 +67,9 @@
             {{#each samples}}
             <tr id="{{ barcode }}">
                 <td>
-                    {{ barcode }}
+                    <a href="/samples/show/{{ barcode }}">
+                        {{ barcode }}
+                    </a>
                 </td>
                 <td>{{ currentStatus.name }}</td>
                 <td class="text-center cursor-pointer" data-extend="#{{ barcode }}-companion">

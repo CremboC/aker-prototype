@@ -16,47 +16,54 @@
 
     <div class="row">
         <div class="col-md-10">
-            <div class="aliases">
-                <h3>Also known as</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="barcode">
+                        <h5>Barcode</h5>
 
-                <ul>
-                    <li th:each="alias : *{aliases}">
-                        <span th:text="${alias.name}"></span>
-                    </li>
-                </ul>
-            </div>
+                        <p th:text="*{barcode}"></p>
+                    </div>
 
-            <div class="barcode">
-                <h3>Barcode</h3>
+                    <div class="status">
+                        <h5>Status</h5>
 
-                <p th:text="*{barcode}"></p>
-            </div>
+                        <p th:text="*{status.value}"></p>
+                    </div>
 
-            <div class="status">
-                <h3>Status</h3>
+                    <div class="type">
+                        <h5>Type</h5>
 
-                <p th:text="*{status.value}"></p>
-            </div>
+                        <p th:text="*{type.value}"></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="aliases">
+                        <h5>Aliases</h5>
 
-            <div class="type">
-                <h3>Type</h3>
+                        <ul>
+                            <li th:each="alias : *{aliases}">
+                                <span th:text="${alias.name}"></span>
+                            </li>
+                        </ul>
+                    </div>
 
-                <p th:text="*{type.value}"></p>
-            </div>
 
-            <div class="groups">
-                <h3>Groups</h3>
 
-                <ul>
-                    <li th:each="group : *{groups}">
-                        <a th:text="${group.name}" th:href="@{/groups/show/{groupId}(groupId = ${group.id})}">
-                        </a>
-                    </li>
-                </ul>
+                    <div class="groups">
+                        <h5>Groups</h5>
+
+                        <ul>
+                            <li th:each="group : *{groups}">
+                                <a th:text="${group.name}" th:href="@{/groups/show/{groupId}(groupId = ${group.id})}">
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div class="tags">
-                <h3>Tags</h3>
+                <h5>Tags</h5>
 
                 <table class="table table-hover">
                     <thead>

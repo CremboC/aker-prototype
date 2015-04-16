@@ -116,11 +116,14 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
-	public String show(@PathVariable Long id, Model model, Principal user) {
+	public ModelAndView show(@PathVariable Long id, Model model, Principal user, RedirectAttributes attributes) {
+		final ModelAndView mav = new ModelAndView();
 		final Group group = groupRepository.findOne(id);
 
 		if (!group.getOwner().equals(user.getName())) {
-			return redirect("/");
+			attributes.addFlashAttribute("error", new Response(Response.Status.FAIL, "Illegal operation"));
+			mav.setViewName(redirect("/groups/"));
+			return mav;
 		}
 
 		group.setChildren(groupRepository.findByParentId(group.getId()));
@@ -131,7 +134,8 @@ public class GroupController extends BaseController {
 		model.addAttribute("subgroup", new Group());
 		model.addAttribute("groups", groups);
 
-		return view(Action.SHOW);
+		mav.setViewName(view(Action.SHOW));
+		return mav;
 	}
 
 	@RequestMapping(value = "/edit/{id}", method = RequestMethod.GET)

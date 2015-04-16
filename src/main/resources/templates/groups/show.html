@@ -17,13 +17,13 @@
     <div class="col-md-10">
         <div class="row">
             <div class="name">
-                <h3>Group Name</h3>
+                <h4>Group Name</h4>
 
                 <p th:text="*{name}"></p>
             </div>
 
             <div class="parent" th:if="*{parent != null}">
-                <h3>Parent Group</h3>
+                <h4>Parent Group</h4>
 
                 <p>
                     <a href="" th:text="*{parent.name}" th:href="@{/groups/show/{groupId}(groupId = *{parent.id})}">
@@ -32,7 +32,7 @@
             </div>
 
             <div class="children" th:if="*{children != null}">
-                <h3>Sub Groups</h3>
+                <h4>Sub Groups</h4>
 
                 <ul>
                     <li th:each="child : *{children}">
@@ -55,12 +55,12 @@
 
     <div class="col-md-12">
         <div class="samples row">
-            <h3>Samples</h3>
+            <h4>Samples</h4>
 
             <div th:if="*{!samples.isEmpty()}">
-                <h4 class="text-muted">
+                <h5 class="text-muted">
                     Samples from: <span th:text="*{name}"></span>
-                </h4>
+                </h5>
 
                 <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${false})"></div>
             </div>
