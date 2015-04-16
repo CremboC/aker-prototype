@@ -181,7 +181,7 @@ public class GroupController extends BaseController {
 
 		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully updated group."));
 
-		return new ModelAndView("redirect:/groups/show/" + id);
+		return new ModelAndView(redirect("show", id));
 	}
 
 	// TODO: change to DELETE. For the sake of simplicity, to make deletion work as a simple URL, GET is used
@@ -198,7 +198,7 @@ public class GroupController extends BaseController {
 
 		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully deleted group."));
 
-		return new ModelAndView("redirect:/groups/");
+		return new ModelAndView(redirect("/groups/"));
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
