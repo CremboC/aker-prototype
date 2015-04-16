@@ -177,7 +177,7 @@ public class SampleController extends BaseController {
 				// TODO: handle failure to create group
 				final Group group = groupService.createGroup(groupRequest).orElseGet(() -> null);
 
-				return "redirect:/groups/show/" + group.getId();
+				return redirect("/groups/show", group.getId());
 			} else {
 				throw new IllegalStateException("Shouldn't be possible to select samples of multiple types");
 			}

@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.controllers;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -91,15 +92,28 @@ public class GroupController extends BaseController {
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
-	public String store(@Valid @ModelAttribute("groupRequest") GroupRequest groupRequest, Errors errors, Principal principal) {
+	public ModelAndView store(
+			@Valid @ModelAttribute("groupRequest") GroupRequest groupRequest,
+			Errors errors,
+			Principal principal,
+			RedirectAttributes attributes) {
+		final ModelAndView mav = new ModelAndView();
 		if (errors.hasErrors()) {
-			return view(Action.CREATE);
+			mav.setViewName(view(Action.CREATE));
+			return mav;
 		}
 
 		setGroupType(groupRequest, principal.getName());
-		final Group group = groupService.createGroup(groupRequest).orElseThrow(IllegalStateException::new);
+		final Optional<Group> group = groupService.createGroup(groupRequest);
 
-		return "redirect:/groups/show/" + group.getId();
+		if (!group.isPresent()) {
+			mav.setViewName(redirect("create"));
+			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "There was a problem creating the group"));
+			return mav;
+		} else {
+			mav.setViewName(redirect("show", group.get().getId()));
+			return mav;
+		}
 	}
 
 	@RequestMapping(value = "/show/{id}", method = RequestMethod.GET)
@@ -107,7 +121,7 @@ public class GroupController extends BaseController {
 		final Group group = groupRepository.findOne(id);
 
 		if (!group.getOwner().equals(user.getName())) {
-			return "redirect:/";
+			return redirect("/");
 		}
 
 		group.setChildren(groupRepository.findByParentId(group.getId()));
@@ -127,7 +141,7 @@ public class GroupController extends BaseController {
 
 		if (!group.getOwner().equals(user.getName())) {
 			// illegal state, no need to handle gently
-			return "redirect:/";
+			return redirect("/");
 		}
 
 		group.setChildren(groupRepository.findByParentId(group.getId()));
@@ -200,14 +214,14 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/update/{id}/add-subgroup", method = RequestMethod.PUT)
 	public String addSubgroup(@PathVariable long id, @ModelAttribute Group addGroup, Errors result, Principal user) {
 		if (addGroup.getId() == id) {
-			return "redirect:/groups/show/" + id;
+			return redirect("show", id);
 		}
 
 		Group group = groupRepository.findOne(id);
 		Group subgroup = groupRepository.findOne(addGroup.getId());
 
 		if (!group.getOwner().equals(user.getName()) || !subgroup.getOwner().equals(user.getName())) {
-			return "redirect:/";
+			return redirect("/");
 		}
 
 		if (!result.hasErrors()) {
@@ -215,7 +229,7 @@ public class GroupController extends BaseController {
 			groupRepository.save(subgroup);
 		}
 
-		return "redirect:/groups/show/" + group.getId();
+		return redirect("show", id);
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
@@ -223,7 +237,7 @@ public class GroupController extends BaseController {
 		if (!binding.hasErrors()) {
 			final Group group = groupService.createGroup(groupRequest).orElseThrow(IllegalStateException::new);
 
-			return "redirect:/groups/show/" + group.getId();
+			return redirect("show", group.getId());
 		}
 
 		return view("group");

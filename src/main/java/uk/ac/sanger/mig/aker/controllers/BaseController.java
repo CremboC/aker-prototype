@@ -1,5 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -46,7 +47,14 @@ public abstract class BaseController {
 	 */
 	protected String redirect(String location) {
 		Assert.notNull(templatePath);
+
 		return "redirect:" + (!location.startsWith("/") ? "/" + templatePath + "/" + location : location);
+	}
+
+	protected String redirect(String location, Object... params) {
+		final String r = redirect(location);
+
+		return StringUtils.appendIfMissing(r, "/") + StringUtils.join(params, '/');
 	}
 
 	public void setTemplatePath(String templatePath) {

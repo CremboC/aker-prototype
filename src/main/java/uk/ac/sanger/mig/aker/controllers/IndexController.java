@@ -45,7 +45,7 @@ public class IndexController extends BaseController {
 		workOrderService.sendOrder(test2);
 		workOrderService.sendOrder(test3);
 
-		return "Hai";
+		return "Rabbit";
 	}
 
 	@RequestMapping("/login")
