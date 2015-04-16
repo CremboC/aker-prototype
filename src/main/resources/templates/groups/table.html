@@ -39,7 +39,7 @@
     <script id="group-template" type="text/x-handlebars-template" th:fragment="template">
         <tr id="{{ id }}" th:class="${checkbox ? 'selectable' : ''}">
             <td th:if="${checkbox}">
-                <input type="checkbox" value="{{ id }}" name="groups" />
+                <input type="checkbox" value="{{ id }}" name="groups"/>
             </td>
             <td>
                 {{ name }}
@@ -50,11 +50,17 @@
             <td>
                 {{ samples.length }}
             </td>
-            <td>
-                <a href="/groups/show/{{ id }}/">
-                    <span class="glyphicon glyphicon-eye-open"></span>
-                    View
-                </a>
+            <td class="label-group">
+                <div>
+                    <a href="/groups/show/{{ id }}/" class="label label-primary">
+                        View
+                    </a>
+                </div>
+                <div>
+                    <a href="/groups/edit/{{ id }}/" class="label label-primary">
+                        Edit
+                    </a>
+                </div>
             </td>
         </tr>
     </script>

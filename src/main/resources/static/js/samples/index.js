@@ -8,7 +8,7 @@ $(document).ready(function () {
         template: '#sample-template',
         loadButton: '#jqp-load-more-samples',
         appendBefore: '#jqp-append-before-samples',
-        scrollLoad: true
+        scrollLoad: true,
     });
 
     $samples.selectableElement({

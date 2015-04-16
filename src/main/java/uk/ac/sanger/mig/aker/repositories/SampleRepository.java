@@ -1,7 +1,6 @@
 package uk.ac.sanger.mig.aker.repositories;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;

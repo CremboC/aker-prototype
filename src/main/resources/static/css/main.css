@@ -115,3 +115,11 @@ nav {
     height: 100%;
     display: inline-block;
 }
+
+.label-group div {
+    display: inline-block;
+}
+
+.label-group .label {
+    /*margin-right: 5px;*/
+}

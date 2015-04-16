@@ -8,9 +8,9 @@
 <div class="container">
 
     <div class="page-header">
-        <h2>
+        <h3>
             Groups
-        </h2>
+        </h3>
     </div>
     <form th:action="@{/groups/group/}" th:object="${groupRequest}" method="POST" role="form">
 
@@ -69,8 +69,7 @@
                             {{ samples.length }}
                         </td>
                         <td>
-                            <a href="/groups/show/{{ id }}/">
-                                <span class="glyphicon glyphicon-eye-open"></span>
+                            <a href="/groups/show/{{ id }}/" class="label label-primary">
                                 View
                             </a>
                         </td>

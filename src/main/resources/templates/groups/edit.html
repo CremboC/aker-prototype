@@ -8,10 +8,10 @@
 <div class="container" th:object="${group}">
 
     <div class="page-header">
-        <h2>
+        <h3>
             Editing Group
             <small th:text="*{name}"></small>
-        </h2>
+        </h3>
     </div>
 
     <form th:action="@{/groups/update/{id}(id = ${group.id})}" th:method="PUT" role="form">

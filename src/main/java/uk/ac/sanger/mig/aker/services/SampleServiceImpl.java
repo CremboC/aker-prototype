@@ -16,17 +16,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
-import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.StatusRepository;
 import uk.ac.sanger.mig.aker.utils.SampleHelper;
@@ -44,9 +44,6 @@ public class SampleServiceImpl implements SampleService {
 	private SampleRepository repository;
 
 	@Autowired
-	private AliasRepository aliasRepository;
-
-	@Autowired
 	private StatusRepository statusRepository;
 
 	@Override
@@ -54,27 +51,20 @@ public class SampleServiceImpl implements SampleService {
 		final int amount = request.getAmount();
 		final Type type = request.getType();
 		final Status pendingStatus = statusRepository.findByValue("pending");
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Collection<Sample> newSamples = new ArrayList<>(amount);
-		Collection<Alias> aliases = new ArrayList<>(amount);
 
 		IntStream.range(0, amount).forEach(i -> {
 			final Sample s = new Sample();
 			s.setType(type);
 			s.setStatus(pendingStatus);
-			s.setOwner(SecurityContextHolder.getContext().getAuthentication().getName());
-
-			final Alias l = new Alias();
-			l.setName(s.getType().getValue() + " Sample");
-			l.setMain(true);
-			l.setSample(s);
+			s.setOwner(currentUser);
 
 			newSamples.add(s);
-			aliases.add(l);
 		});
 
 		Iterable<Sample> samples = repository.save(newSamples);
-		aliasRepository.save(aliases);
 
 		return IteratorUtils.toList(samples.iterator());
 	}
@@ -90,10 +80,14 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Page<Sample> findAll(Pageable pageable) {
-		final String owner = SecurityContextHolder.getContext().getAuthentication().getName();
+	public Page<Sample> findAll(Pageable pageableRequest) {
+		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		return repository.findAllByOwner(owner, pageable);
+		Pageable pageable = new PageRequest(pageableRequest.getPageNumber(), pageableRequest.getPageSize(), new Sort(
+				new Sort.Order(Sort.Direction.DESC, "id")
+		));
+
+		return repository.findAllByOwner(currentUser, pageable);
 	}
 
 	@Override

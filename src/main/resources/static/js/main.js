@@ -270,7 +270,7 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         var load = function () {
             var data = $.extend(settings.data, {
                 page: $loadButton.data('page'),
-                size: 20
+                size: 50
             });
 
             $.ajax(settings.url, {

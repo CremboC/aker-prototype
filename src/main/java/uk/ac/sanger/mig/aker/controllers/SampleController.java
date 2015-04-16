@@ -132,7 +132,7 @@ public class SampleController extends BaseController {
 				aliasRepository.save(alias);
 			}
 
-			return "redirect:/samples/show/" + sample.getBarcode();
+			return redirect("show/" + sample.getBarcode());
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
@@ -154,7 +154,7 @@ public class SampleController extends BaseController {
 				tagRepository.save(tag);
 			}
 
-			return "redirect:/samples/show/" + sample.getBarcode();
+			return redirect("show/" + sample.getBarcode());
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();

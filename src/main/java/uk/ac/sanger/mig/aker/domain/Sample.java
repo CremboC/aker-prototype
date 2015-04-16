@@ -123,11 +123,9 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 
 	/**
 	 * Find main alias from the sample (sample.getAliases mustn't be empty)
-	 *
-	 * @throws IllegalStateException if sample doesn't have a main alias
 	 */
 	private void setMainAlias() {
-		mainAlias = findMainAlias(aliases).orElseThrow(IllegalStateException::new);
+		mainAlias = findMainAlias(aliases).orElse(new Alias());
 	}
 
 	private Optional<Alias> findMainAlias(Collection<Alias> aliases) {
