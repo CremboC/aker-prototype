@@ -141,7 +141,6 @@ public class Group extends BaseEntity implements Searchable<Long> {
 				.append(name)
 				.append(owner)
 				.append(parent)
-				.append(children)
 				.toHashCode();
 	}
 

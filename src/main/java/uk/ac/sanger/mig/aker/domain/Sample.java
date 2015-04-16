@@ -80,7 +80,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 		}
 
 		if (id != null) {
-			barcode = SampleHelper.getBarcode(id, BARCODE_SIZE);
+			barcode = SampleHelper.barcodeFromId(id, BARCODE_SIZE);
 		}
 
 		return barcode;

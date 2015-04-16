@@ -2,17 +2,21 @@ package uk.ac.sanger.mig.aker.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +39,7 @@ public class GroupServiceImpl implements GroupService {
 	@Autowired
 	private SampleService sampleService;
 
+	@Transactional
 	@Override
 	public Optional<Group> createGroup(@NotNull GroupRequest groupRequest) {
 
@@ -106,6 +111,23 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
+	public Page<Group> allByOwner(String owner, Pageable pageable) {
+
+		Pageable p = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), new Sort(
+				new Sort.Order(Sort.Direction.DESC, "id")
+		));
+
+		final Page<Group> groups = repository.findAllByOwner(owner, p);
+
+		// remove parent's parent to simplify things for conversion into json..
+		StreamSupport.stream(groups.spliterator(), false) // get stream
+				.filter(g -> g.getParent() != null) // filter groups with no parent
+				.forEach(g -> g.getParent().setParent(null)); // set parent's parent to null
+
+		return groups;
+	}
+
+	@Override
 	public GroupRepository getRepository() {
 		return repository;
 	}
@@ -125,7 +147,7 @@ public class GroupServiceImpl implements GroupService {
 			Group group = new Group();
 
 			group.setName(groupRequest.getName());
-			group.setSamples(new HashSet<>(allByBarcode));
+			group.setSamples(allByBarcode);
 			group.setType(groupRequest.getType());
 			group.setOwner(currentUser);
 

@@ -16,16 +16,35 @@ public class SampleHelper {
 	private SampleHelper() {
 	}
 
-	public static String getBarcode(long id, int size) {
+	/**
+	 * Generate barcode from an id
+	 *
+	 * @param id   id
+	 * @param size padding
+	 * @return barcode
+	 */
+	public static String barcodeFromId(long id, int size) {
 		return "WTSI" + StringUtils.leftPad(String.valueOf(id), size, PADDING_CHAR);
 	}
 
+	/**
+	 * Extract id from barcode
+	 *
+	 * @param barcode barcode
+	 * @return id
+	 */
 	public static Long idFromBarcode(String barcode) {
 		return Long.valueOf(StringUtils.removePattern(barcode, "WTSI0+"));
 	}
 
-	public static Collection<Long> idFromBarcode(Collection<String> barcode) {
-		return barcode.stream().map(SampleHelper::idFromBarcode).collect(Collectors.toList());
+	/**
+	 * Extract ids from barcodes
+	 *
+	 * @param barcodes barcodes
+	 * @return list of ids
+	 */
+	public static Collection<Long> idFromBarcode(Collection<String> barcodes) {
+		return barcodes.stream().map(SampleHelper::idFromBarcode).collect(Collectors.toList());
 	}
 
 }

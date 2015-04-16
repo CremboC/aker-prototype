@@ -3,6 +3,9 @@ package uk.ac.sanger.mig.aker.services;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
@@ -27,4 +30,6 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 	Collection<Searchable<?>> search(String query, String name);
 
 	boolean delete(Long id, String owner);
+
+	Page<Group> allByOwner(String owner, Pageable pageable);
 }

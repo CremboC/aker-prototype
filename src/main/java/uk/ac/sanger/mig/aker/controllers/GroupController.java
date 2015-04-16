@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -176,7 +175,7 @@ public class GroupController extends BaseController {
 
 		groupService.save(groupUpdate);
 
-		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully update group."));
+		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully updated group."));
 
 		return new ModelAndView("redirect:/groups/show/" + id);
 	}
@@ -201,14 +200,7 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Group> json(Pageable pageable, Principal principal) {
-		final Page<Group> groups = groupRepository.findAllByOwner(principal.getName(), pageable);
-
-		// remove parent's parent to simplify things for conversion into json..
-		StreamSupport.stream(groups.spliterator(), false) // get stream
-				.filter(g -> g.getParent() != null) // filter groups with no parent
-				.forEach(g -> g.getParent().setParent(null)); // set parent's parent to null
-
-		return groups;
+		return groupService.allByOwner(principal.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/update/{id}/add-subgroup", method = RequestMethod.PUT)
