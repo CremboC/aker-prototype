@@ -8,8 +8,6 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -54,34 +52,6 @@ public abstract class BaseEntity {
 
 	public void setUpdate(Date update) {
 		this.update = update;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj == this) {
-			return true;
-		}
-		if (obj.getClass() != getClass()) {
-			return false;
-		}
-		BaseEntity rhs = (BaseEntity) obj;
-		return new EqualsBuilder()
-				.append(this.id, rhs.id)
-				.append(this.created, rhs.created)
-				.append(this.update, rhs.update)
-				.isEquals();
-	}
-
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder()
-				.append(id)
-				.append(created)
-				.append(update)
-				.toHashCode();
 	}
 
 	@Override

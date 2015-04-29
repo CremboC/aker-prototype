@@ -97,6 +97,7 @@ public class GroupController extends BaseController {
 			Errors errors,
 			Principal principal,
 			RedirectAttributes attributes) {
+
 		final ModelAndView mav = new ModelAndView();
 		if (errors.hasErrors()) {
 			mav.setViewName(view(Action.CREATE));
@@ -271,10 +272,12 @@ public class GroupController extends BaseController {
 	 * @param owner
 	 */
 	private void setGroupType(@NotNull GroupRequest groupRequest, String owner) {
-		final String barcode = groupRequest.getSamples().stream().findFirst().get();
-		// TODO: gentle handling of sample not found
-		final Sample sample = sampleService.byBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
-		groupRequest.setType(sample.getType());
+		groupRequest.getSamples().stream().findFirst().ifPresent(barcode -> {
+			// TODO: gentle handling of sample not found
+			final Sample sample = sampleService.byBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
+
+			groupRequest.setType(sample.getType());
+		});
 	}
 
 }

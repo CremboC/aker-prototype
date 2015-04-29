@@ -1,7 +1,7 @@
 package uk.ac.sanger.mig.aker.domain.requests;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,7 +18,7 @@ public class GroupRequest extends SampleGroup {
 	@NotNull
 	private String name;
 
-	private Set<Long> groups = new HashSet<>();
+	private Collection<Long> groups = new HashSet<>();
 
 	private Type type;
 
@@ -30,11 +30,11 @@ public class GroupRequest extends SampleGroup {
 		this.name = name;
 	}
 
-	public Set<Long> getGroups() {
+	public Collection<Long> getGroups() {
 		return groups;
 	}
 
-	public void setGroups(Set<Long> groups) {
+	public void setGroups(Collection<Long> groups) {
 		this.groups = groups;
 	}
 

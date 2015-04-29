@@ -6,6 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * @author pi1
  * @since February 2015
@@ -34,26 +37,26 @@ public class Type {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
-
-		Type type = (Type) o;
-
-		if (id != type.id)
-			return false;
-		if (!value.equals(type.value))
-			return false;
-
-		return true;
+		}
+		Type rhs = (Type) obj;
+		return new EqualsBuilder()
+				.append(this.value, rhs.value)
+				.isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + value.hashCode();
-		return result;
+		return new HashCodeBuilder()
+				.append(value)
+				.toHashCode();
 	}
 }

@@ -133,6 +133,8 @@ public class Group extends BaseEntity implements Searchable<Long> {
 		return new EqualsBuilder()
 				.appendSuper(super.equals(obj))
 				.append(this.name, rhs.name)
+				.append(this.samples, rhs.samples)
+				.append(this.type, rhs.type)
 				.isEquals();
 	}
 
@@ -141,8 +143,8 @@ public class Group extends BaseEntity implements Searchable<Long> {
 		return new HashCodeBuilder()
 				.appendSuper(super.hashCode())
 				.append(name)
-				.append(owner)
-				.append(parent)
+				.append(this.samples)
+				.append(this.type)
 				.toHashCode();
 	}
 

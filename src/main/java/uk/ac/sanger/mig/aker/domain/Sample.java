@@ -178,7 +178,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 		Sample rhs = (Sample) obj;
 		return new EqualsBuilder()
 				.appendSuper(super.equals(obj))
-				.append(this.barcode, rhs.barcode)
+				.append(getBarcode(), rhs.getBarcode())
 				.isEquals();
 	}
 
@@ -186,7 +186,7 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	public int hashCode() {
 		return new HashCodeBuilder()
 				.appendSuper(super.hashCode())
-				.append(barcode)
+				.append(getBarcode())
 				.toHashCode();
 	}
 

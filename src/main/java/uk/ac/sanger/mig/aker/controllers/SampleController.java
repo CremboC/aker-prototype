@@ -162,14 +162,14 @@ public class SampleController extends BaseController {
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
 	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
-		if (!binding.hasErrors()) {
+		if (!binding.hasErrors() && !groupRequest.getSamples().isEmpty()) {
 			final Collection<Sample> samples = sampleRepository.findAll(SampleHelper.idFromBarcode(groupRequest.getSamples()));
 
 			// gets the type of the first sample
 			final Type type = samples.stream().findFirst().get().getType();
 
-			// count if there is more than a single type
-			final boolean singleType = samples.stream().filter(s -> !s.getType().equals(type)).count() > 0;
+			// check if there is more than a single type
+			final boolean singleType = samples.stream().map(Sample::getType).distinct().count() == 1;
 
 			if (singleType) {
 				groupRequest.setType(type);

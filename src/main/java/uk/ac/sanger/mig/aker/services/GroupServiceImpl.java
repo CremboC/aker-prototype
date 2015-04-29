@@ -167,7 +167,7 @@ public class GroupServiceImpl implements GroupService {
 	 */
 	private Optional<Group> groupOfGroups(@NotNull GroupRequest groupRequest) {
 		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
-		final Set<Long> groups = groupRequest.getGroups();
+		final Collection<Long> groups = groupRequest.getGroups();
 		final Set<Group> subGroups = repository.findAllByIdIn(groups);
 
 		if (!subGroups.isEmpty()) {
