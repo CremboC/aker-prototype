@@ -101,7 +101,7 @@
                                 Samples from: <span th:text="${child.name}"></span>
                             </h4>
 
-                            <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${true})"></div>
+                            <div th:include="samples/table :: table (${'append-' + child.id}, ${'load-' + child.id}, ${'meta-' + child.id}, ${false})"></div>
                         </div>
                     </div>
                 </div>

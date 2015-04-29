@@ -1,7 +1,7 @@
 package uk.ac.sanger.mig.aker.domain.requests;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -11,15 +11,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author pi1
  * @since March 2015
  */
-public abstract class SampleGroup {
+public class SampleGroup {
 
-	protected List<String> samples = new ArrayList<>();
+	protected Collection<String> samples = new ArrayList<>();
 
-	public List<String> getSamples() {
+	public Collection<String> getSamples() {
 		return samples;
 	}
 
-	public void setSamples(List<String> samples) {
+	public void setSamples(Collection<String> samples) {
 		this.samples = samples;
 	}
 

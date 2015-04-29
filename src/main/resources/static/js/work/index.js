@@ -24,7 +24,7 @@ $(document).ready(function () {
         element: 'tbody .selectable'
     });
 
-    var productQuery = $.ajax('http://localhost:8081/products/');
+    var productQuery = $.ajax(host + ':8081/products/');
     var products;
 
     function updateOptions(product) {
@@ -129,11 +129,18 @@ $(document).ready(function () {
                 options: []
             };
 
-            var $orderForm = $('#order-form');
-
-            var form = $orderForm.serializeArray();
+            var $orderForm = $('#order-form'),
+                form = $orderForm.serializeArray();
 
             $.each(form, function (index, input) {
+                if (input.name.match(/samples\[[0-9]+\]/)) {
+                    if (input.value !== "") {
+                        order.samples.push({
+                            barcode: input.value
+                        });
+                    }
+                }
+
                 switch (input.name) {
                     case 'product':
                         var productIndex = input.value.split('$')[0];
@@ -160,11 +167,7 @@ $(document).ready(function () {
                         break;
 
                     case 'samples':
-                        if (input.value !== "") {
-                            order.samples.push({
-                                barcode: input.value
-                            });
-                        }
+                        // handled separately
                         break;
 
                     case 'groups':
@@ -217,9 +220,9 @@ $(document).ready(function () {
         });
 
     }, function (xhr, status, errorThrown) {
-        console.log(xhr);
-        console.log(status);
-        console.log(errorThrown);
+        //console.log(xhr);
+        //console.log(status);
+        //console.log(errorThrown);
     });
 
 });

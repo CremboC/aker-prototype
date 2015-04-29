@@ -34,6 +34,7 @@ import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.requests.Response;
+import uk.ac.sanger.mig.aker.domain.requests.SampleGroup;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
@@ -153,6 +154,7 @@ public class GroupController extends BaseController {
 
 		model.addAttribute("group", group);
 		model.addAttribute("subgroup", new Group());
+		model.addAttribute("samples", new SampleGroup());
 		model.addAttribute("groups", groups);
 
 		return view(Action.EDIT);
@@ -161,30 +163,32 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
 	public ModelAndView update(
 			@PathVariable Long id,
-			@Valid @ModelAttribute("group") Group groupUpdate,
+			@RequestParam(value = "samples[]", required = false) Collection<String> samples,
+			@ModelAttribute Group group,
 			Errors errors,
 			Principal principal,
 			RedirectAttributes attributes) {
 
 		if (errors.hasErrors()) {
-			return new ModelAndView(view(Action.EDIT));
+			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "An error has occurred: " + errors.getAllErrors()));
+			return new ModelAndView(redirect("edit", id));
 		}
 
-		final Group group = groupRepository.findOne(id);
+		final Group storedGroup = groupRepository.findOne(id);
 
-		if (group == null || !group.getOwner().equals(principal.getName())) {
+		if (storedGroup == null || !storedGroup.getOwner().equals(principal.getName())) {
 			// illegal condition, shouldn't even be possible so no need to handle this gently
-			return new ModelAndView("redirect:/groups/");
+			return new ModelAndView(redirect("/groups/"));
 		}
 
-		groupService.save(groupUpdate);
+		groupService.save(group);
 
-		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully updated group."));
+		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully updated storedGroup."));
 
 		return new ModelAndView(redirect("show", id));
 	}
 
-	// TODO: change to DELETE. For the sake of simplicity, to make deletion work as a simple URL, GET is used
+	// TODO: make DELETE. For the sake of simplicity, to make deletion work as a simple URL, GET is used
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	public ModelAndView delete(@PathVariable Long id, Principal principal, RedirectAttributes attributes) {
 		boolean deleted = groupService.delete(id, principal.getName());

@@ -90,10 +90,10 @@
 
     </nav>
     
-    <div class="alert alert-info" th:if="${status != null}">
+    <div class="alert alert-warning" th:if="${status != null}" th:object="${status}">
     	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-    	<strong th:text="${status.status}"></strong>
-        <p th:text="${status.message}"></p>
+    	<strong th:text="*{status.name}"></strong>
+        <p th:text="*{message}"></p>
     </div>
     
 </div>

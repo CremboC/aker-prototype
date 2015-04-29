@@ -261,9 +261,9 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         // default method upon error
         var error = settings.error ? settings.error :
             function (xhr, status, errorThrown) {
-                console.log(xhr);
-                console.log(status);
-                console.log(errorThrown);
+                // console.log(xhr);
+                // console.log(status);
+                // console.log(errorThrown);
             };
 
         // wrapper to $.ajax
@@ -419,8 +419,8 @@ $.fn.selectableElement = function (options) {
             alert('Type must be the same!');
         }
 
-        console.log($this);
-        console.log($lastSelected);
+        //console.log($this);
+        //console.log($lastSelected);
 
     });
 
@@ -678,3 +678,5 @@ $(document).ready(function () {
         $affix.data('offset-top', $affix.offset().top);
     }
 });
+
+var host = "http://localhost";

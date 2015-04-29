@@ -2,7 +2,7 @@
  * Created by pi1 on 17/03/2015.
  */
 $(document).ready(function () {
-    var tagQuery = $.ajax('http://localhost:8081/options/search/findByPerSampleTrue/');
+    var tagQuery = $.ajax(host + ':8081/options/search/findByPerSampleTrue/');
 
     // compile template using Handlebars
     var selectTemplate = Handlebars.compile($('#select-template').html()),
@@ -10,8 +10,8 @@ $(document).ready(function () {
         optionTemplate = Handlebars.compile($('#option-template').html());
 
     tagQuery.then(function (data, status) {
-        console.log(data);
-        console.log(status);
+        //console.log(data);
+        //console.log(status);
 
         var options = data._embedded.options;
 
@@ -32,8 +32,8 @@ $(document).ready(function () {
             if (!selectedOption.restrictedOptions) {
                 $valueWrapper.append(textTemplate(selectedOption));
             } else {
-                console.log(selectedOption.restrictedOptions);
-                console.log(stringByCommasToArray(selectedOption.restrictedOptions));
+                //console.log(selectedOption.restrictedOptions);
+                //console.log(stringByCommasToArray(selectedOption.restrictedOptions));
                 var context = {
                     name: selectedOption.name,
                     options: stringByCommasToArray(selectedOption.restrictedOptions)

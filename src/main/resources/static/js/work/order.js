@@ -13,7 +13,7 @@ $(document).ready(function () {
         var projectCode = $project.find('input').val();
 
         searchQuery = $.ajax({
-            url: 'http://localhost:8082/authorities/search/by-type-and-code',
+            url: host + ':8082/authorities/search/by-type-and-code',
             data: {
                 type: $('.product-name').val(),
                 code: projectCode
@@ -23,7 +23,7 @@ $(document).ready(function () {
         searchQuery.then(function (data) {
             var html;
 
-            console.log(data);
+            //console.log(data);
             if (!data) {
                 return;
             }
@@ -79,13 +79,13 @@ $(document).ready(function () {
             }).then(function (data) {
 
                 submitQuery = $.ajax({
-                    url: 'http://localhost:8083/orders/create/',
+                    url: host + ':8083/orders/create/',
                     data: form,
                     method: 'post'
                 });
 
                 submitQuery.then(function (data) {
-                    console.log(data);
+                    //console.log(data);
                     if (data.processed) {
                         var template = $('#submitted-template').handlebars();
                         $(".form-wrapper").html('').html(template({
@@ -95,9 +95,9 @@ $(document).ready(function () {
                         $.get('/work/clear');
                     }
                 }, function (xhr, status, errorThrown) {
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(errorThrown);
+                    //console.log(xhr);
+                    //console.log(status);
+                    //console.log(errorThrown);
                 });
             });
 
