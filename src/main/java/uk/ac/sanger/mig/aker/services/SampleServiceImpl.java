@@ -75,7 +75,7 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Collection<Sample> byBarcode(Collection<String> barcodes, String owner) {
+	public Set<Sample> byBarcode(Collection<String> barcodes, String owner) {
 		return repository.findAllByIdInAndOwner(SampleHelper.idFromBarcode(barcodes), owner);
 	}
 

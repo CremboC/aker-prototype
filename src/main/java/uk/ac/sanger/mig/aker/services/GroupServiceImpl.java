@@ -78,10 +78,10 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		// remove samples
-		final Collection<Sample> filteredSamples = group.getSamples()
+		final Set<Sample> filteredSamples = group.getSamples()
 				.stream()
 				.filter(sample -> sample.getBarcode() != null)
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 
 		group.setSamples(filteredSamples);
 
@@ -141,7 +141,7 @@ public class GroupServiceImpl implements GroupService {
 	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest) {
 		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		final Collection<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), currentUser);
+		final Set<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), currentUser);
 
 		if (!allByBarcode.isEmpty()) {
 			Group group = new Group();

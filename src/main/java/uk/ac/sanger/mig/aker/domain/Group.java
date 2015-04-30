@@ -3,6 +3,7 @@ package uk.ac.sanger.mig.aker.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,7 +46,7 @@ public class Group extends BaseEntity implements Searchable<Long> {
 			inverseJoinColumns = @JoinColumn(name = "sample_id", referencedColumnName = "id")
 	)
 	@JsonManagedReference
-	private Collection<Sample> samples = new HashSet<>();
+	private Set<Sample> samples = new HashSet<>();
 
 	@OneToOne
 	@JoinColumn(name = "parent_id")
@@ -62,11 +63,11 @@ public class Group extends BaseEntity implements Searchable<Long> {
 	@Transient
 	private boolean remove;
 
-	public Collection<Sample> getSamples() {
+	public Set<Sample> getSamples() {
 		return samples;
 	}
 
-	public void setSamples(Collection<Sample> samples) {
+	public void setSamples(Set<Sample> samples) {
 		this.samples = samples;
 	}
 

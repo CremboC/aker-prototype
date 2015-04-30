@@ -22,7 +22,7 @@ public interface SampleRepository extends PagingAndSortingRepository<Sample, Lon
 	@Override
 	Collection<Sample> findAll(Iterable<Long> ids);
 
-	Collection<Sample> findAllByIdInAndOwner(Collection<Long> id, String owner);
+	Set<Sample> findAllByIdInAndOwner(Collection<Long> id, String owner);
 
 	Sample findByIdAndOwner(Long id, String owner);
 

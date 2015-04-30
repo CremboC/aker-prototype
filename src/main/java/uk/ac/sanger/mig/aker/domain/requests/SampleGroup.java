@@ -2,11 +2,12 @@ package uk.ac.sanger.mig.aker.domain.requests;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * Abstracts a grouping of samples
+ * Abstracts a grouping of unique, distinct sample barcodes
  *
  * @author pi1
  * @since March 2015
@@ -20,7 +21,7 @@ public class SampleGroup {
 	}
 
 	public void setSamples(Collection<String> samples) {
-		this.samples = samples;
+		this.samples = samples.stream().distinct().collect(Collectors.toSet());
 	}
 
 	@Override
