@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -118,7 +119,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 				.stream()
 				.collect(Collectors.toMap(
 						Sample::getBarcode,
-						s -> s
+						Function.identity()
 				));
 
 		// put all per-sample options names into a list to make check if needed easier
@@ -138,8 +139,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		order.setSamples(processedOrderSamples);
 
 		// set estimated cost
-		final Double unitCost = Optional.ofNullable(order.getProduct().getUnitCost()).orElse(0.0);
-		order.setEstimateCost(unitCost * order.getSamples().size());
+		Optional.ofNullable(order.getProduct().getUnitCost())
+				.ifPresent(unitCost -> order.setEstimateCost(unitCost * order.getSamples().size()));
 
 		order.setProcessed(true);
 
@@ -198,7 +199,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 				.stream()
 				.collect(Collectors.toMap(
 						Sample::getBarcode,
-						s -> s
+						Function.identity()
 				));
 
 		// create and save tags for each sample
@@ -256,7 +257,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 	}
 
 	/**
-	 * Converts group ids into a list of OrderSample.
+	 * Converts group ids into a list of OrderSample. In other word, extracts all the samples from a list of group ids
 	 *
 	 * @param groupIds group ids
 	 * @param barcodes barcodes to omit – to make sure there are no duplicates

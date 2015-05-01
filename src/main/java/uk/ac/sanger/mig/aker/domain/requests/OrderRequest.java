@@ -32,7 +32,7 @@ public class OrderRequest {
 	@JsonIgnore
 	private boolean processed = false;
 
-	private Double estimateCost;
+	private Double estimateCost = 0.0d;
 
 	public List<OrderSample> getSamples() {
 		return samples;
