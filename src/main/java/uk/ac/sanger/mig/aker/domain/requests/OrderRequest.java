@@ -8,10 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toMap;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+
+import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.Tag;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class OrderRequest {
 
-	private List<OrderSample> samples = new ArrayList<>();
+	private Collection<OrderSample> samples = new ArrayList<>();
 	private List<Long> groups = new ArrayList<>();
 	private OrderProduct product = new OrderProduct();
 	private OrderProject project = new OrderProject();
@@ -34,12 +41,12 @@ public class OrderRequest {
 
 	private Double estimateCost = 0.0d;
 
-	public List<OrderSample> getSamples() {
+	public Collection<OrderSample> getSamples() {
 		return samples;
 	}
 
-	public void setSamples(List<OrderSample> samples) {
-		this.samples = samples;
+	public void setSamples(Collection<OrderSample> samples) {
+		this.samples = new LinkedHashSet<>(samples);
 	}
 
 	public Collection<OrderOption> getOptions() {
@@ -104,6 +111,14 @@ public class OrderRequest {
 		private String barcode;
 		private Map<String, String> options = new HashMap<>();
 
+		public OrderSample() {
+		}
+
+		public OrderSample(Sample sample) {
+			barcode = sample.getBarcode();
+			options = sample.getTags().stream().collect(toMap(Tag::getName, Tag::getValue));
+		}
+
 		public String getBarcode() {
 			return barcode;
 		}
@@ -118,6 +133,30 @@ public class OrderRequest {
 
 		public void setOptions(Map<String, String> options) {
 			this.options = options;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (obj == this) {
+				return true;
+			}
+			if (obj.getClass() != getClass()) {
+				return false;
+			}
+			OrderSample rhs = (OrderSample) obj;
+			return new EqualsBuilder()
+					.append(this.barcode, rhs.barcode)
+					.isEquals();
+		}
+
+		@Override
+		public int hashCode() {
+			return new HashCodeBuilder()
+					.append(barcode)
+					.toHashCode();
 		}
 
 		@Override

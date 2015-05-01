@@ -45,10 +45,11 @@ public class WorkController extends BaseController {
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
 	public Boolean bindOrder(@RequestBody OrderRequest newOrder, HttpSession session) {
-		workOrderService.processOrder(newOrder);
-		session.setAttribute("order", newOrder);
+		OrderRequest orderRequest = workOrderService.processOrder(newOrder);
 
-		return newOrder.isProcessed();
+		session.setAttribute("order", orderRequest);
+
+		return orderRequest.isProcessed();
 	}
 
 	@RequestMapping(value = "/order", method = RequestMethod.GET)

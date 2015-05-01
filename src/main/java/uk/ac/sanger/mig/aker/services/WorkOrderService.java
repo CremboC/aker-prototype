@@ -31,7 +31,7 @@ public interface WorkOrderService {
 	 *
 	 * @param order a work order partially filled
 	 */
-	void processOrder(OrderRequest order);
+	OrderRequest processOrder(OrderRequest order);
 
 	/**
 	 * Prints an order into a CSV format

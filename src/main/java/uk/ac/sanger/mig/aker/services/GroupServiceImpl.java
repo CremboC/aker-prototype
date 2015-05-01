@@ -11,6 +11,8 @@ import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
+import static java.util.stream.Collectors.toSet;
+
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -94,6 +96,15 @@ public class GroupServiceImpl implements GroupService {
 	public Collection<Searchable<?>> search(String query, String owner) {
 		final Collection<Group> groups = repository.searchByName(query, owner);
 		return new ArrayList<>(groups);
+	}
+
+	@Override
+	public Set<Sample> samplesFromGroups(Collection<Long> ids) {
+		return repository.findAllByIdIn(ids) // get all groups
+				.stream()
+				.map(Group::getSamples) // get samples of each group
+				.flatMap(Set::stream) // flatten into a single set of samples
+				.collect(toSet());
 	}
 
 	@Override
