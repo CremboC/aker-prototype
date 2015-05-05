@@ -11,8 +11,8 @@ import javax.transaction.Transactional;
 
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
+import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,17 +63,17 @@ public class GroupServiceTest {
 
 		Optional<Group> maybeGroup = groupService.createGroup(gr, user);
 
-		Assert.assertTrue(maybeGroup.isPresent());
+		assertTrue(maybeGroup.isPresent());
 
 		Group group = maybeGroup.get();
 
-		Assert.assertEquals(testType, group.getType());
-		Assert.assertEquals("Test Creation", group.getName());
+		assertEquals(testType, group.getType());
+		assertEquals("Test Creation", group.getName());
 
 		Collection<Group> children = group.getSubgroups();
 		Collection<Long> ids = children.stream().map(Group::getId).collect(toList());
 
-		Assert.assertEquals(groups, ids);
+		assertEquals(groups, ids);
 	}
 
 	@Transactional
@@ -93,16 +93,16 @@ public class GroupServiceTest {
 
 		Optional<Group> maybeGroup = groupService.createGroup(gr, user);
 
-		Assert.assertTrue(maybeGroup.isPresent());
+		assertTrue(maybeGroup.isPresent());
 
 		Group group = maybeGroup.get();
 
-		Assert.assertEquals(testType, group.getType());
-		Assert.assertEquals("Test Creation of Samples", group.getName());
+		assertEquals(testType, group.getType());
+		assertEquals("Test Creation of Samples", group.getName());
 
 		Collection<String> barcodes = group.getSamples().stream().map(Sample::getBarcode).collect(toList());
 
-		Assert.assertEquals(samples, barcodes);
+		assertEquals(samples, barcodes);
 	}
 
 	@Transactional
@@ -116,15 +116,15 @@ public class GroupServiceTest {
 
 		Collection<Searchable<?>> searchables = groupService.search("Test Search", user);
 
-		Assert.assertTrue(searchables.size() == 1);
+		assertTrue(searchables.size() == 1);
 
 		Searchable<?> searchable = searchables.stream().findFirst().get();
 
-		Assert.assertTrue(searchable instanceof Group);
+		assertTrue(searchable instanceof Group);
 
 		Group foundGroup = (Group) searchable;
-		Assert.assertEquals(group.getName(), foundGroup.getName());
-		Assert.assertEquals(group.getType(), foundGroup.getType());
+		assertEquals(group.getName(), foundGroup.getName());
+		assertEquals(group.getType(), foundGroup.getType());
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class GroupServiceTest {
 		Set<Sample> samples = groupService.samplesFromGroups(groups);
 		List<Long> sampleIds = samples.stream().sorted(comparing(Sample::getId)).map(Sample::getId).collect(toList());
 
-		Assert.assertEquals(samplesOfGroups, sampleIds);
+		assertEquals(samplesOfGroups, sampleIds);
 	}
 
 	@Test
@@ -163,8 +163,8 @@ public class GroupServiceTest {
 		Set<Long> expectedGroupIds = availableParents.stream().map(Group::getId).collect(toSet());
 		Set<Long> actualGroupIds = groups.stream().map(Group::getId).collect(toSet());
 
-		Assert.assertFalse("One of the valid parents is the subgroup. This shouldn't be the case", actualGroupIds.contains(subgroup.getId()));
-		Assert.assertTrue("Expected " + expectedGroupIds + "; Actual: " + actualGroupIds, actualGroupIds.containsAll(expectedGroupIds));
+		assertFalse("One of the valid parents is the subgroup. This shouldn't be the case", actualGroupIds.contains(subgroup.getId()));
+		assertTrue("Expected " + expectedGroupIds + "; Actual: " + actualGroupIds, actualGroupIds.containsAll(expectedGroupIds));
 	}
 
 	@Test
@@ -182,14 +182,14 @@ public class GroupServiceTest {
 
 		Collection<Group> validSubgroups = groupService.validSubgroups(subject, user);
 
-		Assert.assertFalse("Valid subgroups shouldn't contains group itself", validSubgroups.contains(subject));
-		Assert.assertFalse("Valid subgroups shouldn't contain parent", validSubgroups.contains(parent));
-		Assert.assertFalse("Valid subgroups shouldn't contain a current subgroup.", validSubgroups.contains(subgroup));
+		assertFalse("Valid subgroups shouldn't contains group itself", validSubgroups.contains(subject));
+		assertFalse("Valid subgroups shouldn't contain parent", validSubgroups.contains(parent));
+		assertFalse("Valid subgroups shouldn't contain a current subgroup.", validSubgroups.contains(subgroup));
 
 		Set<Long> expectedGroupIds = otherGroups.stream().map(Group::getId).collect(toSet());
 		Set<Long> actualGroupIds = validSubgroups.stream().map(Group::getId).collect(toSet());
 
-		Assert.assertTrue("Expected " + expectedGroupIds + "; Actual: " + actualGroupIds, actualGroupIds.containsAll(expectedGroupIds));
+		assertTrue("Expected " + expectedGroupIds + "; Actual: " + actualGroupIds, actualGroupIds.containsAll(expectedGroupIds));
 	}
 
 	@Transactional
@@ -208,10 +208,10 @@ public class GroupServiceTest {
 
 		Optional<Type> maybeGroupType = groupService.getGroupType(gr, user);
 
-		Assert.assertTrue("Group type must exist", maybeGroupType.isPresent());
+		assertTrue("Group type must exist", maybeGroupType.isPresent());
 
 		Type type = maybeGroupType.get();
 
-		Assert.assertEquals("Type mismatch", testType, type);
+		assertEquals("Type mismatch", testType, type);
 	}
 }

@@ -1,15 +1,16 @@
 package uk.ac.sanger.mig.aker.services;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
+
+import static java.util.stream.Collectors.*;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.slf4j.Logger;
@@ -47,22 +48,20 @@ public class SampleServiceImpl implements SampleService {
 	private StatusRepository statusRepository;
 
 	@Override
-	public List<Sample> createSamples(@NotNull SampleRequest request) {
+	public List<Sample> createSamples(@NotNull SampleRequest request, String owner) {
 		final int amount = request.getAmount();
 		final Type type = request.getType();
 		final Status pendingStatus = statusRepository.findByValue("pending");
-		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		Collection<Sample> newSamples = new ArrayList<>(amount);
+		List<Sample> newSamples = IntStream.range(0, amount).parallel().mapToObj(i -> {
+			final Sample sample = new Sample();
 
-		IntStream.range(0, amount).forEach(i -> {
-			final Sample s = new Sample();
-			s.setType(type);
-			s.setStatus(pendingStatus);
-			s.setOwner(currentUser);
+			sample.setType(type);
+			sample.setStatus(pendingStatus);
+			sample.setOwner(owner);
 
-			newSamples.add(s);
-		});
+			return sample;
+		}).collect(toList());
 
 		Iterable<Sample> samples = repository.save(newSamples);
 
@@ -70,12 +69,12 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Optional<Sample> byBarcode(String barcode, String owner) {
+	public Optional<Sample> findByBarcode(String barcode, String owner) {
 		return Optional.ofNullable(repository.findByIdAndOwner(SampleHelper.idFromBarcode(barcode), owner));
 	}
 
 	@Override
-	public Set<Sample> byBarcode(Collection<String> barcodes, String owner) {
+	public Set<Sample> findByBarcode(Collection<String> barcodes, String owner) {
 		return repository.findAllByIdInAndOwner(SampleHelper.idFromBarcode(barcodes), owner);
 	}
 
@@ -91,18 +90,18 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Page<Sample> byGroup(long groupId, String owner, Pageable pageable) {
+	public Page<Sample> findByGroup(long groupId, String owner, Pageable pageable) {
 		return repository.findAllByGroupsIdAndOwner(groupId, owner, pageable);
 	}
 
 	@Override
-	public Page<Sample> byType(Set<String> types, String owner, Pageable pageable) {
+	public Page<Sample> findByType(Set<String> types, String owner, Pageable pageable) {
 		return repository.findAllByTypeValueInAndOwner(types, owner, pageable);
 	}
 
 	@Override
 	public Collection<Searchable<?>> search(String query, String owner) {
-		Collection<Sample> byBarcode = new ArrayList<>();
+		Collection<Sample> byBarcode = new HashSet<>();
 		try {
 			byBarcode = repository.searchByBarcode(Long.parseLong(query), owner);
 		} catch (NumberFormatException e) {
@@ -118,9 +117,9 @@ public class SampleServiceImpl implements SampleService {
 		final List<Sample> merged = Stream
 				.of(byBarcode, byAlias)
 				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				.collect(toList());
 
-		return merged.stream().collect(Collectors.toList());
+		return merged.stream().collect(toSet());
 	}
 
 	@Override

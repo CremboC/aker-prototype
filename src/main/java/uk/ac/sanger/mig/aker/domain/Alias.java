@@ -35,6 +35,13 @@ public class Alias extends BaseEntity{
 	@JsonIgnore
 	private Sample sample;
 
+	public Alias() {
+	}
+
+	public Alias(String name) {
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}

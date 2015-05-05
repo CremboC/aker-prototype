@@ -95,8 +95,7 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	public Collection<Searchable<?>> search(String query, String owner) {
-		final Collection<Group> groups = repository.searchByName(query, owner);
-		return new ArrayList<>(groups);
+		return new HashSet<>(repository.searchByName(query, owner));
 	}
 
 	@Override
@@ -173,7 +172,7 @@ public class GroupServiceImpl implements GroupService {
 			String barcode = maybeSample.get();
 
 			// TODO: gentle handling of maybeSample not found
-			final Sample sample = sampleService.byBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
+			final Sample sample = sampleService.findByBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
 			type = sample.getType();
 		}
 
@@ -193,7 +192,7 @@ public class GroupServiceImpl implements GroupService {
 	 * @return a group, if one was successfully created
 	 */
 	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest, String owner) {
-		final Set<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), owner);
+		final Set<Sample> allByBarcode = sampleService.findByBarcode(groupRequest.getSamples(), owner);
 
 		if (!allByBarcode.isEmpty()) {
 			Group group = new Group();

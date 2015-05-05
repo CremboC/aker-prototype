@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.domain;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,14 +48,14 @@ public class Sample extends BaseEntity implements Serializable, Searchable<Strin
 	private String barcode;
 
 	@OneToMany(mappedBy = "sample", cascade = CascadeType.ALL)
-	private Set<Alias> aliases;
+	private Set<Alias> aliases = new HashSet<>();
 
 	@ManyToMany(mappedBy = "samples", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonBackReference
-	private Set<Group> groups;
+	private Set<Group> groups = new HashSet<>();
 
 	@OneToMany(mappedBy = "sample", fetch = FetchType.EAGER)
-	private Set<Tag> tags;
+	private Set<Tag> tags = new HashSet<>();
 
 	@Column(nullable = false)
 	private String owner;

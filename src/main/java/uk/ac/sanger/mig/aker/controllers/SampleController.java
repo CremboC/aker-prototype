@@ -81,7 +81,7 @@ public class SampleController {
 
 	@RequestMapping("/show/{barcode}")
 	public String show(@PathVariable("barcode") String barcode, Model model, Principal user) {
-		final Optional<Sample> sample = sampleService.byBarcode(barcode, user.getName());
+		final Optional<Sample> sample = sampleService.findByBarcode(barcode, user.getName());
 		if (sample.isPresent()) {
 			model.addAttribute("sample", sample.get());
 		} else {
@@ -104,13 +104,17 @@ public class SampleController {
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
-	public String store(@Valid @ModelAttribute SampleRequest request, Errors bindingResult, Model model) {
+	public String store(
+			@Valid @ModelAttribute SampleRequest request,
+			Errors bindingResult,
+			Model model,
+			Principal principal) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("types", typeService.findAll());
 			return "samples/create";
 		}
 
-		sampleService.createSamples(request);
+		sampleService.createSamples(request, principal.getName());
 		return "redirect:/samples/";
 	}
 
@@ -120,7 +124,7 @@ public class SampleController {
 			@Valid @ModelAttribute Alias alias,
 			Principal user,
 			Errors bindingResult) {
-		final Optional<Sample> optSample = sampleService.byBarcode(barcode, user.getName());
+		final Optional<Sample> optSample = sampleService.findByBarcode(barcode, user.getName());
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
@@ -130,7 +134,7 @@ public class SampleController {
 				aliasRepository.save(alias);
 			}
 
-			return "samples/show/" + sample.getBarcode();
+			return "redirect:/samples/show/" + sample.getBarcode();
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
@@ -142,7 +146,7 @@ public class SampleController {
 			@Valid @ModelAttribute Tag tag,
 			Principal user,
 			Errors bindingResult) {
-		final Optional<Sample> optSample = sampleService.byBarcode(barcode, user.getName());
+		final Optional<Sample> optSample = sampleService.findByBarcode(barcode, user.getName());
 
 		if (optSample.isPresent()) {
 			final Sample sample = optSample.get();
@@ -161,12 +165,10 @@ public class SampleController {
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
 	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding, Principal principal) {
 		if (!binding.hasErrors() && !groupRequest.getSamples().isEmpty()) {
+
 			final Collection<Sample> samples = sampleRepository.findAll(SampleHelper.idFromBarcode(groupRequest.getSamples()));
 
-			// gets the type of the first sample
-			final Type type = samples.stream().findFirst().get().getType();
-
-			// check if there is more than a single type
+			final Type type = samples.stream().findFirst().orElseThrow(IllegalStateException::new).getType();
 			final boolean singleType = samples.stream().map(Sample::getType).distinct().count() == 1;
 
 			if (singleType) {
@@ -187,7 +189,7 @@ public class SampleController {
 	@RequestMapping(value = "/byGroup/{groupId}", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byGroupPaged(@PathVariable long groupId, Pageable pageable, Principal user) {
-		return sampleService.byGroup(groupId, user.getName(), pageable);
+		return sampleService.findByGroup(groupId, user.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byGroups", method = RequestMethod.GET)
@@ -199,7 +201,7 @@ public class SampleController {
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal owner) {
-		return sampleService.byType(types, owner.getName(), pageable);
+		return sampleService.findByType(types, owner.getName(), pageable);
 	}
 
 	@RequestMapping(value = "/byBarcodes", method = RequestMethod.GET)
@@ -210,7 +212,7 @@ public class SampleController {
 		if (barcodes.isEmpty()) {
 			return null;
 		}
-		return sampleService.byBarcode(barcodes, owner.getName());
+		return sampleService.findByBarcode(barcodes, owner.getName());
 	}
 
 }
