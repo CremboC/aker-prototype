@@ -4,12 +4,10 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,12 +30,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
+import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.domain.requests.Response;
 import uk.ac.sanger.mig.aker.domain.requests.SampleGroup;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
-import uk.ac.sanger.mig.aker.services.SampleService;
 
 /**
  * @author pi1
@@ -48,13 +46,10 @@ import uk.ac.sanger.mig.aker.services.SampleService;
 @SessionAttributes({
 		"group"
 })
-public class GroupController extends BaseController {
+public class GroupController {
 
 	@Autowired
 	private GroupService groupService;
-
-	@Autowired
-	private SampleService sampleService;
 
 	@Resource(name = "groupRequestValidator")
 	private Validator groupRequestValidator;
@@ -73,7 +68,6 @@ public class GroupController extends BaseController {
 
 	@PostConstruct
 	private void init() {
-		setTemplatePath("groups");
 		groupRepository = groupService.getRepository();
 	}
 
@@ -81,14 +75,14 @@ public class GroupController extends BaseController {
 	public String index(Model model) {
 		model.addAttribute("groupRequest", new GroupRequest());
 
-		return view(Action.INDEX);
+		return "groups/index";
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public String create(Model model) {
 		model.addAttribute("groupRequest", new GroupRequest());
 
-		return view(Action.CREATE);
+		return "groups/create";
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
@@ -100,19 +94,23 @@ public class GroupController extends BaseController {
 
 		final ModelAndView mav = new ModelAndView();
 		if (errors.hasErrors()) {
-			mav.setViewName(view(Action.CREATE));
+			mav.setViewName("groups/view");
 			return mav;
 		}
 
-		setGroupType(groupRequest, principal.getName());
-		final Optional<Group> group = groupService.createGroup(groupRequest);
+		// TODO: handle gently
+		Type type = groupService.getGroupType(groupRequest, principal.getName()).orElseThrow(IllegalStateException::new);
+		groupRequest.setType(type);
+
+		final Optional<Group> group = groupService.createGroup(groupRequest, principal.getName());
 
 		if (!group.isPresent()) {
-			mav.setViewName(redirect("create"));
+			mav.setViewName("groups/create");
 			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "There was a problem creating the group"));
 			return mav;
 		} else {
-			mav.setViewName(redirect("show", group.get().getId()));
+			Long id = group.get().getId();
+			mav.setViewName("redirect:/groups/show/" + id);
 			return mav;
 		}
 	}
@@ -124,19 +122,19 @@ public class GroupController extends BaseController {
 
 		if (!group.getOwner().equals(user.getName())) {
 			attributes.addFlashAttribute("error", new Response(Response.Status.FAIL, "Illegal operation"));
-			mav.setViewName(redirect("/groups/"));
+			mav.setViewName("redirect:/groups/");
 			return mav;
 		}
 
 		group.setChildren(groupRepository.findByParentId(group.getId()));
 
-		final Collection<Group> groups = otherGroups(group, user.getName());
+		final Collection<Group> groups = groupService.otherGroups(group, user.getName());
 
 		model.addAttribute("group", group);
 		model.addAttribute("subgroup", new Group());
 		model.addAttribute("groups", groups);
 
-		mav.setViewName(view(Action.SHOW));
+		mav.setViewName("groups/show");
 		return mav;
 	}
 
@@ -146,19 +144,19 @@ public class GroupController extends BaseController {
 
 		if (!group.getOwner().equals(user.getName())) {
 			// illegal state, no need to handle gently
-			return redirect("/");
+			return "redirect:/";
 		}
 
 		group.setChildren(groupRepository.findByParentId(group.getId()));
 
-		final Collection<Group> groups = otherGroups(group, user.getName());
+		final Collection<Group> groups = groupService.otherGroups(group, user.getName());
 
 		model.addAttribute("group", group);
 		model.addAttribute("subgroup", new Group());
 		model.addAttribute("samples", new SampleGroup());
 		model.addAttribute("groups", groups);
 
-		return view(Action.EDIT);
+		return "groups/edit";
 	}
 
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
@@ -172,21 +170,21 @@ public class GroupController extends BaseController {
 
 		if (errors.hasErrors()) {
 			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "An error has occurred: " + errors.getAllErrors()));
-			return new ModelAndView(redirect("edit", id));
+			return new ModelAndView("redirect:/group/edit/" + id);
 		}
 
 		final Group storedGroup = groupRepository.findOne(id);
 
 		if (storedGroup == null || !storedGroup.getOwner().equals(principal.getName())) {
 			// illegal condition, shouldn't even be possible so no need to handle this gently
-			return new ModelAndView(redirect("/groups/"));
+			return new ModelAndView("redirect:/groups/");
 		}
 
 		groupService.save(group);
 
 		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully updated storedGroup."));
 
-		return new ModelAndView(redirect("show", id));
+		return new ModelAndView("redirect:/groups/show/" + id);
 	}
 
 	// TODO: make DELETE. For the sake of simplicity, to make deletion work as a simple URL, GET is used
@@ -196,14 +194,13 @@ public class GroupController extends BaseController {
 
 		if (!deleted) {
 			// only fails to delete if owner is not matched or group doesn't exist
-			attributes.addFlashAttribute("status",
-					new Response(Response.Status.FAIL, "Doesn't exist or illegal operation."));
+			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "Doesn't exist or illegal operation."));
 			return new ModelAndView("redirect:/groups/");
 		}
 
 		attributes.addFlashAttribute("status", new Response(Response.Status.SUCCESS, "Successfully deleted group."));
 
-		return new ModelAndView(redirect("/groups/"));
+		return new ModelAndView("redirect:/groups/");
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
@@ -215,14 +212,14 @@ public class GroupController extends BaseController {
 	@RequestMapping(value = "/update/{id}/add-subgroup", method = RequestMethod.PUT)
 	public String addSubgroup(@PathVariable long id, @ModelAttribute Group addGroup, Errors result, Principal user) {
 		if (addGroup.getId() == id) {
-			return redirect("show", id);
+			return "redirect:/groups/show/" + id;
 		}
 
 		Group group = groupRepository.findOne(id);
 		Group subgroup = groupRepository.findOne(addGroup.getId());
 
 		if (!group.getOwner().equals(user.getName()) || !subgroup.getOwner().equals(user.getName())) {
-			return redirect("/");
+			return "redirect:/";
 		}
 
 		if (!result.hasErrors()) {
@@ -230,54 +227,24 @@ public class GroupController extends BaseController {
 			groupRepository.save(subgroup);
 		}
 
-		return redirect("show", id);
+		return "redirect:/groups/show/" + id;
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
+	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding, Principal principal) {
 		if (!binding.hasErrors()) {
-			final Group group = groupService.createGroup(groupRequest).orElseThrow(IllegalStateException::new);
+			final Group group = groupService.createGroup(groupRequest, principal.getName()).orElseThrow(IllegalStateException::new);
 
-			return redirect("show", group.getId());
+			return "redirect:/groups/show/" + group.getId();
 		}
 
-		return view("group");
+		return "groups/group";
 	}
 
 	@RequestMapping(value = "/byTypes", method = RequestMethod.GET)
 	@ResponseBody
 	public Page<Sample> byType(@RequestParam("types") Set<String> types, Pageable pageable, Principal user) {
 		return groupRepository.findAllByTypeValueInAndOwner(types, user.getName(), pageable);
-	}
-
-	/**
-	 * Gets groups which can be either a parent or a subgroup
-	 *
-	 * @param group the group subject
-	 * @param owner owner of groups
-	 * @return legal groups
-	 */
-	private Collection<Group> otherGroups(Group group, String owner) {
-		return groupRepository
-				.findAllByIdNotAndOwner(group.getId(), owner)
-				.stream()
-				.filter(g -> g != group.getParent() && !group.getChildren().contains(g))
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Gets the first sample's in the group request
-	 *
-	 * @param groupRequest
-	 * @param owner
-	 */
-	private void setGroupType(@NotNull GroupRequest groupRequest, String owner) {
-		groupRequest.getSamples().stream().findFirst().ifPresent(barcode -> {
-			// TODO: gentle handling of sample not found
-			final Sample sample = sampleService.byBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
-
-			groupRequest.setType(sample.getType());
-		});
 	}
 
 }

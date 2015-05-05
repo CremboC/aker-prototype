@@ -3,11 +3,11 @@ package uk.ac.sanger.mig.aker.controllers;
 import java.security.Principal;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -29,9 +29,9 @@ import uk.ac.sanger.mig.aker.services.LabwareService;
  */
 @Controller
 @RequestMapping("/labware")
-public class LabwareController extends BaseController {
+public class LabwareController {
 
-	@Resource
+	@Autowired
 	private LabwareService labwareService;
 
 	@Resource(name = "labwareRequestValidator")
@@ -40,11 +40,6 @@ public class LabwareController extends BaseController {
 	@InitBinder("labwareRequest")
 	protected void initBinder(WebDataBinder binder) {
 		binder.setValidator(validator);
-	}
-
-	@PostConstruct
-	private void init() {
-		setTemplatePath("labware");
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -56,13 +51,13 @@ public class LabwareController extends BaseController {
 		final ModelAndView mav = new ModelAndView();
 
 		if (errors.hasErrors()) {
-			mav.setViewName(redirect("/"));
+			mav.setViewName("redirect:/");
 			return mav;
 		}
 
 		session.setAttribute("labware", labwareRequest);
 
-		mav.setViewName(redirect("create"));
+		mav.setViewName("redirect:/labware/create/");
 
 		return mav;
 	}
@@ -73,7 +68,7 @@ public class LabwareController extends BaseController {
 		final LabwareRequest labware = (LabwareRequest) session.getAttribute("labware");
 
 		if (labware == null) {
-			mav.setViewName(redirect("/"));
+			mav.setViewName("redirect:/");
 			return mav;
 		}
 
@@ -82,7 +77,7 @@ public class LabwareController extends BaseController {
 		mav.addObject("size", size);
 		mav.addObject("labwareRequest", labware);
 
-		mav.setViewName(view(Action.CREATE));
+		mav.setViewName("labware/create");
 		return mav;
 	}
 

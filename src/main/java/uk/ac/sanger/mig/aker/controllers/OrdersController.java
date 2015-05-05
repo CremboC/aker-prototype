@@ -3,9 +3,7 @@ package uk.ac.sanger.mig.aker.controllers;
 import java.security.Principal;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,15 +19,10 @@ import uk.ac.sanger.mig.aker.services.OrderService;
  */
 @Controller
 @RequestMapping("/orders")
-public class OrdersController extends BaseController {
+public class OrdersController  {
 
-	@Resource
+	@Autowired
 	private OrderService orderService;
-
-	@PostConstruct
-	private void init() {
-		setTemplatePath("orders");
-	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
@@ -47,12 +40,12 @@ public class OrdersController extends BaseController {
 
 	@RequestMapping("/")
 	private String index() {
-		return view(Action.INDEX);
+		return "orders/index";
 	}
 
 	@RequestMapping("/show/{id}")
 	private String show(@PathVariable Long id, Model model) {
 		model.addAttribute("id", id);
-		return view(Action.SHOW);
+		return "orders/show";
 	}
 }

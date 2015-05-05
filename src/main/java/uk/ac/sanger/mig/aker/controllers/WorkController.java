@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,19 +26,14 @@ import uk.ac.sanger.mig.aker.services.WorkOrderService;
  */
 @Controller
 @RequestMapping("/work")
-public class WorkController extends BaseController {
+public class WorkController {
 
-	@Resource
+	@Autowired
 	private WorkOrderService workOrderService;
-
-	@PostConstruct
-	private void init() {
-		setTemplatePath("work");
-	}
 
 	@RequestMapping("/")
 	public String index() {
-		return view(Action.INDEX);
+		return "work/index";
 	}
 
 	@RequestMapping(value = "/order", method = RequestMethod.POST, consumes = "application/json")
@@ -62,7 +56,7 @@ public class WorkController extends BaseController {
 		model.addAttribute("workOrder", order);
 		model.addAttribute("principal", principal);
 
-		return view("order");
+		return "work/order";
 	}
 
 	@RequestMapping(value = "/clear", method = RequestMethod.GET)

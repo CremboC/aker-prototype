@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ import uk.ac.sanger.mig.aker.utils.SampleHelper;
  */
 @Controller
 @RequestMapping("/samples")
-public class SampleController extends BaseController {
+public class SampleController {
 
 	@Autowired
 	private AliasRepository aliasRepository;
@@ -51,20 +50,19 @@ public class SampleController extends BaseController {
 	@Autowired
 	private TagRepository tagRepository;
 
-	@Resource
+	@Autowired
 	private SampleService sampleService;
 
-	@Resource
+	@Autowired
 	private TypeService typeService;
 
-	@Resource
+	@Autowired
 	private GroupService groupService;
 
 	private SampleRepository sampleRepository;
 
 	@PostConstruct
 	private void init() {
-		setTemplatePath("samples");
 		sampleRepository = sampleService.getRepository();
 	}
 
@@ -72,7 +70,7 @@ public class SampleController extends BaseController {
 	public String index(Model model) {
 		model.addAttribute("groupRequest", new GroupRequest());
 
-		return view(Action.INDEX);
+		return "samples/index";
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.GET)
@@ -94,7 +92,7 @@ public class SampleController extends BaseController {
 		model.addAttribute("alias", new Alias());
 		model.addAttribute("tag", new Tag());
 
-		return view(Action.SHOW);
+		return "samples/show";
 	}
 
 	@RequestMapping("/create")
@@ -102,14 +100,14 @@ public class SampleController extends BaseController {
 		model.addAttribute("types", typeService.findAll());
 		model.addAttribute("sampleRequest", new SampleRequest());
 
-		return view(Action.CREATE);
+		return "sample/create";
 	}
 
 	@RequestMapping(value = "/store", method = RequestMethod.POST)
 	public String store(@Valid @ModelAttribute SampleRequest request, Errors bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("types", typeService.findAll());
-			return view(Action.CREATE);
+			return "samples/create";
 		}
 
 		sampleService.createSamples(request);
@@ -132,7 +130,7 @@ public class SampleController extends BaseController {
 				aliasRepository.save(alias);
 			}
 
-			return redirect("show/" + sample.getBarcode());
+			return "samples/show/" + sample.getBarcode();
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
@@ -154,14 +152,14 @@ public class SampleController extends BaseController {
 				tagRepository.save(tag);
 			}
 
-			return redirect("show/" + sample.getBarcode());
+			return "samples/show/" + sample.getBarcode();
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
 	}
 
 	@RequestMapping(value = "/group", method = RequestMethod.POST)
-	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding) {
+	public String group(@ModelAttribute GroupRequest groupRequest, Errors binding, Principal principal) {
 		if (!binding.hasErrors() && !groupRequest.getSamples().isEmpty()) {
 			final Collection<Sample> samples = sampleRepository.findAll(SampleHelper.idFromBarcode(groupRequest.getSamples()));
 
@@ -175,15 +173,15 @@ public class SampleController extends BaseController {
 				groupRequest.setType(type);
 
 				// TODO: handle failure to create group
-				final Group group = groupService.createGroup(groupRequest).orElseGet(() -> null);
+				final Group group = groupService.createGroup(groupRequest, principal.getName()).orElse(null);
 
-				return redirect("/groups/show", group.getId());
+				return "redirect:/groups/show/" + group.getId();
 			} else {
 				throw new IllegalStateException("Shouldn't be possible to select samples of multiple types");
 			}
 		}
 
-		return view("group");
+		return "groups/group";
 	}
 
 	@RequestMapping(value = "/byGroup/{groupId}", method = RequestMethod.GET)

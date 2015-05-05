@@ -5,9 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,18 +21,13 @@ import uk.ac.sanger.mig.aker.services.SampleService;
  */
 @Controller
 @RequestMapping("/search")
-public class SearchController extends BaseController {
+public class SearchController {
 
-	@Resource
+	@Autowired
 	private SampleService sampleService;
 
-	@Resource
+	@Autowired
 	private GroupService groupService;
-
-	@PostConstruct
-	private void init() {
-		setTemplatePath("search");
-	}
 
 	@RequestMapping("/")
 	public String index(@RequestParam("search") String query, Model model, Principal principal) {
@@ -47,7 +40,7 @@ public class SearchController extends BaseController {
 
 		model.addAttribute("results", results);
 
-		return view(Action.INDEX);
+		return "search/index";
 	}
 
 	@RequestMapping("/samples")
@@ -56,7 +49,7 @@ public class SearchController extends BaseController {
 
 		model.addAttribute("results", samples);
 
-		return view(Action.INDEX);
+		return "search/index";
 	}
 
 

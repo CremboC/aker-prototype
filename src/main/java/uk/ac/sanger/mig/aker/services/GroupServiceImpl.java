@@ -11,7 +11,7 @@ import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +19,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import uk.ac.sanger.mig.aker.domain.Group;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Searchable;
+import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
 import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
@@ -43,14 +43,14 @@ public class GroupServiceImpl implements GroupService {
 
 	@Transactional
 	@Override
-	public Optional<Group> createGroup(@NotNull GroupRequest groupRequest) {
+	public Optional<Group> createGroup(@NotNull GroupRequest groupRequest, String owner) {
 
 		if (!groupRequest.getSamples().isEmpty()) {
-			return groupOfSamples(groupRequest);
+			return groupOfSamples(groupRequest, owner);
 		}
 
 		if (!groupRequest.getGroups().isEmpty()) {
-			return groupOfGroups(groupRequest);
+			return groupOfGroups(groupRequest, owner);
 		}
 
 		throw new IllegalStateException("Samples and groups are empty");
@@ -138,6 +138,31 @@ public class GroupServiceImpl implements GroupService {
 		return groups;
 	}
 
+	public Collection<Group> otherGroups(Group group, String owner) {
+		return repository
+				.findAllByIdNotAndOwner(group.getId(), owner)
+				.stream()
+				.filter(g -> g != group.getParent() && !group.getChildren().contains(g))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Optional<Type> getGroupType(@NotNull GroupRequest groupRequest, String owner) {
+		Optional<String> maybeSample = groupRequest.getSamples().stream().findFirst();
+
+		Type type = null;
+
+		if (maybeSample.isPresent()) {
+			String barcode = maybeSample.get();
+
+			// TODO: gentle handling of maybeSample not found
+			final Sample sample = sampleService.byBarcode(barcode, owner).orElseThrow(IllegalStateException::new);
+			type = sample.getType();
+		}
+
+		return Optional.ofNullable(type);
+	}
+
 	@Override
 	public GroupRepository getRepository() {
 		return repository;
@@ -147,12 +172,11 @@ public class GroupServiceImpl implements GroupService {
 	 * Handles creation of a group of samples
 	 *
 	 * @param groupRequest group request with samples
+	 * @param owner
 	 * @return a group, if one was successfully created
 	 */
-	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest) {
-		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		final Set<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), currentUser);
+	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest, String owner) {
+		final Set<Sample> allByBarcode = sampleService.byBarcode(groupRequest.getSamples(), owner);
 
 		if (!allByBarcode.isEmpty()) {
 			Group group = new Group();
@@ -160,7 +184,7 @@ public class GroupServiceImpl implements GroupService {
 			group.setName(groupRequest.getName());
 			group.setSamples(allByBarcode);
 			group.setType(groupRequest.getType());
-			group.setOwner(currentUser);
+			group.setOwner(owner);
 
 			group = repository.save(group);
 
@@ -174,25 +198,28 @@ public class GroupServiceImpl implements GroupService {
 	 * Handles creation of a group of groups
 	 *
 	 * @param groupRequest group request with groups
+	 * @param owner
 	 * @return a group, if one was successfully created
 	 */
-	private Optional<Group> groupOfGroups(@NotNull GroupRequest groupRequest) {
-		final String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+	private Optional<Group> groupOfGroups(@NotNull GroupRequest groupRequest, String owner) {
 		final Collection<Long> groups = groupRequest.getGroups();
-		final Set<Group> subGroups = repository.findAllByIdIn(groups);
+		final Set<Group> subgroups = repository.findAllByIdIn(groups);
 
-		if (!subGroups.isEmpty()) {
+		if (!subgroups.isEmpty()) {
 			Group group = new Group();
 			group.setName(groupRequest.getName());
-			group.setOwner(currentUser);
+			group.setOwner(owner);
+			group.setType(groupRequest.getType());
 			group = repository.save(group);
 
-			for (Group subGroup : subGroups) {
+			for (Group subGroup : subgroups) {
 				subGroup.setParent(group);
 			}
-			final List<Group> saved = IteratorUtils.toList(repository.save(subGroups).iterator());
 
-			if (group.getId() > 1 && !saved.isEmpty()) {
+			final List<Group> savedSubgroups = IteratorUtils.toList(repository.save(subgroups).iterator());
+
+			if (group.getId() > 0 && !savedSubgroups.isEmpty()) {
+				group.setChildren(savedSubgroups);
 				return Optional.of(group);
 			}
 

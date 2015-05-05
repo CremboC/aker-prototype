@@ -1,8 +1,6 @@
 package uk.ac.sanger.mig.aker.controllers;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,20 +15,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @since February 2015
  */
 @Controller
-public class IndexController extends BaseController {
+public class IndexController {
 
-	@Resource
+	@Autowired
 	private WorkOrderService workOrderService;
-
-	@PostConstruct
-	private void init() {
-		setTemplatePath("main");
-	}
 
 	@RequestMapping("/")
 	public String greeting() {
 
-		return view(Action.INDEX);
+		return "main/index";
 	}
 
 	@RequestMapping("/rabbit")
