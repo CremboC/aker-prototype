@@ -2,6 +2,7 @@ package uk.ac.sanger.mig.aker.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +62,7 @@ public class GroupServiceImpl implements GroupService {
 	public Optional<Group> save(@NotNull Group group) {
 
 		// remove subgroups
-		final Collection<Group> filteredChildren = group.getChildren()
+		final Collection<Group> filteredSubgroups = group.getSubgroups()
 				.stream()
 				.filter(Group::isRemove)
 				.map(child -> {
@@ -70,7 +71,7 @@ public class GroupServiceImpl implements GroupService {
 				})
 				.collect(Collectors.toList());
 
-		repository.save(filteredChildren);
+		repository.save(filteredSubgroups);
 
 		final Group parent = group.getParent();
 		if (parent.getId() == null) {
@@ -138,12 +139,28 @@ public class GroupServiceImpl implements GroupService {
 		return groups;
 	}
 
-	public Collection<Group> otherGroups(Group group, String owner) {
-		return repository
-				.findAllByIdNotAndOwner(group.getId(), owner)
-				.stream()
-				.filter(g -> g != group.getParent() && !group.getChildren().contains(g))
-				.collect(Collectors.toList());
+	@Override
+	public Set<Group> validSubgroups(Group group, String owner) {
+		Collection<Long> ids = new ArrayList<>();
+		ids.add(group.getId());
+		ids.add(group.getParent().getId());
+
+		Set<Long> subgroups = repository.findByParentId(group.getId()).stream().map(Group::getId).collect(toSet());
+		ids.addAll(subgroups);
+
+		return new HashSet<>(repository.findAllByIdNotInAndOwner(ids, owner));
+	}
+
+	@Override
+	public Set<Group> validParents(Group group, String owner) {
+		Collection<Long> ids = new ArrayList<>();
+
+		Set<Long> subgroups = repository.findByParentId(group.getId()).stream().map(Group::getId).collect(toSet());
+
+		ids.add(group.getId());
+		ids.addAll(subgroups);
+
+		return new HashSet<>(repository.findAllByIdNotInAndOwner(ids, owner));
 	}
 
 	@Override
@@ -212,14 +229,14 @@ public class GroupServiceImpl implements GroupService {
 			group.setType(groupRequest.getType());
 			group = repository.save(group);
 
-			for (Group subGroup : subgroups) {
-				subGroup.setParent(group);
+			for (Group subgroup : subgroups) {
+				subgroup.setParent(group);
 			}
 
 			final List<Group> savedSubgroups = IteratorUtils.toList(repository.save(subgroups).iterator());
 
 			if (group.getId() > 0 && !savedSubgroups.isEmpty()) {
-				group.setChildren(savedSubgroups);
+				group.setSubgroups(savedSubgroups);
 				return Optional.of(group);
 			}
 

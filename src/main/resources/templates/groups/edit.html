@@ -34,7 +34,7 @@
                         <label for="parentGroup">Choose group</label>
                         <select th:field="*{id}" id="parentGroup" class="form-control">
                             <option value=""></option>
-                            <option th:each="g : ${groups}"
+                            <option th:each="g : ${validParents}"
                                     th:value="${g.id}"
                                     th:text="${g.name}"
                                     th:selected="${g.id == group.parent.id}"></option>
@@ -42,8 +42,8 @@
                     </div>
                 </div>
 
-                <div class="children" th:if="*{!children.isEmpty()}">
-                    <h4>Sub Groups</h4>
+                <div class="subgroups" th:if="*{!subgroups.isEmpty()}">
+                    <h4>Subgroups</h4>
 
                     <table class="table table-condensed">
                         <thead>
@@ -53,10 +53,10 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="child, stat : *{children}">
+                        <tr th:each="child, stat : *{subgroups}">
                             <td width="30px">
                                 <label th:for="${'removeGroup' + child.id}">
-                                    <input type="checkbox" th:field="${group.children[__${stat.index}__].remove}" th:id="${'removeGroup' + child.id}" value=""/>
+                                    <input type="checkbox" th:field="${group.subgroups[__${stat.index}__].remove}" th:id="${'removeGroup' + child.id}" value=""/>
                                 </label>
                             </td>
                             <td>
@@ -72,7 +72,7 @@
             <div class="col-md-2">
                 <h4>Editing</h4>
                 <button type="submit" class="btn btn-success btn-block">Update</button>
-                <a th:if="${!groups.isEmpty()}" class="btn btn-primary btn-block" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
+                <a th:if="${!validSubgroups.isEmpty()}" class="btn btn-primary btn-block" data-toggle="modal" href="#add-subgroup">Add Subgroup</a>
                 <a th:href="@{/groups/add-samples/{groupId}(groupId = *{id})}" class="btn btn-primary btn-block">Add Samples</a>
                 <a th:href="@{/groups/show/{groupId}(groupId = *{id})}" class="btn btn-default btn-block">Cancel</a>
 
@@ -95,8 +95,8 @@
                         <div th:include="samples/table :: table (*{'append-' + id}, *{'load-' + id}, *{'meta-' + id}, ${true})"></div>
                     </div>
 
-                    <div th:if="*{children != null}">
-                        <div th:each="child : *{children}">
+                    <div th:if="*{subgroups != null}">
+                        <div th:each="child : *{subgroups}">
                             <h4 class="text-muted">
                                 Samples from: <span th:text="${child.name}"></span>
                             </h4>
@@ -132,7 +132,7 @@
                     <div class="form-group">
                         <label for="subGroup">Choose group</label>
                         <select th:field="*{id}" id="subGroup" class="form-control">
-                            <option th:each="group : ${groups}"
+                            <option th:each="group : ${validSubgroups}"
                                     th:value="${group.id}"
                                     th:text="${group.name}"></option>
                         </select>

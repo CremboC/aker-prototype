@@ -54,7 +54,7 @@ public class Group extends BaseEntity implements Searchable<Long> {
 
 	@Transient
 	@JsonIgnore
-	private Collection<Group> children = new ArrayList<>();
+	private Collection<Group> subgroups = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "type_id")
@@ -87,12 +87,12 @@ public class Group extends BaseEntity implements Searchable<Long> {
 		this.parent = parent;
 	}
 
-	public Collection<Group> getChildren() {
-		return children;
+	public Collection<Group> getSubgroups() {
+		return subgroups;
 	}
 
-	public void setChildren(Collection<Group> children) {
-		this.children = children;
+	public void setSubgroups(Collection<Group> subgroups) {
+		this.subgroups = subgroups;
 	}
 
 	public Type getType() {
@@ -156,7 +156,7 @@ public class Group extends BaseEntity implements Searchable<Long> {
 				.append("name", name)
 				.append("owner", owner)
 				.append("parent", parent)
-				.append("children", children)
+				.append("subgroups", subgroups)
 				.toString();
 	}
 

@@ -126,13 +126,9 @@ public class GroupController {
 			return mav;
 		}
 
-		group.setChildren(groupRepository.findByParentId(group.getId()));
-
-		final Collection<Group> groups = groupService.otherGroups(group, user.getName());
+		group.setSubgroups(groupRepository.findByParentId(group.getId()));
 
 		model.addAttribute("group", group);
-		model.addAttribute("subgroup", new Group());
-		model.addAttribute("groups", groups);
 
 		mav.setViewName("groups/show");
 		return mav;
@@ -147,14 +143,17 @@ public class GroupController {
 			return "redirect:/";
 		}
 
-		group.setChildren(groupRepository.findByParentId(group.getId()));
+		group.setSubgroups(groupRepository.findByParentId(group.getId()));
 
-		final Collection<Group> groups = groupService.otherGroups(group, user.getName());
+		Set<Group> validSubgroups = groupService.validSubgroups(group, user.getName());
+		Set<Group> validParents = groupService.validParents(group, user.getName());
+
+		model.addAttribute("validSubgroups", validSubgroups);
+		model.addAttribute("validParents", validParents);
 
 		model.addAttribute("group", group);
 		model.addAttribute("subgroup", new Group());
 		model.addAttribute("samples", new SampleGroup());
-		model.addAttribute("groups", groups);
 
 		return "groups/edit";
 	}

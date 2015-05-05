@@ -38,7 +38,7 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 	/**
 	 * Extracts all samples from a collection of group ids
 	 *
-	 * @param ids    group ids
+	 * @param ids group ids
 	 * @return set of samples
 	 */
 	Set<Sample> samplesFromGroups(Collection<Long> ids);
@@ -48,13 +48,26 @@ public interface GroupService extends RepositoryService<GroupRepository> {
 	Page<Group> allByOwner(String owner, Pageable pageable);
 
 	/**
-	 * Gets groups which can be either a parent or a subgroup
+	 * Groups which can be assigned as a subgroup to the supplied Group.
+	 * Everything beside the current parent, the group itself and current subgroups.
 	 *
-	 * @param group the group subject
-	 * @param owner owner of groups
-	 * @return legal groups
+	 * @param group group to look at
+	 * @param owner the owner
+	 * @return potential valid subgroups
 	 */
-	Collection<Group> otherGroups(Group group, String owner);
+	Set<Group> validSubgroups(Group group, String owner);
+
+	/**
+	 * Groups which can be assigned as a parent to the supplied Group.
+	 * Essentially everything beside the current subgroups and itself.
+	 * The current parent is a valid option because a group can only have a single parent.
+	 * If the current parent is chosen, nothing will be changed.
+	 *
+	 * @param group group to look at
+	 * @param owner the owner
+	 * @return potential valid parent groups
+	 */
+	Set<Group> validParents(Group group, String owner);
 
 	Optional<Type> getGroupType(@NotNull GroupRequest groupRequest, String owner);
 }
