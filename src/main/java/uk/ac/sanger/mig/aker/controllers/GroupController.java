@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
@@ -51,10 +50,11 @@ public class GroupController {
 	@Autowired
 	private GroupService groupService;
 
+	@Autowired
+	private GroupRepository groupRepository;
+
 	@Resource(name = "groupRequestValidator")
 	private Validator groupRequestValidator;
-
-	private GroupRepository groupRepository;
 
 	@InitBinder("groupRequest")
 	protected void initGroupRequestBinder(WebDataBinder binder) {
@@ -64,11 +64,6 @@ public class GroupController {
 	@InitBinder("group")
 	protected void initGroupBinder(WebDataBinder binder) {
 		// TODO: create group validator
-	}
-
-	@PostConstruct
-	private void init() {
-		groupRepository = groupService.getRepository();
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)

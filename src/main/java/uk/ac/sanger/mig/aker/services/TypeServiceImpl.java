@@ -22,9 +22,4 @@ public class TypeServiceImpl implements TypeService {
 	public Collection<Type> findAll() {
 		return typeRepository.findAll();
 	}
-
-	@Override
-	public TypeRepository getRepository() {
-		return typeRepository;
-	}
 }

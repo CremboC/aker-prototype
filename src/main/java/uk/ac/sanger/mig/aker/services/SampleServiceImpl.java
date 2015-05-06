@@ -74,7 +74,7 @@ public class SampleServiceImpl implements SampleService {
 	}
 
 	@Override
-	public Set<Sample> findByBarcode(Collection<String> barcodes, String owner) {
+	public Set<Sample> findByBarcodes(Collection<String> barcodes, String owner) {
 		return repository.findAllByIdInAndOwner(SampleHelper.idFromBarcode(barcodes), owner);
 	}
 
@@ -87,16 +87,6 @@ public class SampleServiceImpl implements SampleService {
 		));
 
 		return repository.findAllByOwner(currentUser, pageable);
-	}
-
-	@Override
-	public Page<Sample> findByGroup(long groupId, String owner, Pageable pageable) {
-		return repository.findAllByGroupsIdAndOwner(groupId, owner, pageable);
-	}
-
-	@Override
-	public Page<Sample> findByType(Set<String> types, String owner, Pageable pageable) {
-		return repository.findAllByTypeValueInAndOwner(types, owner, pageable);
 	}
 
 	@Override
@@ -120,10 +110,5 @@ public class SampleServiceImpl implements SampleService {
 				.collect(toList());
 
 		return merged.stream().collect(toSet());
-	}
-
-	@Override
-	public SampleRepository getRepository() {
-		return repository;
 	}
 }

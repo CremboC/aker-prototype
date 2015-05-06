@@ -38,6 +38,9 @@ public class GroupServiceTest {
 	private GroupService groupService;
 
 	@Autowired
+	private GroupRepository groupRepository;
+
+	@Autowired
 	private TypeRepository typeRepository;
 
 	private Type testType;
@@ -112,7 +115,7 @@ public class GroupServiceTest {
 		group.setName("Test Search");
 		group.setType(testType);
 		group.setOwner(user);
-		groupService.getRepository().save(group);
+		groupRepository.save(group);
 
 		Collection<Searchable<?>> searchables = groupService.search("Test Search", user);
 
@@ -148,14 +151,13 @@ public class GroupServiceTest {
 
 	@Test
 	public void testValidParents() throws Exception {
-		GroupRepository repository = groupService.getRepository();
-		Group group = repository.findOne(1L);
-		Group subgroup = repository.findOne(3L);
-		Group parent = repository.findOne(4L);
+		Group group = groupRepository.findOne(1L);
+		Group subgroup = groupRepository.findOne(3L);
+		Group parent = groupRepository.findOne(4L);
 
 		Collection<Group> availableParents = new HashSet<>();
-		availableParents.add(repository.findOne(2L));
-		availableParents.add(repository.findOne(5L));
+		availableParents.add(groupRepository.findOne(2L));
+		availableParents.add(groupRepository.findOne(5L));
 		availableParents.add(parent); // current parent is also a valid parent
 
 		Set<Group> groups = groupService.validParents(group, user);
@@ -169,16 +171,15 @@ public class GroupServiceTest {
 
 	@Test
 	public void testValidSubgroups() throws Exception {
-		GroupRepository repository = groupService.getRepository();
-		Group subject = repository.findOne(1L);
-		Group subgroup = repository.findOne(3L);
-		Group parent = repository.findOne(4L);
+		Group subject = groupRepository.findOne(1L);
+		Group subgroup = groupRepository.findOne(3L);
+		Group parent = groupRepository.findOne(4L);
 
 		Collection<Group> otherGroups = new ArrayList<>();
-		otherGroups.add(repository.findOne(2L));
-		otherGroups.add(repository.findOne(5L));
-		otherGroups.add(repository.findOne(6L));
-		otherGroups.add(repository.findOne(7L));
+		otherGroups.add(groupRepository.findOne(2L));
+		otherGroups.add(groupRepository.findOne(5L));
+		otherGroups.add(groupRepository.findOne(6L));
+		otherGroups.add(groupRepository.findOne(7L));
 
 		Collection<Group> validSubgroups = groupService.validSubgroups(subject, user);
 

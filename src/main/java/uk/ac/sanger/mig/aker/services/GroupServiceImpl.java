@@ -179,11 +179,6 @@ public class GroupServiceImpl implements GroupService {
 		return Optional.ofNullable(type);
 	}
 
-	@Override
-	public GroupRepository getRepository() {
-		return repository;
-	}
-
 	/**
 	 * Handles creation of a group of samples
 	 *
@@ -192,7 +187,7 @@ public class GroupServiceImpl implements GroupService {
 	 * @return a group, if one was successfully created
 	 */
 	private Optional<Group> groupOfSamples(@NotNull GroupRequest groupRequest, String owner) {
-		final Set<Sample> allByBarcode = sampleService.findByBarcode(groupRequest.getSamples(), owner);
+		final Set<Sample> allByBarcode = sampleService.findByBarcodes(groupRequest.getSamples(), owner);
 
 		if (!allByBarcode.isEmpty()) {
 			Group group = new Group();

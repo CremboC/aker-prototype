@@ -113,7 +113,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		// query db to get all sample information
 		Collection<Sample> samples = new HashSet<>();
 		if (!barcodes.isEmpty()) {
-			samples = sampleService.findByBarcode(barcodes, currentUser);
+			samples = sampleService.findByBarcodes(barcodes, currentUser);
 		}
 
 		// get all samples from groups
@@ -199,7 +199,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
 		final Set<String> barcodes = order.getSamples().stream().map(OrderSample::getBarcode)
 				.collect(toSet());
 
-		Collection<Sample> samples = sampleService.findByBarcode(barcodes, currentUser);
+		Collection<Sample> samples = sampleService.findByBarcodes(barcodes, currentUser);
 
 		Map<String, Sample> sampleMap = samples
 				.stream()

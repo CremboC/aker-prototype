@@ -14,13 +14,12 @@ import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.GroupRequest;
-import uk.ac.sanger.mig.aker.repositories.GroupRepository;
 
 /**
  * @author pi1
  * @since February 2015
  */
-public interface GroupService extends RepositoryService<GroupRepository> {
+public interface GroupService {
 
 	/**
 	 * Create a group from a group request

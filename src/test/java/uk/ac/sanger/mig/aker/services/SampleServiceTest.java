@@ -23,6 +23,7 @@ import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
+import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.StatusRepository;
 import uk.ac.sanger.mig.aker.repositories.TypeRepository;
 
@@ -32,6 +33,9 @@ public class SampleServiceTest {
 
 	@Autowired
 	private SampleService sampleService;
+
+	@Autowired
+	private SampleRepository sampleRepository;
 
 	@Autowired
 	private TypeRepository typeRepository;
@@ -63,7 +67,7 @@ public class SampleServiceTest {
 
 		sampleService.createSamples(sampleRequest, user);
 
-		List<Sample> samples = sampleService.getRepository().findAllByOwner(user, new PageRequest(0, amount + 1)).getContent();
+		List<Sample> samples = sampleRepository.findAllByOwner(user, new PageRequest(0, amount + 1)).getContent();
 
 		long sampleTypes = samples.stream().map(Sample::getType).distinct().count();
 
@@ -81,7 +85,7 @@ public class SampleServiceTest {
 		sample.setType(testType);
 		sample.setOwner(user);
 		sample.setStatus(testStatus);
-		sample = sampleService.getRepository().save(sample);
+		sample = sampleRepository.save(sample);
 
 		mainAlias.setSample(sample);
 
