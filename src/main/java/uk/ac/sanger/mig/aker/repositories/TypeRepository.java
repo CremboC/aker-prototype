@@ -1,9 +1,6 @@
 package uk.ac.sanger.mig.aker.repositories;
 
-import java.util.Collection;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import uk.ac.sanger.mig.aker.domain.Type;
@@ -13,11 +10,6 @@ import uk.ac.sanger.mig.aker.domain.Type;
  * @since February 2015
  */
 @Repository
-public interface TypeRepository extends PagingAndSortingRepository<Type, Long> {
+public interface TypeRepository extends JpaRepository<Type, Long> {
 
-	@Override
-	Collection<Type> findAll();
-
-	@Override
-	Collection<Type> findAll(Sort sort);
 }

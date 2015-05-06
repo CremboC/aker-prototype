@@ -1,10 +1,12 @@
 package uk.ac.sanger.mig.aker.repositories;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -17,10 +19,7 @@ import uk.ac.sanger.mig.aker.domain.Sample;
  * @since February 2015
  */
 @Repository
-public interface SampleRepository extends PagingAndSortingRepository<Sample, Long> {
-
-	@Override
-	Collection<Sample> findAll(Iterable<Long> ids);
+public interface SampleRepository extends JpaRepository<Sample, Long> {
 
 	Set<Sample> findAllByIdInAndOwner(Collection<Long> id, String owner);
 
