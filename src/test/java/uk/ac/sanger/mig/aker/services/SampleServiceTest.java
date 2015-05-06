@@ -16,16 +16,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.sanger.mig.aker.Application;
-import uk.ac.sanger.mig.aker.domain.Alias;
 import uk.ac.sanger.mig.aker.domain.Sample;
 import uk.ac.sanger.mig.aker.domain.Searchable;
 import uk.ac.sanger.mig.aker.domain.Status;
 import uk.ac.sanger.mig.aker.domain.Type;
 import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
-import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.StatusRepository;
 import uk.ac.sanger.mig.aker.repositories.TypeRepository;
+import uk.ac.sanger.mig.aker.utils.SampleHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -43,9 +42,6 @@ public class SampleServiceTest {
 	@Autowired
 	private StatusRepository statusRepository;
 
-	@Autowired
-	private AliasRepository aliasRepository;
-
 	private Type testType;
 	private Status testStatus;
 	private final String user = "test-samples";
@@ -59,15 +55,21 @@ public class SampleServiceTest {
 	@Transactional
 	@Test
 	public void testCreateSamples() throws Exception {
+		String requestUser = "test-create-samples";
+
+		Type requestType = new Type();
+		requestType.setValue("Request Test");
+		requestType = typeRepository.save(requestType);
+
 		int amount = 100;
 
 		SampleRequest sampleRequest = new SampleRequest();
-		sampleRequest.setType(testType);
+		sampleRequest.setType(requestType);
 		sampleRequest.setAmount(amount);
 
-		sampleService.createSamples(sampleRequest, user);
+		sampleService.createSamples(sampleRequest, requestUser);
 
-		List<Sample> samples = sampleRepository.findAllByOwner(user, new PageRequest(0, amount + 1)).getContent();
+		List<Sample> samples = sampleRepository.findAllByOwner(requestUser, new PageRequest(0, amount + 1)).getContent();
 
 		long sampleTypes = samples.stream().map(Sample::getType).distinct().count();
 
@@ -77,21 +79,10 @@ public class SampleServiceTest {
 
 	@Transactional
 	@Test
-	public void testSearch() throws Exception {
-		String name = "Test Search Sample";
-		Alias mainAlias = new Alias(name);
+	public void testSearchByAlias() throws Exception {
+		String alias = "search sample";
 
-		Sample sample = new Sample();
-		sample.setType(testType);
-		sample.setOwner(user);
-		sample.setStatus(testStatus);
-		sample = sampleRepository.save(sample);
-
-		mainAlias.setSample(sample);
-
-		aliasRepository.save(mainAlias);
-
-		Collection<Searchable<?>> results = sampleService.search(name, user);
+		Collection<Searchable<?>> results = sampleService.search(alias, user);
 
 		assertEquals(1, results.size());
 
@@ -102,7 +93,27 @@ public class SampleServiceTest {
 		Sample foundSample = (Sample) searchable;
 
 		assertEquals(testType, foundSample.getType());
-		assertEquals(mainAlias, foundSample.getMainAlias());
+		assertTrue(foundSample.getMainAlias().getName().toLowerCase().contains(alias.toLowerCase()));
+		assertEquals(user, foundSample.getOwner());
+	}
+
+	@Transactional
+	@Test
+	public void testSearchByBarcode() throws Exception {
+		String id = "7";
+
+		Collection<Searchable<?>> results = sampleService.search(id, user);
+
+		assertEquals(1, results.size());
+
+		Searchable<?> searchable = results.stream().findFirst().get();
+
+		assertTrue(searchable instanceof Sample);
+
+		Sample foundSample = (Sample) searchable;
+
+		assertEquals(testType, foundSample.getType());
+		assertEquals(SampleHelper.barcodeFromId(Long.parseLong(id), Sample.BARCODE_SIZE), foundSample.getBarcode());
 		assertEquals(user, foundSample.getOwner());
 	}
 }
