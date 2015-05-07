@@ -34,9 +34,9 @@ import uk.ac.sanger.mig.aker.domain.requests.SampleRequest;
 import uk.ac.sanger.mig.aker.repositories.AliasRepository;
 import uk.ac.sanger.mig.aker.repositories.SampleRepository;
 import uk.ac.sanger.mig.aker.repositories.TagRepository;
+import uk.ac.sanger.mig.aker.repositories.TypeRepository;
 import uk.ac.sanger.mig.aker.services.GroupService;
 import uk.ac.sanger.mig.aker.services.SampleService;
-import uk.ac.sanger.mig.aker.services.TypeService;
 import uk.ac.sanger.mig.aker.utils.SampleHelper;
 
 /**
@@ -57,7 +57,7 @@ public class SampleController {
 	private SampleService sampleService;
 
 	@Autowired
-	private TypeService typeService;
+	private TypeRepository typeRepository;
 
 	@Autowired
 	private GroupService groupService;
@@ -78,7 +78,7 @@ public class SampleController {
 		return sampleService.findAll(p);
 	}
 
-	@RequestMapping("/show/{barcode}")
+	@RequestMapping(value = "/show/{barcode}", method = RequestMethod.GET)
 	public String show(@PathVariable("barcode") String barcode, Model model, Principal user) {
 		final Optional<Sample> sample = sampleService.findByBarcode(barcode, user.getName());
 		if (sample.isPresent()) {
@@ -94,9 +94,9 @@ public class SampleController {
 		return "samples/show";
 	}
 
-	@RequestMapping("/create")
+	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public String create(Model model) {
-		model.addAttribute("types", typeService.findAll());
+		model.addAttribute("types", typeRepository.findAll());
 		model.addAttribute("sampleRequest", new SampleRequest());
 
 		return "samples/create";
@@ -112,7 +112,7 @@ public class SampleController {
 		ModelAndView mav = new ModelAndView();
 
 		if (bindingResult.hasErrors()) {
-			mav.addObject("types", typeService.findAll());
+			mav.addObject("types", typeRepository.findAll());
 			mav.setViewName("samples/create");
 			attributes.addFlashAttribute("status", new Response(Response.Status.FAIL, "Failed to request samples"));
 
@@ -168,7 +168,7 @@ public class SampleController {
 				tagRepository.save(tag);
 			}
 
-			return "samples/show/" + sample.getBarcode();
+			return "redirect:/samples/show/" + sample.getBarcode();
 		}
 
 		return "redirect:/samples/?404" + optSample.toString();
